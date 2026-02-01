@@ -72,7 +72,6 @@ export const PortfolioApp = {
                         <div class="profile-info">
                             <div class="digital-display">
                                 <span class="profile-time">00:00:00</span>
-                                <span class="profile-date">00.00.00</span>
                             </div>
                             <h1 class="profile-name">Aleks Szotek</h1>
                             <p class="profile-title">Full-Stack Developer</p>
@@ -260,17 +259,9 @@ export const PortfolioApp = {
         this.clockInterval = setInterval(() => {
             const now = new Date();
             const timeEl = document.querySelector('.profile-time');
-            const dateEl = document.querySelector('.profile-date');
             
             if (timeEl) {
                 timeEl.textContent = now.toLocaleTimeString('en-US');
-            }
-            if (dateEl) {
-                dateEl.textContent = now.toLocaleDateString('en-US', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: '2-digit'
-                }).replace(/\//g, '.');
             }
         }, 1000);
     },

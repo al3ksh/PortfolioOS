@@ -147,7 +147,7 @@
     padding: var(--space-sm) var(--space-md);
     margin-bottom: var(--space-md);
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     font-size: var(--font-size-lg);
     border: var(--border-normal) solid var(--win-white);
     border-top-color: var(--win-shadow);
