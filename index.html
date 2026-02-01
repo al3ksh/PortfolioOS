@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio OS v1.0</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <!-- Boot Screen -->
+    <div id="bootScreen" class="boot-screen">
+        <div class="boot-text">
+            <p id="bootLine1"></p>
+            <p id="bootLine2"></p>
+            <p id="bootLine3"></p>
+            <p id="bootCursor" class="cursor">_</p>
+        </div>
+    </div>
+
+    <!-- BSOD Screen -->
+    <div id="bsodScreen" class="bsod-screen hidden">
+        <div class="bsod-content">
+            <h1>Windows</h1>
+            <p class="bsod-error">A fatal exception 0E has occurred at 0028:C0011E36 in VXD VMM(01) +</p>
+            <p class="bsod-error">00010E36. The current application will be terminated.</p>
+            <br>
+            <p>* Press any key to terminate the current application.</p>
+            <p>* Press CTRL+ALT+DEL again to restart your computer. You will</p>
+            <p>  lose any unsaved information in all applications.</p>
+            <br>
+            <p class="bsod-message">FATAL_ERROR: User_Too_Awesome</p>
+            <br>
+            <p>Press any key to continue <span class="cursor">_</span></p>
+        </div>
+    </div>
+
+    <!-- Desktop Environment -->
+    <div id="desktop" class="desktop hidden">
+        <!-- Desktop Icons Container -->
+        <div id="desktopIcons" class="desktop-icons"></div>
+
+        <!-- Windows Container -->
+        <div id="windowsContainer" class="windows-container"></div>
+
+        <!-- Minimized Tray -->
+        <div id="minimizedTray" class="minimized-tray"></div>
+
+        <!-- Screen Saver -->
+        <div id="screenSaver" class="screen-saver">
+            <canvas id="screenSaverCanvas"></canvas>
+            <div class="screen-saver-text">Move mouse or press any key</div>
+        </div>
+
+        <!-- Taskbar -->
+        <div id="taskbar" class="taskbar">
+            <button class="start-button">
+                <span class="start-icon">🪟</span>
+                <span class="start-text">Start</span>
+            </button>
+            <div class="taskbar-windows"></div>
+            <div class="taskbar-tray">
+                <button class="tray-icon" title="Sound: OFF">🔇</button>
+                <div class="taskbar-clock-wrapper" id="clockWrapper">
+                    <div class="taskbar-clock" id="clockTime">00:00</div>
+                    <div class="taskbar-date" id="clockDate">1 sty</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Start Menu -->
+        <div id="startMenu" class="start-menu">
+            <div class="start-menu-header">
+                <div class="start-menu-logo">Portfolio OS</div>
+            </div>
+            <div class="start-menu-items">
+                <div class="start-item" data-app="portfolio">
+                    <span class="menu-icon">📁</span>
+                    <span>Portfolio</span>
+                </div>
+                <div class="start-item" data-app="contact">
+                    <span class="menu-icon">📧</span>
+                    <span>Contact Me</span>
+                </div>
+                <div class="start-menu-divider"></div>
+                <div class="start-item" data-app="explorer">
+                    <span class="menu-icon">📂</span>
+                    <span>File Explorer</span>
+                </div>
+                <div class="start-item" data-app="notepad">
+                    <span class="menu-icon">📝</span>
+                    <span>Notepad</span>
+                </div>
+                <div class="start-item" data-app="paint">
+                    <span class="menu-icon">🎨</span>
+                    <span>Paint</span>
+                </div>
+                <div class="start-item" data-app="terminal">
+                    <span class="menu-icon">💻</span>
+                    <span>Terminal</span>
+                </div>
+                <div class="start-item" data-app="calc">
+                    <span class="menu-icon">🔢</span>
+                    <span>Calculator</span>
+                </div>
+                <div class="start-menu-divider"></div>
+                <div class="start-item" data-app="browser">
+                    <span class="menu-icon">🌐</span>
+                    <span>Internet Explorer</span>
+                </div>
+                <div class="start-item" data-app="simplemode">
+                    <span class="menu-icon">📄</span>
+                    <span>Simple View</span>
+                </div>
+                <div class="start-menu-divider"></div>
+                <div class="start-item" data-app="mines">
+                    <span class="menu-icon">💣</span>
+                    <span>Minesweeper</span>
+                </div>
+                <div class="start-item" data-app="tunes">
+                    <span class="menu-icon">🎵</span>
+                    <span>Tunes</span>
+                </div>
+                <div class="start-menu-divider"></div>
+                <div class="start-item" data-app="sysinfo">
+                    <span class="menu-icon">ℹ️</span>
+                    <span>System Info</span>
+                </div>
+                <div class="start-item" data-app="taskmgr">
+                    <span class="menu-icon">📊</span>
+                    <span>Task Manager</span>
+                </div>
+                <div class="start-item" data-app="control">
+                    <span class="menu-icon">⚙️</span>
+                    <span>Settings</span>
+                </div>
+                <div class="start-menu-divider"></div>
+                <div class="start-item" data-app="readme">
+                    <span class="menu-icon">❓</span>
+                    <span>Help</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Script (ES6 Module) -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

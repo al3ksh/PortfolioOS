@@ -1,0 +1,98 @@
+/* ============================================
+   BASE STYLES & RESET
+   ============================================ */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: var(--font-size-base);
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--bg-desktop);
+    min-height: 100vh;
+    line-height: 1.4;
+    overflow: hidden;
+    user-select: none;
+    
+    /* Pixel-perfect text rendering */
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+    font-smooth: never;
+    text-rendering: optimizeSpeed;
+}
+
+/* Selection */
+::selection {
+    background: var(--selection-bg);
+    color: var(--selection-text);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--win-gray);
+    border: 1px solid var(--win-dark-gray);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--win-gray);
+    border: var(--border-normal) solid var(--win-dark-gray);
+    border-top-color: var(--win-white);
+    border-left-color: var(--win-white);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--win-light-gray);
+}
+
+::-webkit-scrollbar-button {
+    background: var(--win-gray);
+    border: var(--border-normal) solid var(--win-dark-gray);
+    border-top-color: var(--win-white);
+    border-left-color: var(--win-white);
+    height: 16px;
+    width: 16px;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* Focus States */
+:focus {
+    outline: 1px dotted var(--win-black);
+    outline-offset: -2px;
+}
+
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Rainbow animation for easter eggs */
+@keyframes rainbow {
+    0% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+}

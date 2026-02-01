@@ -1,0 +1,84 @@
+/* ============================================
+   BOOT SCREEN & BSOD
+   ============================================ */
+
+/* Boot Screen */
+.boot-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000000;
+    z-index: var(--z-boot);
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 40px;
+}
+
+.boot-text {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    color: #AAAAAA;
+    line-height: 1.8;
+}
+
+.boot-text p {
+    margin: 0;
+    min-height: 1.8em;
+}
+
+.boot-text .cursor {
+    animation: blink 0.5s step-end infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+/* BSOD Screen */
+.bsod-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #0000AA;
+    z-index: var(--z-boot);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.bsod-content {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    color: #FFFFFF;
+    text-align: center;
+    max-width: 700px;
+    line-height: 1.6;
+}
+
+.bsod-content h1 {
+    background: #AAAAAA;
+    color: #0000AA;
+    padding: 4px 20px;
+    display: inline-block;
+    margin-bottom: 30px;
+    font-size: 18px;
+}
+
+.bsod-error {
+    color: #FFFFFF;
+}
+
+.bsod-message {
+    color: #FFFF00;
+    font-weight: bold;
+}
+
+.bsod-content .cursor {
+    animation: blink 0.5s step-end infinite;
+}

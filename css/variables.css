@@ -1,0 +1,603 @@
+/* ============================================
+   WIN 3.1 OS - DESIGN TOKENS
+   ============================================ */
+
+:root {
+    /* Color Palette - Strict Win 3.1 */
+    --bg-desktop: #008080;
+    --win-gray: #C0C0C0;
+    --win-white: #FFFFFF;
+    --win-dark-gray: #808080;
+    --win-black: #000000;
+    --win-blue: #000080;
+    --win-text-white: #FFFFFF;
+    
+    /* Additional accents */
+    --win-light-gray: #DFDFDF;
+    --win-shadow: #404040;
+    --win-highlight: #FFFFFF;
+    
+    /* Selection colors */
+    --selection-bg: #000080;
+    --selection-text: #FFFFFF;
+    
+    /* Typography */
+    --font-main: 'MS Sans Serif', 'Segoe UI', Tahoma, Verdana, sans-serif;
+    --font-mono: 'Fixedsys', 'Lucida Console', 'Courier New', monospace;
+    --font-size-base: 14px;
+    --font-size-sm: 12px;
+    --font-size-lg: 16px;
+    --font-size-xl: 20px;
+    
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    
+    /* Border widths */
+    --border-thin: 1px;
+    --border-normal: 2px;
+    --border-thick: 4px;
+    
+    /* Window defaults */
+    --window-min-width: 200px;
+    --window-min-height: 150px;
+    
+    /* Z-index layers */
+    --z-desktop: 1;
+    --z-icons: 10;
+    --z-windows: 100;
+    --z-dialog: 1000;
+    --z-notification: 2000;
+    --z-boot: 9999;
+}
+
+/* Theme: Hot Dog Stand */
+[data-theme="hotdog"] {
+    --bg-desktop: #FF0000;
+    --win-gray: #FFFF00;
+    --win-blue: #FF0000;
+    --win-black: #000000;
+    --win-white: #FFFF00;
+    --win-dark-gray: #800000;
+    --win-light-gray: #FFFF80;
+}
+
+/* Theme: Matrix */
+[data-theme="matrix"] {
+    --bg-desktop: #000000;
+    --win-gray: #1a1a1a;
+    --win-blue: #003300;
+    --win-black: #00FF00;
+    --win-white: #00FF00;
+    --win-dark-gray: #004400;
+    --win-light-gray: #2a2a2a;
+    --win-text-white: #00FF00;
+}
+
+[data-theme="matrix"] .window-content,
+[data-theme="matrix"] .menu-bar,
+[data-theme="matrix"] .menu-dropdown,
+[data-theme="matrix"] input,
+[data-theme="matrix"] textarea,
+[data-theme="matrix"] select {
+    color: #00FF00;
+    background-color: #0a0a0a;
+}
+
+[data-theme="matrix"] .title-bar-text,
+[data-theme="matrix"] .menu-item,
+[data-theme="matrix"] .menu-dropdown-label {
+    color: #00FF00;
+}
+
+/* Theme: Dark */
+[data-theme="dark"] {
+    --bg-desktop: #1a1a2e;
+    --win-gray: #2d2d44;
+    --win-blue: #4a4a8a;
+    --win-black: #e0e0e0;
+    --win-white: #3d3d5c;
+    --win-dark-gray: #404060;
+    --win-light-gray: #3d3d5c;
+    --win-text-white: #ffffff;
+    --selection-bg: #4a4a8a;
+    --selection-text: #ffffff;
+}
+
+[data-theme="dark"] .window {
+    background: #2d2d44;
+    border-color: #404060;
+}
+
+[data-theme="dark"] .window-content,
+[data-theme="dark"] .menu-bar,
+[data-theme="dark"] .menu-dropdown {
+    color: #e0e0e0;
+    background-color: #2d2d44;
+}
+
+[data-theme="dark"] .title-bar {
+    background: #4a4a8a;
+}
+
+[data-theme="dark"] .title-bar-text,
+[data-theme="dark"] .menu-item,
+[data-theme="dark"] .menu-dropdown-label {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .menu-dropdown-item:hover {
+    background: #4a4a8a;
+    color: #ffffff;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+    background: #1a1a2e;
+    color: #e0e0e0;
+    border-color: #404060;
+}
+
+[data-theme="dark"] .win-btn {
+    background: #3d3d5c;
+    color: #e0e0e0;
+    border-color: #5a5a7a #2a2a3e #2a2a3e #5a5a7a;
+}
+
+[data-theme="dark"] .win-btn:hover {
+    background: #4d4d6c;
+}
+
+[data-theme="dark"] .win-btn:active {
+    background: #2d2d44;
+    border-color: #2a2a3e #5a5a7a #5a5a7a #2a2a3e;
+}
+
+[data-theme="dark"] .desktop-icon-label {
+    color: #ffffff;
+    text-shadow: 1px 1px 2px #000;
+}
+
+[data-theme="dark"] .start-menu {
+    background: #2d2d44;
+    border-color: #5a5a7a #1a1a2e #1a1a2e #5a5a7a;
+}
+
+[data-theme="dark"] .start-item {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .start-item:hover {
+    background: #4a4a8a;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .start-menu-logo {
+    background: linear-gradient(180deg, #4a4a8a 0%, #2d2d44 100%);
+}
+
+[data-theme="dark"] .taskbar {
+    background: #2d2d44;
+    border-color: #5a5a7a #1a1a2e #1a1a2e #5a5a7a;
+}
+
+[data-theme="dark"] .start-button {
+    background: #3d3d5c;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .taskbar-button {
+    background: #3d3d5c;
+    color: #e0e0e0;
+    border-color: #5a5a7a #2a2a3e #2a2a3e #5a5a7a;
+}
+
+[data-theme="dark"] .taskbar-button.active {
+    background: #2d2d44;
+    border-color: #2a2a3e #5a5a7a #5a5a7a #2a2a3e;
+}
+
+[data-theme="dark"] .tray-icon {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .system-clock {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .dialog-overlay .dialog {
+    background: #2d2d44;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .dialog .title-bar {
+    background: #4a4a8a;
+}
+
+[data-theme="dark"] .inset-panel {
+    background: #1a1a2e;
+    color: #e0e0e0;
+    border-color: #1a1a2e #5a5a7a #5a5a7a #1a1a2e;
+}
+
+[data-theme="dark"] .control-section h3 {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .theme-name {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .win-checkbox {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .mines-header,
+[data-theme="dark"] .snake-header {
+    background: #4a4a8a;
+}
+
+[data-theme="dark"] .mine-cell {
+    background: #3d3d5c;
+    border-color: #5a5a7a #2a2a3e #2a2a3e #5a5a7a;
+}
+
+[data-theme="dark"] .mine-cell.revealed {
+    background: #2d2d44;
+    border-color: #404060;
+}
+
+[data-theme="dark"] .tetris-label,
+[data-theme="dark"] .tetris-stat span {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .readme-content,
+[data-theme="dark"] .notepad-textarea,
+[data-theme="dark"] .terminal-body {
+    background: #1a1a2e;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .explorer-sidebar,
+[data-theme="dark"] .explorer-content {
+    background: #1a1a2e;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .explorer-item:hover {
+    background: #3d3d5c;
+}
+
+[data-theme="dark"] .explorer-item.selected {
+    background: #4a4a8a;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .calc-display {
+    background: #1a1a2e;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .calc-btn {
+    background: #3d3d5c;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .paint-toolbar,
+[data-theme="dark"] .paint-colors,
+[data-theme="dark"] .paint-statusbar {
+    background: #2d2d44;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .paint-tool {
+    background: #3d3d5c;
+}
+
+[data-theme="dark"] .tunes-display {
+    background: #1a1a2e;
+    color: #00ff00;
+}
+
+[data-theme="dark"] .control-btn {
+    background: #3d3d5c;
+}
+
+[data-theme="dark"] .minimized-icon {
+    background: #3d3d5c;
+    color: #e0e0e0;
+    border-color: #5a5a7a #2a2a3e #2a2a3e #5a5a7a;
+}
+
+[data-theme="dark"] .sysinfo-table td,
+[data-theme="dark"] .sysinfo-table th {
+    color: #e0e0e0;
+    border-color: #404060;
+}
+
+[data-theme="dark"] .sysinfo-container {
+    background: #2d2d44;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .sysinfo-tabs {
+    background: #1a1a2e;
+    border-color: #404060;
+}
+
+[data-theme="dark"] .sysinfo-tab {
+    background: #3d3d5c;
+    color: #a0a0b0;
+    border-color: #5a5a7a;
+}
+
+[data-theme="dark"] .sysinfo-tab:hover {
+    background: #4a4a6a;
+}
+
+[data-theme="dark"] .sysinfo-tab.active {
+    background: #2d2d44;
+    color: #e0e0e0;
+    border-bottom-color: #2d2d44;
+}
+
+[data-theme="dark"] .sysinfo-section {
+    background: #1a1a2e;
+    border-color: #404060;
+}
+
+[data-theme="dark"] .sysinfo-section h3 {
+    color: #7a7aaa;
+    border-color: #404060;
+}
+
+[data-theme="dark"] .uptime-display {
+    background: #0a0a1a;
+    color: #00ff00;
+    border-color: #404060;
+}
+
+[data-theme="dark"] .perf-meter label {
+    color: #a0a0b0;
+}
+
+[data-theme="dark"] .meter-bar {
+    background: #1a1a2e;
+    border-color: #404060;
+}
+
+[data-theme="dark"] .meter-value {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .sysinfo-buttons button {
+    background: #3d3d5c;
+    color: #e0e0e0;
+    border-color: #6a6a8a #2a2a3e #2a2a3e #6a6a8a;
+}
+
+[data-theme="dark"] .sysinfo-buttons button:hover {
+    background: #4a4a6a;
+}
+
+[data-theme="dark"] .taskmgr-list {
+    background: #1a1a2e;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .taskmgr-item:hover {
+    background: #3d3d5c;
+}
+
+[data-theme="dark"] .taskmgr-item.selected {
+    background: #4a4a8a;
+    color: #ffffff;
+}
+
+/* Dark theme - Portfolio App fixes */
+[data-theme="dark"] .bento-card {
+    background: #2d2d44;
+    border-color: #5a5a7a #1a1a2e #1a1a2e #5a5a7a;
+}
+
+[data-theme="dark"] .bento-card:hover {
+    background: #3d3d5c;
+}
+
+[data-theme="dark"] .card-header {
+    border-color: #404060;
+}
+
+[data-theme="dark"] .card-title,
+[data-theme="dark"] .profile-name,
+[data-theme="dark"] .profile-title {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .bio-text p,
+[data-theme="dark"] .about-text,
+[data-theme="dark"] .exp-desc,
+[data-theme="dark"] .project-item p,
+[data-theme="dark"] .edu-item p {
+    color: #a0a0b0;
+}
+
+[data-theme="dark"] .exp-company {
+    color: #7a7aaa;
+}
+
+[data-theme="dark"] .exp-date,
+[data-theme="dark"] .edu-date,
+[data-theme="dark"] .project-tech {
+    color: #808090;
+}
+
+[data-theme="dark"] .skill-tag {
+    background: #3d3d5c;
+    color: #c0c0e0;
+    border-color: #5a5a7a;
+}
+
+[data-theme="dark"] .contact-list a {
+    color: #7a7aaa;
+}
+
+[data-theme="dark"] .exp-item,
+[data-theme="dark"] .project-item {
+    border-color: #404060;
+}
+
+[data-theme="dark"] .win-list li,
+[data-theme="dark"] .card-content {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .digital-display {
+    background: #1a1a2e;
+    color: #00ff00;
+}
+
+/* Dark theme - Contact App */
+[data-theme="dark"] .contact-container {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .contact-header h2,
+[data-theme="dark"] .contact-header p {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .contact-link {
+    background: #3d3d5c;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .contact-link:hover {
+    background: #4a4a8a;
+}
+
+/* Dark theme - Browser App */
+[data-theme="dark"] .browser-container,
+[data-theme="dark"] .browser-toolbar,
+[data-theme="dark"] .browser-bookmarks,
+[data-theme="dark"] .browser-statusbar {
+    background: #2d2d44;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .browser-home-page {
+    background: linear-gradient(180deg, #2d2d44 0%, #1a1a2e 100%);
+}
+
+[data-theme="dark"] .browser-home-page h1,
+[data-theme="dark"] .home-quicklinks h3 {
+    color: #7a7aaa;
+}
+
+[data-theme="dark"] .browser-info-box {
+    background: #3d3d5c;
+    border-color: #5a5a7a;
+    color: #a0a0b0;
+}
+
+/* Dark theme - Calculator buttons */
+[data-theme="dark"] .calc-btn {
+    background: #4a4a6a;
+    color: #e0e0e0;
+    border-color: #6a6a8a;
+}
+
+[data-theme="dark"] .calc-btn:hover {
+    background: #5a5a7a;
+}
+
+[data-theme="dark"] .calc-btn.func {
+    background: #3d3d5c;
+    color: #ff9999;
+}
+
+[data-theme="dark"] .calc-btn.op {
+    background: #ff8c00;
+    color: #000;
+}
+
+[data-theme="dark"] .calc-btn.equals {
+    background: #4040aa;
+    color: #fff;
+}
+
+[data-theme="dark"] .calc-display {
+    background: #1a1a2e;
+    color: #00ff00;
+    border-color: #5a5a7a;
+}
+
+/* Dark theme - Desktop icon labels */
+[data-theme="dark"] .desktop-icon-label {
+    color: #ffffff;
+    text-shadow: 
+        1px 1px 3px #000,
+        -1px -1px 3px #000,
+        1px -1px 3px #000,
+        -1px 1px 3px #000,
+        0 0 8px rgba(0,0,0,0.9);
+}
+
+[data-theme="dark"] .desktop-icon:hover .desktop-icon-label {
+    color: #ffffff;
+}
+
+/* Theme: Clouds */
+[data-theme="clouds"] {
+    --bg-desktop: #6B8E9F;
+}
+
+/* Theme: Windows 95 */
+[data-theme="win95"] {
+    --bg-desktop: #008080;
+    --win-gray: #C0C0C0;
+    --win-blue: #000080;
+    --win-black: #000000;
+    --win-white: #FFFFFF;
+    --win-dark-gray: #808080;
+    --win-light-gray: #DFDFDF;
+}
+
+/* Theme: Windows 98 */
+[data-theme="win98"] {
+    --bg-desktop: #3A6EA5;
+    --win-gray: #D4D0C8;
+    --win-blue: #0A246A;
+    --win-black: #000000;
+    --win-white: #FFFFFF;
+    --win-dark-gray: #808080;
+    --win-light-gray: #ECECEC;
+}
+
+/* Theme: Classic Mac */
+[data-theme="macos"] {
+    --bg-desktop: #336699;
+    --win-gray: #DDDDDD;
+    --win-blue: #0000CC;
+    --win-black: #000000;
+    --win-white: #FFFFFF;
+    --win-dark-gray: #999999;
+    --win-light-gray: #EEEEEE;
+}
+
+/* Theme: Ubuntu */
+[data-theme="ubuntu"] {
+    --bg-desktop: #2C001E;
+    --win-gray: #3C3C3C;
+    --win-blue: #E95420;
+    --win-black: #FFFFFF;
+    --win-white: #2D2D2D;
+    --win-dark-gray: #555555;
+    --win-light-gray: #444444;
+    --win-text-white: #FFFFFF;
+}

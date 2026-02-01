@@ -1,0 +1,326 @@
+/* ============================================
+   WIN 3.1 PORTFOLIO OS - MAIN STYLESHEET
+   ============================================ */
+
+@import url('variables.css');
+@import url('base.css');
+@import url('boot.css');
+@import url('desktop.css');
+@import url('window.css');
+@import url('components.css');
+@import url('apps.css');
+
+/* ============================================
+   MOBILE RESPONSIVE STYLES
+   ============================================ */
+
+/* Tablets */
+@media (max-width: 1024px) {
+    .bento-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    .bento-card[data-span="2x2"] {
+        grid-column: span 2;
+        grid-row: span 1;
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    /* Scale up the entire UI for better touch */
+    :root {
+        font-size: 18px;
+    }
+    
+    /* Desktop icons bigger and better spaced */
+    .desktop-icons {
+        grid-template-columns: repeat(2, 90px);
+        gap: 12px;
+        padding: 12px;
+    }
+    
+    .desktop-icon {
+        width: 85px;
+        padding: 8px 4px;
+    }
+    
+    .desktop-icon .icon-image {
+        width: 48px;
+        height: 48px;
+        font-size: 42px;
+    }
+    
+    .desktop-icon .icon-label {
+        font-size: 12px;
+        margin-top: 4px;
+    }
+    
+    /* Windows take full width */
+    .window {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: calc(100% - 44px) !important;
+        max-width: none !important;
+        border-radius: 0;
+    }
+    
+    .window.dragging {
+        opacity: 1;
+        box-shadow: none;
+    }
+    
+    /* Title bar bigger for touch */
+    .title-bar {
+        cursor: default;
+        height: 28px;
+        padding: 4px 8px;
+    }
+    
+    .title-bar-text {
+        font-size: 14px;
+    }
+    
+    .control-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
+    }
+    
+    /* Menu bar bigger */
+    .menu-bar {
+        padding: 4px 8px;
+    }
+    
+    .menu-item {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    .menu-dropdown-item {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+    
+    /* Window content padding */
+    .window-content-inner {
+        padding: 8px;
+        font-size: 14px;
+    }
+    
+    /* Bento grid single column */
+    .bento-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+    }
+    
+    .bento-card {
+        padding: 16px;
+    }
+    
+    .bento-card[data-span="2x2"],
+    .bento-card[data-span="2x1"],
+    .bento-card[data-span="1x2"] {
+        grid-column: span 1;
+        grid-row: span 1;
+    }
+    
+    /* Profile section stack */
+    .profile-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .profile-avatar {
+        width: 100px !important;
+        height: 100px !important;
+        font-size: 60px !important;
+    }
+    
+    .profile-name {
+        font-size: 22px;
+    }
+    
+    .profile-title {
+        font-size: 14px;
+    }
+    
+    /* Taskbar bigger */
+    .taskbar {
+        height: 44px;
+        padding: 4px 8px;
+    }
+    
+    .start-button {
+        padding: 4px 12px;
+        font-size: 14px;
+    }
+    
+    .start-button .start-text {
+        display: none;
+    }
+    
+    .taskbar-window-btn {
+        min-width: 50px;
+        max-width: 100px;
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+    
+    .taskbar-window-btn span:last-child {
+        display: none;
+    }
+    
+    .system-tray {
+        font-size: 14px;
+        gap: 8px;
+    }
+    
+    .tray-icon {
+        font-size: 16px;
+        padding: 4px;
+    }
+    
+    .clock {
+        font-size: 13px;
+        padding: 4px 8px;
+    }
+    
+    /* Start menu full width and bigger */
+    .start-menu {
+        width: calc(100% - 16px);
+        left: 8px;
+        bottom: 48px;
+        font-size: 14px;
+    }
+    
+    .start-menu-item,
+    .start-item {
+        padding: 12px 16px;
+    }
+    
+    .start-item-icon {
+        font-size: 20px;
+    }
+    
+    /* Calculator responsive */
+    .calc-container {
+        padding: 8px;
+    }
+    
+    .calc-display {
+        font-size: 28px;
+        padding: 12px;
+    }
+    
+    .calc-btn {
+        padding: 16px 12px;
+        font-size: 20px;
+    }
+    
+    /* Terminal responsive */
+    .terminal-container {
+        font-size: 14px;
+    }
+    
+    .terminal-input {
+        font-size: 14px;
+    }
+    
+    /* Minesweeper bigger cells */
+    .minesweeper-cell {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 18px !important;
+    }
+    
+    /* Buttons bigger for touch */
+    .win-btn {
+        padding: 8px 16px;
+        font-size: 14px;
+        min-height: 36px;
+    }
+    
+    /* Dialog boxes bigger */
+    .dialog-box {
+        width: 90% !important;
+        max-width: 400px;
+    }
+    
+    .dialog-content {
+        padding: 20px;
+        font-size: 15px;
+    }
+    
+    .dialog-buttons {
+        gap: 12px;
+    }
+    
+    .dialog-btn {
+        padding: 10px 24px;
+        font-size: 14px;
+    }
+}
+
+/* Very small phones */
+@media (max-width: 400px) {
+    :root {
+        font-size: 16px;
+    }
+    
+    .desktop-icons {
+        grid-template-columns: repeat(2, 80px);
+        gap: 8px;
+        padding: 8px;
+    }
+    
+    .desktop-icon {
+        width: 75px;
+    }
+    
+    .desktop-icon .icon-image {
+        width: 40px;
+        height: 40px;
+        font-size: 36px;
+    }
+    
+    .window-content-inner {
+        padding: 6px;
+    }
+    
+    .start-menu-item,
+    .start-item {
+        padding: 10px 12px;
+    }
+    
+    .calc-btn {
+        padding: 14px 10px;
+        font-size: 18px;
+    }
+    
+    .minesweeper-cell {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 16px !important;
+    }
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+    .control-btn {
+        min-width: 28px;
+        min-height: 28px;
+    }
+    
+    .menu-item {
+        padding: 8px 12px;
+    }
+    
+    .win-btn {
+        min-height: 36px;
+        padding: 8px 16px;
+    }
+}
