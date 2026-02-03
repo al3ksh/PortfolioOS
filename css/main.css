@@ -33,11 +33,18 @@
         font-size: 18px;
     }
     
+    /* Desktop needs to account for safe area */
+    .desktop {
+        height: 100vh;
+        height: 100dvh;
+    }
+    
     /* Desktop icons bigger and better spaced */
     .desktop-icons {
         grid-template-columns: repeat(2, 90px);
         gap: 12px;
         padding: 12px;
+        height: calc(100% - 48px - env(safe-area-inset-bottom, 0));
     }
     
     .desktop-icon {
@@ -62,7 +69,7 @@
         top: 0 !important;
         left: 0 !important;
         width: 100% !important;
-        height: calc(100% - 44px) !important;
+        height: calc(100% - 48px - env(safe-area-inset-bottom, 0)) !important;
         max-width: none !important;
         border-radius: 0;
     }
@@ -152,6 +159,7 @@
     .taskbar {
         height: 44px;
         padding: 4px 8px;
+        padding-bottom: max(4px, env(safe-area-inset-bottom, 0));
     }
     
     .start-button {
@@ -193,7 +201,7 @@
     .start-menu {
         width: calc(100% - 16px);
         left: 8px;
-        bottom: 48px;
+        bottom: calc(48px + env(safe-area-inset-bottom, 0));
         font-size: 14px;
     }
     

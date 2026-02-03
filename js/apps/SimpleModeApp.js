@@ -99,6 +99,9 @@ export const SimpleModeApp = {
                     <div class="simple-skills">
                         <span class="simple-skill">JavaScript</span>
                         <span class="simple-skill">TypeScript</span>
+                        <span class="simple-skill">Python</span>
+                        <span class="simple-skill">C++</span>
+                        <span class="simple-skill">C#</span>
                         <span class="simple-skill">Node.js</span>
                         <span class="simple-skill">Express</span>
                         <span class="simple-skill">Next.js</span>
@@ -109,6 +112,7 @@ export const SimpleModeApp = {
                         <span class="simple-skill">WordPress</span>
                         <span class="simple-skill">Tailwind</span>
                         <span class="simple-skill">Git</span>
+                        <span class="simple-skill">LLMs</span>
                     </div>
                 </section>
 

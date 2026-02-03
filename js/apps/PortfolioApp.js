@@ -9,8 +9,8 @@ export const PortfolioApp = {
     id: 'portfolio',
     title: 'Portfolio.exe',
     icon: Icons.portfolio,
-    width: 800,
-    height: 600,
+    width: 950,
+    height: 650,
     minWidth: 650,
     minHeight: 450,
     hasMenu: true,
@@ -141,6 +141,9 @@ export const PortfolioApp = {
                         <div class="skills-grid">
                             <span class="skill-tag">JavaScript</span>
                             <span class="skill-tag">TypeScript</span>
+                            <span class="skill-tag">Python</span>
+                            <span class="skill-tag">C++</span>
+                            <span class="skill-tag">C#</span>
                             <span class="skill-tag">Node.js</span>
                             <span class="skill-tag">Express</span>
                             <span class="skill-tag">Next.js</span>
@@ -151,8 +154,6 @@ export const PortfolioApp = {
                             <span class="skill-tag">WordPress</span>
                             <span class="skill-tag">Tailwind</span>
                             <span class="skill-tag">Git</span>
-                            <span class="skill-tag">C++</span>
-                            <span class="skill-tag">C#</span>
                             <span class="skill-tag">LLMs</span>
                         </div>
                     </div>
@@ -447,19 +448,19 @@ export const PortfolioApp = {
                 <div class="skills-grid">
                     <span class="skill-tag">JavaScript</span>
                     <span class="skill-tag">TypeScript</span>
+                    <span class="skill-tag">Python</span>
+                    <span class="skill-tag">C++</span>
+                    <span class="skill-tag">C#</span>
                     <span class="skill-tag">Node.js</span>
                     <span class="skill-tag">Express</span>
                     <span class="skill-tag">Next.js</span>
-                    <span class="skill-tag">React</span>
                     <span class="skill-tag">MongoDB</span>
-                    <span class="skill-tag">PostgreSQL</span>
                     <span class="skill-tag">MySQL</span>
+                    <span class="skill-tag">PostgreSQL</span>
                     <span class="skill-tag">PHP</span>
                     <span class="skill-tag">WordPress</span>
                     <span class="skill-tag">Tailwind</span>
                     <span class="skill-tag">Git</span>
-                    <span class="skill-tag">C++</span>
-                    <span class="skill-tag">C#</span>
                     <span class="skill-tag">LLMs</span>
                 </div>
             </section>

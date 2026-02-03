@@ -157,12 +157,13 @@ class TaskbarManager {
             btn.addEventListener('click', () => {
                 const windowEl = document.querySelector(`#window-${id}`);
                 if (windowEl) {
-                    // If minimized, restore
+                    // If minimized, use proper restore method
                     if (windowEl.classList.contains('minimized')) {
-                        windowEl.classList.remove('minimized');
+                        WindowManager.restoreWindow(id);
+                    } else {
+                        // Just bring to front
+                        WindowManager.bringToFront(id);
                     }
-                    // Bring to front
-                    WindowManager.bringToFront(id);
                 }
             });
 

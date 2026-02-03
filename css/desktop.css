@@ -8,6 +8,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     background-color: var(--bg-desktop);
     z-index: var(--z-desktop);
     overflow: hidden;
@@ -26,6 +27,7 @@
     left: 0;
     width: 100%;
     height: calc(100% - 40px);
+    height: calc(100% - 40px - env(safe-area-inset-bottom, 0));
     z-index: var(--z-icons);
     pointer-events: none;
 }
@@ -251,15 +253,17 @@
    ============================================ */
 
 .taskbar {
-    position: absolute;
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     height: 36px;
+    padding-bottom: env(safe-area-inset-bottom, 0);
     background: var(--win-gray);
     display: flex;
     align-items: center;
     padding: 2px 4px;
+    padding-bottom: max(2px, env(safe-area-inset-bottom, 0));
     gap: 4px;
     z-index: 500;
     

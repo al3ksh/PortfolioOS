@@ -56,9 +56,11 @@ class WindowManagerClass {
         if (this.windows.has(appId) && !options.allowMultiple) {
             const existingWindow = this.windows.get(appId);
             if (existingWindow.isMinimized) {
-                existingWindow.restore();
+                // Use restoreWindow to properly remove from minimized tray
+                this.restoreWindow(appId);
+            } else {
+                this.bringToFront(appId);
             }
-            this.bringToFront(appId);
             return existingWindow;
         }
 
