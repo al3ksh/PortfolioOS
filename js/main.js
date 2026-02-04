@@ -6,6 +6,7 @@
 import { WindowManager } from './managers/WindowManager.js';
 import { SoundManager } from './managers/SoundManager.js';
 import { DesktopGridManager } from './managers/DesktopGridManager.js';
+import { CookieManager } from './managers/CookieManager.js';
 import { DesktopIcon } from './components/DesktopIcon.js';
 import { Icons } from './icons.js';
 import { Apps } from './apps/index.js';
@@ -496,6 +497,18 @@ class BootSequence {
 
     async start() {
         try {
+            // Initialize cookie manager to wrap localStorage
+            CookieManager.wrapLocalStorage();
+            
+            // Check if cookie consent has been decided
+            if (!CookieManager.hasDecided()) {
+                // Show cookie consent modal and wait for decision
+                CookieManager.showConsentModal();
+                await new Promise((resolve) => {
+                    CookieManager.init(resolve);
+                });
+            }
+            
             // Check if already booted this session
             if (sessionStorage.getItem('hasBooted')) {
                 this.skipBoot();

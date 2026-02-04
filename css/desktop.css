@@ -154,51 +154,6 @@
     pointer-events: auto;
 }
 
-/* Minimized Tray */
-.minimized-tray {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    right: 120px;
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    z-index: var(--z-icons);
-}
-
-.minimized-icon {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: var(--win-gray);
-    padding: 4px 8px;
-    cursor: pointer;
-    
-    border: var(--border-normal) solid var(--win-dark-gray);
-    border-top-color: var(--win-white);
-    border-left-color: var(--win-white);
-}
-
-.minimized-icon:active {
-    border-top-color: var(--win-dark-gray);
-    border-left-color: var(--win-dark-gray);
-    border-bottom-color: var(--win-white);
-    border-right-color: var(--win-white);
-}
-
-.minimized-icon .mini-icon {
-    width: 16px;
-    height: 16px;
-}
-
-.minimized-icon .mini-title {
-    font-size: var(--font-size-sm);
-    max-width: 100px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
 /* ============================================
    MINIMIZED TRAY
    ============================================ */
@@ -228,6 +183,13 @@
 
 .minimized-icon:hover {
     background: var(--win-light-gray);
+}
+
+.minimized-icon:active {
+    border-top-color: var(--win-dark-gray);
+    border-left-color: var(--win-dark-gray);
+    border-bottom-color: var(--win-white);
+    border-right-color: var(--win-white);
 }
 
 .minimized-icon .mini-icon {
@@ -603,4 +565,48 @@
     color: #333;
     font-size: 12px;
     font-family: var(--font-mono);
+}
+
+/* ============================================
+   MOBILE RESPONSIVENESS
+   ============================================ */
+
+@media (max-width: 480px) {
+    .taskbar-window-btn {
+        min-width: 60px;
+        max-width: 100px;
+        padding: 2px 4px;
+    }
+    
+    .taskbar-window-btn span:last-child {
+        display: none;
+    }
+    
+    .start-menu {
+        width: 180px;
+        left: 0;
+    }
+    
+    .minimized-tray {
+        bottom: 36px;
+    }
+    
+    .minimized-icon .mini-title {
+        display: none;
+    }
+}
+
+@media (max-width: 360px) {
+    .taskbar-window-btn {
+        min-width: 40px;
+        max-width: 60px;
+    }
+    
+    .start-button span:last-child {
+        display: none;
+    }
+    
+    .taskbar-tray .clock {
+        font-size: 10px;
+    }
 }

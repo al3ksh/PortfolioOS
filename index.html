@@ -6,8 +6,118 @@
     <title>Aleksh - PortfolioOS</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23000080' width='100' height='100'/><rect fill='%23c0c0c0' x='10' y='10' width='80' height='70'/><rect fill='%23000080' x='15' y='15' width='70' height='15'/><text x='20' y='27' fill='white' font-size='12' font-family='Arial'>PortfolioOS</text><rect fill='white' x='20' y='35' width='60' height='40'/></svg>">
     <link rel="stylesheet" href="css/main.css">
+    
+    <!-- No-JS Fallback Styles -->
+    <noscript>
+        <style>
+            #bootScreen, #desktop, #bsodScreen { display: none !important; }
+            .noscript-fallback {
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                background: #008080;
+                font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
+                padding: 20px;
+            }
+            .noscript-window {
+                background: #c0c0c0;
+                border: 2px solid;
+                border-color: #ffffff #808080 #808080 #ffffff;
+                box-shadow: 2px 2px 0 #000;
+                max-width: 450px;
+                width: 100%;
+            }
+            .noscript-titlebar {
+                background: linear-gradient(90deg, #000080, #1084d0);
+                color: white;
+                padding: 4px 8px;
+                font-weight: bold;
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .noscript-content {
+                padding: 20px;
+                text-align: center;
+            }
+            .noscript-icon {
+                font-size: 48px;
+                margin-bottom: 15px;
+            }
+            .noscript-content h2 {
+                margin: 0 0 15px 0;
+                font-size: 16px;
+            }
+            .noscript-content p {
+                margin: 0 0 20px 0;
+                font-size: 13px;
+                color: #333;
+            }
+            .noscript-btn {
+                display: inline-block;
+                background: #c0c0c0;
+                border: 2px solid;
+                border-color: #ffffff #808080 #808080 #ffffff;
+                padding: 8px 24px;
+                font-family: inherit;
+                font-size: 14px;
+                text-decoration: none;
+                color: #000;
+                cursor: pointer;
+            }
+            .noscript-btn:hover {
+                background: #d4d4d4;
+            }
+            .noscript-btn:active {
+                border-color: #808080 #ffffff #ffffff #808080;
+            }
+        </style>
+    </noscript>
 </head>
 <body>
+    <!-- No-JS Fallback -->
+    <noscript>
+        <div class="noscript-fallback">
+            <div class="noscript-window">
+                <div class="noscript-titlebar">
+                    <span>⚠️</span>
+                    <span>JavaScript Required</span>
+                </div>
+                <div class="noscript-content">
+                    <div class="noscript-icon">🖥️</div>
+                    <h2>Portfolio OS requires JavaScript</h2>
+                    <p>This interactive portfolio experience needs JavaScript to run.<br>Please enable JavaScript in your browser settings, or view the static CV version below.</p>
+                    <a href="cv.html" class="noscript-btn">📄 View CV</a>
+                </div>
+            </div>
+        </div>
+    </noscript>
+    <!-- Cookie Consent Modal (GDPR) -->
+    <div id="cookieConsent" class="cookie-consent hidden">
+        <div class="cookie-overlay"></div>
+        <div class="cookie-window">
+            <div class="cookie-titlebar">
+                <span class="cookie-titlebar-icon">🍪</span>
+                <span class="cookie-titlebar-text">Privacy Settings</span>
+            </div>
+            <div class="cookie-content">
+                <div class="cookie-icon">🔒</div>
+                <p class="cookie-message">
+                    <strong>This website uses cookies</strong><br><br>
+                    We use localStorage to save your preferences, window positions, and session data to improve your experience.<br><br>
+                    You can decline if you prefer not to have your session saved.
+                </p>
+                <div class="cookie-buttons">
+                    <button id="cookieAccept" class="cookie-btn cookie-btn-primary">✓ Accept</button>
+                    <button id="cookieDecline" class="cookie-btn">✗ Decline</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Boot Screen -->
     <div id="bootScreen" class="boot-screen">
         <div class="boot-text">
@@ -60,10 +170,10 @@
             </button>
             <div class="taskbar-windows"></div>
             <div class="taskbar-tray">
-                <button class="tray-icon" title="Sound: OFF">🔇</button>
+                <button class="tray-icon" title="Sound: OFF" aria-label="Toggle sound">🔇</button>
                 <div class="taskbar-clock-wrapper" id="clockWrapper">
-                    <div class="taskbar-clock" id="clockTime">00:00</div>
-                    <div class="taskbar-date" id="clockDate">1 sty</div>
+                    <div class="taskbar-clock" id="clockTime" aria-label="Current time">00:00</div>
+                    <div class="taskbar-date" id="clockDate" aria-label="Current date">1 sty</div>
                 </div>
             </div>
         </div>

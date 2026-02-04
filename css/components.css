@@ -392,3 +392,105 @@
 .win-slider::-webkit-slider-thumb:active {
     cursor: grabbing;
 }
+
+/* ============================================
+   COOKIE CONSENT (GDPR)
+   ============================================ */
+
+.cookie-consent {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cookie-consent.hidden {
+    display: none;
+}
+
+.cookie-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.cookie-window {
+    position: relative;
+    background: var(--win-gray);
+    border: 2px solid;
+    border-color: var(--win-white) var(--win-shadow) var(--win-shadow) var(--win-white);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: calc(100% - 40px);
+    animation: windowOpen 0.2s ease-out;
+}
+
+.cookie-titlebar {
+    background: linear-gradient(90deg, var(--win-blue), #1084d0);
+    color: white;
+    padding: 4px 8px;
+    font-weight: bold;
+    font-size: var(--font-size-sm);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cookie-titlebar-icon {
+    font-size: 14px;
+}
+
+.cookie-content {
+    padding: 20px;
+    text-align: center;
+}
+
+.cookie-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+.cookie-message {
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.cookie-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.cookie-btn {
+    background: var(--win-gray);
+    border: 2px solid;
+    border-color: var(--win-white) var(--win-shadow) var(--win-shadow) var(--win-white);
+    padding: 8px 20px;
+    font-family: var(--font-main);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    min-width: 100px;
+}
+
+.cookie-btn:hover {
+    background: var(--win-light-gray);
+}
+
+.cookie-btn:active {
+    border-color: var(--win-shadow) var(--win-white) var(--win-white) var(--win-shadow);
+}
+
+.cookie-btn-primary {
+    border: 3px solid var(--win-black);
+    font-weight: bold;
+}
