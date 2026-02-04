@@ -1,9 +1,9 @@
 /**
- * Cookie Consent Manager - GDPR compliant storage wrapper
+ * Storage Manager - Privacy compliant storage wrapper
  */
 
-export const CookieManager = {
-    // Cookie consent status
+export const StorageManager = {
+    // Consent status
     _consentGiven: null,
     
     // Original localStorage methods
@@ -18,11 +18,10 @@ export const CookieManager = {
             return this._consentGiven;
         }
         
-        // Check if consent was previously given (this is allowed as "strictly necessary")
         const consent = this._originalGetItem ? 
-            this._originalGetItem.call(localStorage, 'ciasteczkoZgody') :
-            localStorage.getItem('ciasteczkoZgody');
-        this._consentGiven = consent === 'accepted';
+            this._originalGetItem.call(localStorage, 'storagePrefs') :
+            localStorage.getItem('storagePrefs');
+        this._consentGiven = consent === 'yes';
         return this._consentGiven;
     },
     
@@ -31,33 +30,32 @@ export const CookieManager = {
      */
     hasDecided() {
         const consent = this._originalGetItem ?
-            this._originalGetItem.call(localStorage, 'ciasteczkoZgody') :
-            localStorage.getItem('ciasteczkoZgody');
-        return consent === 'accepted' || consent === 'declined';
+            this._originalGetItem.call(localStorage, 'storagePrefs') :
+            localStorage.getItem('storagePrefs');
+        return consent === 'yes' || consent === 'no';
     },
     
     /**
-     * Accept cookies
+     * Accept storage
      */
     accept() {
         if (this._originalSetItem) {
-            this._originalSetItem.call(localStorage, 'ciasteczkoZgody', 'accepted');
+            this._originalSetItem.call(localStorage, 'storagePrefs', 'yes');
         } else {
-            localStorage.setItem('ciasteczkoZgody', 'accepted');
+            localStorage.setItem('storagePrefs', 'yes');
         }
         this._consentGiven = true;
     },
     
     /**
-     * Decline cookies
+     * Decline storage
      */
     decline() {
-        // Clear any existing data first
         this.clearNonEssentialData();
         if (this._originalSetItem) {
-            this._originalSetItem.call(localStorage, 'ciasteczkoZgody', 'declined');
+            this._originalSetItem.call(localStorage, 'storagePrefs', 'no');
         } else {
-            localStorage.setItem('ciasteczkoZgody', 'declined');
+            localStorage.setItem('storagePrefs', 'no');
         }
         this._consentGiven = false;
     },
@@ -69,8 +67,7 @@ export const CookieManager = {
         const keysToRemove = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
-            // Keep only the consent decision
-            if (key !== 'ciasteczkoZgody') {
+            if (key !== 'storagePrefs') {
                 keysToRemove.push(key);
             }
         }
@@ -81,33 +78,25 @@ export const CookieManager = {
      * Wrap localStorage to respect consent
      */
     wrapLocalStorage() {
-        // Store original methods
         this._originalSetItem = localStorage.setItem.bind(localStorage);
         this._originalGetItem = localStorage.getItem.bind(localStorage);
         
         const self = this;
         
-        // Override setItem
         localStorage.setItem = function(key, value) {
-            // Always allow saving consent decision
-            if (key === 'ciasteczkoZgody') {
+            if (key === 'storagePrefs') {
                 return self._originalSetItem(key, value);
             }
-            // Only save other data if consent given
             if (self.hasConsent()) {
                 return self._originalSetItem(key, value);
             }
-            // Silently ignore if no consent
             return undefined;
         };
         
-        // Override getItem
         localStorage.getItem = function(key) {
-            // Always allow reading consent decision
-            if (key === 'ciasteczkoZgody') {
+            if (key === 'storagePrefs') {
                 return self._originalGetItem(key);
             }
-            // Only read other data if consent given
             if (self.hasConsent()) {
                 return self._originalGetItem(key);
             }
@@ -118,8 +107,8 @@ export const CookieManager = {
     /**
      * Show the consent modal
      */
-    showConsentModal() {
-        const modal = document.getElementById('cookieConsent');
+    showModal() {
+        const modal = document.getElementById('privacyModal');
         if (modal) {
             modal.classList.remove('hidden');
         }
@@ -128,24 +117,24 @@ export const CookieManager = {
     /**
      * Hide the consent modal
      */
-    hideConsentModal() {
-        const modal = document.getElementById('cookieConsent');
+    hideModal() {
+        const modal = document.getElementById('privacyModal');
         if (modal) {
             modal.classList.add('hidden');
         }
     },
     
     /**
-     * Initialize consent modal event listeners
+     * Initialize event listeners
      */
     init(onComplete) {
-        const acceptBtn = document.getElementById('cookieAccept');
-        const declineBtn = document.getElementById('cookieDecline');
+        const acceptBtn = document.getElementById('privacyAccept');
+        const declineBtn = document.getElementById('privacyDecline');
         
         if (acceptBtn) {
             acceptBtn.addEventListener('click', () => {
                 this.accept();
-                this.hideConsentModal();
+                this.hideModal();
                 if (onComplete) onComplete(true);
             });
         }
@@ -153,11 +142,11 @@ export const CookieManager = {
         if (declineBtn) {
             declineBtn.addEventListener('click', () => {
                 this.decline();
-                this.hideConsentModal();
+                this.hideModal();
                 if (onComplete) onComplete(false);
             });
         }
     }
 };
 
-export default CookieManager;
+export default StorageManager;

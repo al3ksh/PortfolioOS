@@ -6,7 +6,7 @@
 import { WindowManager } from './managers/WindowManager.js';
 import { SoundManager } from './managers/SoundManager.js';
 import { DesktopGridManager } from './managers/DesktopGridManager.js';
-import { CookieManager } from './managers/CookieManager.js';
+import { StorageManager } from './managers/StorageManager.js';
 import { DesktopIcon } from './components/DesktopIcon.js';
 import { Icons } from './icons.js';
 import { Apps } from './apps/index.js';
@@ -497,15 +497,15 @@ class BootSequence {
 
     async start() {
         try {
-            // Initialize cookie manager to wrap localStorage
-            CookieManager.wrapLocalStorage();
+            // Initialize storage manager to wrap localStorage
+            StorageManager.wrapLocalStorage();
             
-            // Check if cookie consent has been decided
-            if (!CookieManager.hasDecided()) {
-                // Show cookie consent modal and wait for decision
-                CookieManager.showConsentModal();
+            // Check if privacy consent has been decided
+            if (!StorageManager.hasDecided()) {
+                // Show privacy modal and wait for decision
+                StorageManager.showModal();
                 await new Promise((resolve) => {
-                    CookieManager.init(resolve);
+                    StorageManager.init(resolve);
                 });
             }
             

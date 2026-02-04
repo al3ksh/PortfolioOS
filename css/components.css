@@ -394,10 +394,10 @@
 }
 
 /* ============================================
-   COOKIE CONSENT (GDPR)
+   PRIVACY SETTINGS MODAL
    ============================================ */
 
-.cookie-consent {
+.privacy-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -409,11 +409,11 @@
     justify-content: center;
 }
 
-.cookie-consent.hidden {
+.privacy-modal.hidden {
     display: none;
 }
 
-.cookie-overlay {
+.privacy-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -422,7 +422,7 @@
     background: rgba(0, 0, 0, 0.5);
 }
 
-.cookie-window {
+.privacy-window {
     position: relative;
     background: var(--win-gray);
     border: 2px solid;
@@ -433,7 +433,7 @@
     animation: windowOpen 0.2s ease-out;
 }
 
-.cookie-titlebar {
+.privacy-titlebar {
     background: linear-gradient(90deg, var(--win-blue), #1084d0);
     color: white;
     padding: 4px 8px;
@@ -444,34 +444,34 @@
     gap: 6px;
 }
 
-.cookie-titlebar-icon {
+.privacy-titlebar-icon {
     font-size: 14px;
 }
 
-.cookie-content {
+.privacy-content {
     padding: 20px;
     text-align: center;
 }
 
-.cookie-icon {
+.privacy-icon {
     font-size: 40px;
     margin-bottom: 12px;
 }
 
-.cookie-message {
+.privacy-message {
     font-size: var(--font-size-sm);
     line-height: 1.5;
     margin-bottom: 20px;
     text-align: left;
 }
 
-.cookie-buttons {
+.privacy-buttons {
     display: flex;
     gap: 10px;
     justify-content: center;
 }
 
-.cookie-btn {
+.privacy-btn {
     background: var(--win-gray);
     border: 2px solid;
     border-color: var(--win-white) var(--win-shadow) var(--win-shadow) var(--win-white);
@@ -482,15 +482,15 @@
     min-width: 100px;
 }
 
-.cookie-btn:hover {
+.privacy-btn:hover {
     background: var(--win-light-gray);
 }
 
-.cookie-btn:active {
+.privacy-btn:active {
     border-color: var(--win-shadow) var(--win-white) var(--win-white) var(--win-shadow);
 }
 
-.cookie-btn-primary {
+.privacy-btn-primary {
     border: 3px solid var(--win-black);
     font-weight: bold;
 }
