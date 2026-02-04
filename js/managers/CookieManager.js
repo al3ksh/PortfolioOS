@@ -20,8 +20,8 @@ export const CookieManager = {
         
         // Check if consent was previously given (this is allowed as "strictly necessary")
         const consent = this._originalGetItem ? 
-            this._originalGetItem.call(localStorage, 'cookieConsent') :
-            localStorage.getItem('cookieConsent');
+            this._originalGetItem.call(localStorage, 'ciasteczkoZgody') :
+            localStorage.getItem('ciasteczkoZgody');
         this._consentGiven = consent === 'accepted';
         return this._consentGiven;
     },
@@ -31,8 +31,8 @@ export const CookieManager = {
      */
     hasDecided() {
         const consent = this._originalGetItem ?
-            this._originalGetItem.call(localStorage, 'cookieConsent') :
-            localStorage.getItem('cookieConsent');
+            this._originalGetItem.call(localStorage, 'ciasteczkoZgody') :
+            localStorage.getItem('ciasteczkoZgody');
         return consent === 'accepted' || consent === 'declined';
     },
     
@@ -41,9 +41,9 @@ export const CookieManager = {
      */
     accept() {
         if (this._originalSetItem) {
-            this._originalSetItem.call(localStorage, 'cookieConsent', 'accepted');
+            this._originalSetItem.call(localStorage, 'ciasteczkoZgody', 'accepted');
         } else {
-            localStorage.setItem('cookieConsent', 'accepted');
+            localStorage.setItem('ciasteczkoZgody', 'accepted');
         }
         this._consentGiven = true;
     },
@@ -55,9 +55,9 @@ export const CookieManager = {
         // Clear any existing data first
         this.clearNonEssentialData();
         if (this._originalSetItem) {
-            this._originalSetItem.call(localStorage, 'cookieConsent', 'declined');
+            this._originalSetItem.call(localStorage, 'ciasteczkoZgody', 'declined');
         } else {
-            localStorage.setItem('cookieConsent', 'declined');
+            localStorage.setItem('ciasteczkoZgody', 'declined');
         }
         this._consentGiven = false;
     },
@@ -70,7 +70,7 @@ export const CookieManager = {
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             // Keep only the consent decision
-            if (key !== 'cookieConsent') {
+            if (key !== 'ciasteczkoZgody') {
                 keysToRemove.push(key);
             }
         }
@@ -90,7 +90,7 @@ export const CookieManager = {
         // Override setItem
         localStorage.setItem = function(key, value) {
             // Always allow saving consent decision
-            if (key === 'cookieConsent') {
+            if (key === 'ciasteczkoZgody') {
                 return self._originalSetItem(key, value);
             }
             // Only save other data if consent given
@@ -104,7 +104,7 @@ export const CookieManager = {
         // Override getItem
         localStorage.getItem = function(key) {
             // Always allow reading consent decision
-            if (key === 'cookieConsent') {
+            if (key === 'ciasteczkoZgody') {
                 return self._originalGetItem(key);
             }
             // Only read other data if consent given
