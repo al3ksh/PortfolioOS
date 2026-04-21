@@ -702,6 +702,10 @@ function startSystemClock() {
         if (dateEl) {
             dateEl.textContent = `${months[now.getMonth()]} ${now.getDate()}`;
         }
+        const calTime = document.querySelector('.calendar-popup .calendar-time');
+        if (calTime) {
+            calTime.textContent = now.toLocaleTimeString('en-GB');
+        }
     }
 
     // Calendar popup

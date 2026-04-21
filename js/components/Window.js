@@ -101,7 +101,7 @@ export class Window {
                         ${Icons.minimize}
                     </button>
                     <button class="control-btn" data-action="maximize" title="Maximize">
-                        ${Icons.maximize}}
+                        ${Icons.maximize}
                     </button>
                     <button class="control-btn" data-action="close" title="Close">
                         ${Icons.close}
