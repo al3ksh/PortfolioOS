@@ -5,6 +5,8 @@
 import { Icons } from '../icons.js';
 import { SoundManager } from '../managers/SoundManager.js';
 
+const getThemeColor = (varName) => getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || '';
+
 export const TetrisApp = {
     id: 'tetris',
     title: 'Tetris',
@@ -256,11 +258,11 @@ export const TetrisApp = {
 
     drawEmpty() {
         if (!TetrisApp.ctx) return;
-        TetrisApp.ctx.fillStyle = '#111';
+        TetrisApp.ctx.fillStyle = getThemeColor('--canvas-grid-alt') || '#111';
         TetrisApp.ctx.fillRect(0, 0, 200, 400);
         
         // Grid lines
-        TetrisApp.ctx.strokeStyle = '#222';
+        TetrisApp.ctx.strokeStyle = getThemeColor('--canvas-grid') || '#222';
         for (let x = 0; x <= TetrisApp.COLS; x++) {
             TetrisApp.ctx.beginPath();
             TetrisApp.ctx.moveTo(x * TetrisApp.BLOCK_SIZE, 0);
@@ -468,7 +470,7 @@ export const TetrisApp = {
         const size = TetrisApp.BLOCK_SIZE;
         
         // Clear
-        ctx.fillStyle = '#111';
+        ctx.fillStyle = getThemeColor('--canvas-grid-alt') || '#111';
         ctx.fillRect(0, 0, 200, 400);
         
         // Draw board
@@ -518,7 +520,7 @@ export const TetrisApp = {
         }
         
         // Draw grid
-        ctx.strokeStyle = '#222';
+        ctx.strokeStyle = getThemeColor('--canvas-grid') || '#222';
         for (let x = 0; x <= TetrisApp.COLS; x++) {
             ctx.beginPath();
             ctx.moveTo(x * size, 0);
@@ -555,7 +557,7 @@ export const TetrisApp = {
         if (!TetrisApp.nextCtx || !TetrisApp.nextPiece) return;
         const ctx = TetrisApp.nextCtx;
         
-        ctx.fillStyle = '#222';
+        ctx.fillStyle = getThemeColor('--canvas-grid-alt') || '#222';
         ctx.fillRect(0, 0, 80, 80);
         
         const shape = TetrisApp.nextPiece.shape;

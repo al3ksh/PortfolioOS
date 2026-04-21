@@ -110,7 +110,7 @@
 .desktop-context-menu {
     position: fixed;
     background: var(--win-gray);
-    border: 2px outset var(--win-gray);
+    border: 2px solid var(--win-dark-gray);
     box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
     min-width: 150px;
     z-index: 100000;
@@ -124,6 +124,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    color: var(--content-text);
 }
 
 .icon-context-menu .menu-item:hover,
@@ -377,21 +378,21 @@
     line-height: 1.1;
 }
 
-[data-theme="dark"] .taskbar-clock-wrapper {
-    background: #2d2d44;
-    border-color: #5a5a7a;
+.taskbar-clock-wrapper {
+    background: var(--win-gray);
+    border-color: var(--win-dark-gray);
 }
 
-[data-theme="dark"] .taskbar-clock-wrapper:hover {
-    background: #3d3d54;
+.taskbar-clock-wrapper:hover {
+    background: var(--win-light-gray);
 }
 
-[data-theme="dark"] .taskbar-clock {
-    color: #e0e0e0;
+.taskbar-clock {
+    color: var(--content-text);
 }
 
-[data-theme="dark"] .taskbar-date {
-    color: #a0a0b0;
+.taskbar-date {
+    color: var(--content-muted);
 }
 
 /* Calendar Popup */
@@ -438,25 +439,27 @@
     color: var(--win-blue);
 }
 
-[data-theme="dark"] .calendar-popup {
-    background: #2d2d44;
-    border-color: #5a5a7a #1a1a2e #1a1a2e #5a5a7a;
+.calendar-popup {
+    background: var(--win-gray);
+    border-color: var(--win-dark-gray);
+    border-top-color: var(--win-white);
+    border-left-color: var(--win-white);
 }
 
-[data-theme="dark"] .calendar-header {
-    border-color: #404060;
+.calendar-header {
+    border-color: var(--win-dark-gray);
 }
 
-[data-theme="dark"] .calendar-day-name {
-    color: #a0a0b0;
+.calendar-day-name {
+    color: var(--content-muted);
 }
 
-[data-theme="dark"] .calendar-full-date {
-    color: #e0e0e0;
+.calendar-full-date {
+    color: var(--content-text);
 }
 
-[data-theme="dark"] .calendar-time {
-    color: #7a7aaa;
+.calendar-time {
+    color: var(--content-subtle);
 }
 
 /* ============================================

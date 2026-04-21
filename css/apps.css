@@ -35,6 +35,7 @@
     background: var(--win-gray);
     padding: var(--space-md);
     cursor: pointer;
+    color: var(--content-text);
     
     border: var(--border-normal) solid var(--win-dark-gray);
     border-top-color: var(--win-white);
@@ -120,7 +121,7 @@
 .profile-image {
     width: 120px;
     height: 120px;
-    background: #1a1a1a;
+    background: var(--profile-dark);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -130,7 +131,7 @@
 .ascii-art {
     font-family: var(--font-mono);
     font-size: 10px;
-    color: #00ff00;
+    color: var(--ascii-color);
     white-space: pre;
     line-height: 1.1;
 }
@@ -142,7 +143,7 @@
 
 .digital-display {
     background: var(--win-black);
-    color: #00ff00;
+    color: var(--ascii-color);
     font-family: var(--font-mono);
     padding: var(--space-sm) var(--space-md);
     margin-bottom: var(--space-md);
@@ -369,8 +370,8 @@
 .mines-timer {
     font-family: var(--font-mono);
     font-size: var(--font-size-lg);
-    color: #FF0000;
-    background: #300;
+    color: var(--accent-red);
+    background: var(--accent-red);
     padding: 2px 6px;
     min-width: 45px;
     text-align: center;
@@ -445,7 +446,8 @@
 }
 
 .mine-cell.mine.revealed {
-    background: #FF0000;
+    background: var(--accent-red);
+    opacity: 0.3;
 }
 
 .mine-cell.mine.revealed::after {
@@ -455,7 +457,7 @@
 .mine-cell[data-value="1"] { color: #0000FF; }
 .mine-cell[data-value="2"] { color: #008000; }
 .mine-cell[data-value="3"] { color: #FF0000; }
-.mine-cell[data-value="4"] { color: #000080; }
+.mine-cell[data-value="4"] {     color: var(--simple-accent); }
 .mine-cell[data-value="5"] { color: #800000; }
 .mine-cell[data-value="6"] { color: #008080; }
 .mine-cell[data-value="7"] { color: #000000; }
@@ -481,7 +483,7 @@
 
 .tunes-title {
     font-family: var(--font-mono);
-    color: #00FF00;
+    color: var(--accent-green);
     font-size: var(--font-size-sm);
     margin-bottom: var(--space-sm);
 }
@@ -496,7 +498,7 @@
 
 .eq-bar {
     width: 8px;
-    background: #00FF00;
+    background: var(--accent-green);
     animation: eqBounce 0.5s ease-in-out infinite;
 }
 
@@ -627,7 +629,8 @@
     font-size: var(--font-size-sm);
     line-height: 1.8;
     padding: var(--space-md);
-    background: var(--win-white);
+    background: var(--content-bg);
+    color: var(--content-text);
     min-height: 200px;
     border: var(--border-normal) solid var(--win-white);
     border-top-color: var(--win-shadow);
@@ -687,13 +690,13 @@
    ============================================ */
 
 .terminal-container {
-    background: #000;
+    background: var(--term-bg);
     height: 100%;
     display: flex;
     flex-direction: column;
     font-family: 'Consolas', 'Courier New', monospace;
     font-size: 14px;
-    color: #C0C0C0;
+    color: var(--term-fg);
     padding: 8px;
     box-sizing: border-box;
 }
@@ -717,7 +720,7 @@
 }
 
 .terminal-prompt {
-    color: #C0C0C0;
+    color: var(--term-fg);
     white-space: nowrap;
     margin-right: 4px;
 }
@@ -726,11 +729,11 @@
     flex: 1;
     background: transparent;
     border: none;
-    color: #C0C0C0;
+    color: var(--term-fg);
     font-family: inherit;
     font-size: inherit;
     outline: none;
-    caret-color: #C0C0C0;
+    caret-color: var(--term-fg);
 }
 
 /* ============================================
@@ -758,8 +761,8 @@
     font-size: 20px;
     padding: 4px 8px;
     box-sizing: border-box;
-    background: #9EBD9E;
-    color: #000;
+    background: var(--calc-screen-bg);
+    color: var(--calc-screen-fg);
     
     border: var(--border-normal) solid var(--win-white);
     border-top-color: var(--win-shadow);
@@ -810,21 +813,21 @@
 }
 
 .calc-btn.func {
-    background: #E8E8E8;
+    background: var(--calc-btn-func);
 }
 
 .calc-btn.op {
-    background: #FFA500;
-    color: #000;
+    background: var(--calc-btn-op);
+    color: var(--calc-btn-op-text);
 }
 
 .calc-btn.equals {
-    background: #000080;
-    color: #FFF;
+    background: var(--calc-btn-equals);
+    color: var(--calc-btn-equals-text);
 }
 
 .calc-btn.equals:hover {
-    background: #0000A0;
+    background: var(--calc-btn-equals);
 }
 
 /* ============================================
@@ -1266,9 +1269,9 @@
     transition: width 0.3s;
 }
 
-.cpu-fill { background: #00FF00; }
-.mem-fill { background: #FFFF00; }
-.disk-fill { background: #00FFFF; }
+.cpu-fill { background: var(--meter-cpu); }
+.mem-fill { background: var(--meter-mem); }
+.disk-fill { background: var(--meter-disk); }
 
 .meter-value {
     width: 40px;
@@ -1731,7 +1734,7 @@
     display: flex;
     justify-content: space-between;
     padding: 4px 8px;
-    background: #000080;
+    background: var(--win-blue);
     color: white;
     font-weight: bold;
 }
@@ -1747,12 +1750,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #000;
+    background: var(--canvas-bg);
 }
 
 #snakeCanvas {
     display: block;
-    background: #001100;
+    background: var(--canvas-grid);
     touch-action: none;
 }
 
@@ -1777,7 +1780,7 @@
 
 .snake-message p {
     margin: 5px 0;
-    color: #00FF00;
+    color: var(--accent-green);
 }
 
 .snake-controls {
@@ -1808,13 +1811,13 @@
 .tetris-board-wrapper {
     position: relative;
     border: 3px inset var(--win-light-gray);
-    background: #000;
+    background: var(--canvas-bg);
     touch-action: none;
 }
 
 #tetrisCanvas {
     display: block;
-    background: #111;
+    background: var(--canvas-grid-alt);
 }
 
 .tetris-overlay {
@@ -1838,7 +1841,7 @@
 
 .tetris-message p {
     margin: 5px 0;
-    color: #00FFFF;
+    color: var(--accent-cyan);
 }
 
 .tetris-sidebar {
@@ -1848,7 +1851,7 @@
 }
 
 .tetris-next {
-    background: #222;
+    background: var(--canvas-grid-alt);
     padding: 8px;
     border: 2px inset var(--win-light-gray);
 }
@@ -1873,8 +1876,8 @@
 }
 
 .tetris-stat {
-    background: #000;
-    color: #0F0;
+    background: var(--canvas-bg);
+    color: var(--accent-green);
     padding: 8px;
     text-align: center;
     font-family: 'Courier New', monospace;
@@ -2072,7 +2075,7 @@
     align-items: center;
     padding: 20px;
     text-align: center;
-    background: linear-gradient(180deg, #E8E8E8 0%, #D0D0D0 100%);
+    background: linear-gradient(180deg, var(--browser-page-bg) 0%, #D0D0D0 100%);
     overflow: auto;
 }
 
@@ -2087,13 +2090,13 @@
 }
 
 .home-logo h1 {
-    color: #000080;
+    color: var(--browser-link);
     font-size: 24px;
     margin: 10px 0 5px;
 }
 
 .ie-version {
-    color: #666;
+    color: var(--content-muted);
     font-size: 12px;
 }
 
@@ -2115,7 +2118,7 @@
 }
 
 .home-quicklinks h3 {
-    color: #000080;
+    color: var(--browser-link);
     margin-bottom: 10px;
     font-size: 14px;
 }
@@ -2132,7 +2135,7 @@
     align-items: center;
     padding: 10px;
     text-decoration: none;
-    color: #000;
+    color: var(--content-text);
     border: 1px solid transparent;
     border-radius: 4px;
     cursor: pointer;
@@ -2151,11 +2154,11 @@
 .browser-info-box {
     margin-top: 15px;
     padding: 10px 14px;
-    background: #FFFFCC;
-    border: 1px solid #E0E000;
+    background: var(--browser-info-bg);
+    border: 1px solid var(--browser-info-border);
     border-radius: 4px;
     font-size: 11px;
-    color: #555;
+    color: var(--content-dim);
     max-width: 450px;
 }
 
@@ -2215,12 +2218,12 @@
 }
 
 .browser-error h2 {
-    color: #C00;
+    color: var(--browser-error);
     margin-bottom: 10px;
 }
 
 .error-note {
-    color: #666;
+    color: var(--content-muted);
     font-size: 12px;
     margin: 15px 0;
     max-width: 400px;
@@ -2236,7 +2239,7 @@
 }
 
 .browser-security {
-    color: #008000;
+    color: var(--accent-green);
 }
 
 /* ============================================
@@ -2264,14 +2267,14 @@
     flex: 1;
     overflow: auto;
     padding: 20px 30px;
-    background: #FFF;
+    background: var(--content-bg);
 }
 
 .simple-portfolio {
     max-width: 700px;
     margin: 0 auto;
     font-family: Georgia, 'Times New Roman', serif;
-    color: #333;
+    color: var(--simple-text);
     line-height: 1.6;
 }
 
@@ -2279,24 +2282,24 @@
     text-align: center;
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 2px solid #000080;
+    border-bottom: 2px solid var(--simple-accent);
 }
 
 .simple-header h1 {
     font-size: 28px;
     margin: 0;
-    color: #000080;
+    color: var(--browser-link);
 }
 
 .simple-subtitle {
     font-size: 18px;
-    color: #666;
+    color: var(--content-muted);
     margin: 5px 0;
 }
 
 .simple-location {
     font-size: 14px;
-    color: #888;
+    color: var(--simple-muted);
 }
 
 .simple-section {
@@ -2305,8 +2308,8 @@
 
 .simple-section h2 {
     font-size: 18px;
-    color: #000080;
-    border-bottom: 1px solid #DDD;
+    color: var(--browser-link);
+    border-bottom: 1px solid var(--simple-border);
     padding-bottom: 5px;
     margin-bottom: 15px;
 }
@@ -2314,27 +2317,27 @@
 .simple-item {
     margin-bottom: 15px;
     padding-left: 10px;
-    border-left: 3px solid #000080;
+    border-left: 3px solid var(--simple-accent);
 }
 
 .simple-item strong {
-    color: #000;
+    color: var(--content-text);
 }
 
 .simple-date {
     float: right;
-    color: #888;
+    color: var(--simple-muted);
     font-size: 13px;
 }
 
 .simple-item p {
     margin: 5px 0;
     font-size: 14px;
-    color: #555;
+    color: var(--content-dim);
 }
 
 .simple-item small {
-    color: #888;
+    color: var(--simple-muted);
     font-size: 12px;
 }
 
@@ -2345,8 +2348,8 @@
 }
 
 .simple-skill {
-    background: #000080;
-    color: #FFF;
+    background: var(--simple-skill-bg);
+    color: var(--simple-skill-text);
     padding: 4px 10px;
     font-size: 12px;
     font-family: var(--font-main);
@@ -2362,16 +2365,16 @@
 }
 
 .simple-contact a {
-    color: #000080;
+    color: var(--browser-link);
 }
 
 .simple-footer {
     margin-top: 30px;
     padding-top: 15px;
-    border-top: 1px solid #DDD;
+    border-top: 1px solid var(--simple-border);
     text-align: center;
     font-size: 12px;
-    color: #888;
+    color: var(--simple-muted);
 }
 
 @media print {
@@ -2380,6 +2383,457 @@
     }
     .simplemode-content {
         padding: 0;
+    }
+}
+
+/* ============================================
+   DARK THEME - TEXT & CONTRAST FIXES
+   Fixes for themes where --win-dark-gray is too dim for text
+   ============================================ */
+
+[data-theme="dark"],
+[data-theme="matrix"],
+[data-theme="ubuntu"] {
+
+    /* Portfolio App - Bento Grid */
+    .bento-card {
+        background: var(--win-gray);
+        border-color: var(--win-dark-gray);
+        border-top-color: var(--win-light-gray);
+        border-left-color: var(--win-light-gray);
+        color: var(--content-text);
+    }
+
+    .card-content {
+        color: var(--content-text);
+    }
+
+    .bento-card:hover {
+        background: var(--win-light-gray);
+    }
+
+    .card-header {
+        border-color: var(--win-dark-gray);
+    }
+
+    .card-title,
+    .profile-name {
+        color: var(--content-text);
+    }
+
+    .profile-title {
+        color: var(--content-muted);
+    }
+
+    .bio-text p,
+    .about-text,
+    .exp-desc,
+    .project-item p,
+    .edu-item p {
+        color: var(--content-muted);
+    }
+
+    .exp-company {
+        color: var(--browser-link);
+    }
+
+    .exp-date,
+    .edu-date,
+    .project-tech,
+    .card-count {
+        color: var(--content-dim);
+    }
+
+    .skill-tag {
+        background: #3d3d5c;
+        color: #c0c0e0;
+        border-color: var(--win-dark-gray);
+    }
+
+    .contact-list a {
+        color: var(--browser-link);
+    }
+
+    .exp-item,
+    .project-item {
+        border-color: var(--win-dark-gray);
+    }
+
+    .digital-display {
+        background: var(--content-bg);
+        color: var(--accent-green);
+    }
+
+    /* Notepad */
+    .notepad-textarea {
+        background: var(--content-bg);
+        color: var(--content-text);
+    }
+
+    /* README */
+    .readme-content {
+        background: var(--content-bg);
+        color: var(--content-text);
+    }
+
+    .readme-spoiler {
+        border-color: var(--win-dark-gray);
+        background: var(--win-gray);
+    }
+
+    .readme-spoiler summary {
+        background: var(--win-gray);
+        color: var(--content-text);
+        border-color: var(--win-dark-gray);
+    }
+
+    .readme-spoiler .spoiler-content {
+        background: var(--content-bg);
+        color: var(--content-text);
+    }
+
+    /* Terminal */
+    .terminal-container {
+        background: var(--term-bg);
+        color: var(--term-fg);
+    }
+
+    /* Calculator */
+    .calc-display {
+        background: var(--calc-screen-bg);
+        color: var(--calc-screen-fg);
+    }
+
+    /* Minesweeper */
+    .mines-header {
+        background: var(--win-blue);
+        color: white;
+    }
+
+    /* Snake */
+    .snake-header {
+        background: var(--win-blue);
+        color: white;
+    }
+
+    .snake-message p {
+        color: var(--accent-green);
+    }
+
+    /* Tetris */
+    .tetris-stat {
+        background: var(--canvas-bg);
+        color: var(--accent-green);
+    }
+
+    .tetris-label,
+    .tetris-stat span {
+        color: var(--content-muted);
+    }
+
+    .tetris-message p {
+        color: var(--accent-cyan);
+    }
+
+    /* Paint */
+    .paint-toolbar,
+    .paint-colors,
+    .paint-statusbar {
+        background: var(--win-gray);
+        color: var(--content-text);
+    }
+
+    .paint-tool {
+        background: var(--win-light-gray);
+    }
+
+    /* Tunes */
+    .tunes-display {
+        background: var(--content-bg);
+        color: var(--accent-green);
+    }
+
+    /* File Explorer */
+    .explorer-sidebar,
+    .explorer-content {
+        background: var(--content-bg);
+        color: var(--content-text);
+    }
+
+    .explorer-item:hover {
+        background: var(--win-light-gray);
+    }
+
+    .explorer-item.selected {
+        background: var(--win-blue);
+        color: white;
+    }
+
+    /* System Info */
+    .sysinfo-container {
+        background: var(--win-gray);
+        color: var(--content-text);
+    }
+
+    .sysinfo-table td,
+    .sysinfo-table th {
+        color: var(--content-text);
+        border-color: var(--win-dark-gray);
+    }
+
+    .sysinfo-tabs {
+        background: var(--content-bg);
+        border-color: var(--win-dark-gray);
+    }
+
+    .sysinfo-tab {
+        background: var(--win-light-gray);
+        color: var(--content-dim);
+        border-color: var(--win-dark-gray);
+    }
+
+    .sysinfo-tab.active {
+        background: var(--win-gray);
+        color: var(--content-text);
+    }
+
+    .sysinfo-section {
+        background: var(--content-bg);
+        border-color: var(--win-dark-gray);
+    }
+
+    .sysinfo-section h3 {
+        color: var(--content-muted);
+        border-color: var(--win-dark-gray);
+    }
+
+    .uptime-display {
+        background: var(--content-bg);
+        color: var(--accent-green);
+        border-color: var(--win-dark-gray);
+    }
+
+    .perf-meter label {
+        color: var(--content-dim);
+    }
+
+    .meter-bar {
+        background: var(--content-bg);
+        border-color: var(--win-dark-gray);
+    }
+
+    .meter-value {
+        color: var(--content-text);
+    }
+
+    .sysinfo-buttons button {
+        background: var(--win-light-gray);
+        color: var(--content-text);
+    }
+
+    /* Task Manager */
+    .taskmgr-list {
+        background: var(--content-bg);
+        color: var(--content-text);
+    }
+
+    .taskmgr-item:hover {
+        background: var(--win-light-gray);
+    }
+
+    .taskmgr-item.selected {
+        background: var(--win-blue);
+        color: white;
+    }
+
+    /* Contact App */
+    .contact-container {
+        color: var(--content-text);
+    }
+
+    .contact-link {
+        background: var(--win-light-gray);
+        color: var(--content-text);
+    }
+
+    .contact-link:hover {
+        background: var(--win-blue);
+    }
+
+    /* Browser */
+    .browser-home-page h1,
+    .home-quicklinks h3 {
+        color: var(--browser-link);
+    }
+
+    .quicklink {
+        color: var(--content-text);
+    }
+
+    .quicklink:hover {
+        border-color: var(--win-blue);
+    }
+
+    .browser-info-box {
+        background: var(--win-light-gray);
+        border-color: var(--win-dark-gray);
+        color: var(--content-dim);
+    }
+
+    /* Control Panel */
+    .control-section h3,
+    .theme-name,
+    .win-checkbox {
+        color: var(--content-text);
+    }
+
+    .inset-panel {
+        background: var(--content-bg);
+        color: var(--content-text);
+    }
+
+    /* Window controls */
+    .control-btn {
+        background: var(--win-light-gray);
+        color: var(--content-text);
+    }
+
+    /* Dialogs */
+    .dialog-overlay .dialog {
+        background: var(--win-gray);
+        color: var(--content-text);
+    }
+
+    /* Buttons */
+    .win-btn {
+        background: var(--win-light-gray);
+        color: var(--content-text);
+        border-color: var(--win-dark-gray) var(--win-white) var(--win-white) var(--win-dark-gray);
+    }
+
+    .win-btn:hover {
+        background: var(--win-gray);
+    }
+
+    .win-btn:active {
+        background: var(--win-dark-gray);
+        border-color: var(--win-white) var(--win-dark-gray) var(--win-dark-gray) var(--win-white);
+    }
+
+    /* Desktop icons */
+    .desktop-icon-label {
+        color: white;
+    }
+
+    /* Start menu */
+    .start-menu {
+        background: var(--win-gray);
+        border-color: var(--win-dark-gray) var(--win-black) var(--win-black) var(--win-dark-gray);
+    }
+
+    .start-item {
+        color: var(--content-text);
+    }
+
+    .start-item:hover {
+        background: var(--win-blue);
+        color: white;
+    }
+
+    /* Taskbar */
+    .taskbar {
+        background: var(--win-gray);
+        border-color: var(--win-dark-gray) var(--win-black) var(--win-black) var(--win-dark-gray);
+    }
+
+    .start-button {
+        background: var(--win-light-gray);
+        color: var(--content-text);
+    }
+
+    .taskbar-window-btn {
+        background: var(--win-light-gray);
+        color: var(--content-text);
+    }
+
+    .taskbar-window-btn.active {
+        background: var(--win-gray);
+    }
+
+    .tray-icon {
+        color: var(--content-text);
+    }
+
+    .system-clock {
+        color: var(--content-text);
+    }
+
+    /* Minimized tray icon */
+    .minimized-icon {
+        background: var(--win-light-gray);
+        color: var(--content-text);
+    }
+
+    /* Input fields */
+    input, textarea, select {
+        background: var(--content-bg);
+        color: var(--content-text);
+        border-color: var(--win-dark-gray);
+    }
+
+    /* Menu bar */
+    .menu-bar {
+        background: var(--win-gray);
+    }
+
+    /* Menu bar (window title bar area) */
+    .menu-bar {
+        background: var(--win-gray);
+    }
+
+    /* Context Menu */
+    .icon-context-menu,
+    .desktop-context-menu {
+        background: var(--win-gray);
+        border-color: var(--win-dark-gray);
+        border-top-color: var(--win-light-gray);
+        border-left-color: var(--win-light-gray);
+        border-bottom-color: var(--win-dark-gray);
+        border-right-color: var(--win-dark-gray);
+    }
+
+    .icon-context-menu .menu-item,
+    .desktop-context-menu .menu-item {
+        color: var(--content-text);
+    }
+
+    .menu-dropdown {
+        background: var(--win-gray);
+    }
+
+    .menu-dropdown-item:hover {
+        background: var(--win-blue);
+        color: white;
+    }
+
+    .menu-dropdown-label {
+        color: var(--content-text);
+    }
+}
+
+/* Matrix-specific extra tweaks */
+[data-theme="matrix"] {
+    .skill-tag {
+        background: #003300;
+        color: #00FF00;
+    }
+
+    .contact-list a {
+        color: #00FF00;
+    }
+
+    .exp-company {
+        color: #00DDAA;
     }
 }
 

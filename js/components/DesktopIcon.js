@@ -197,12 +197,8 @@ export class DesktopIcon {
             position: fixed;
             left: ${x}px;
             top: ${y}px;
-            background: var(--win-gray);
-            border: 2px outset var(--win-light-gray);
             padding: 2px;
             z-index: 10000;
-            min-width: 120px;
-            font-size: 12px;
         `;
 
         const items = [
@@ -218,11 +214,8 @@ export class DesktopIcon {
                 menu.appendChild(sep);
             } else {
                 const menuItem = document.createElement('div');
+                menuItem.className = 'menu-item';
                 menuItem.textContent = item.label;
-                menuItem.style.cssText = `
-                    padding: 6px 12px;
-                    cursor: pointer;
-                `;
                 menuItem.addEventListener('mouseenter', () => {
                     menuItem.style.background = 'var(--win-blue)';
                     menuItem.style.color = 'var(--win-text-white)';

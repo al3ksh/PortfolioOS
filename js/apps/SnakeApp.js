@@ -5,6 +5,8 @@
 import { Icons } from '../icons.js';
 import { SoundManager } from '../managers/SoundManager.js';
 
+const getThemeColor = (varName) => getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || '';
+
 export const SnakeApp = {
     id: 'snake',
     title: 'Snake',
@@ -225,11 +227,11 @@ export const SnakeApp = {
         const size = SnakeApp.gridSize;
         const canvasSize = SnakeApp.tileCount * size;
         
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = getThemeColor('--canvas-bg') || '#000';
         ctx.fillRect(0, 0, canvasSize, canvasSize);
         
         // Draw grid
-        ctx.strokeStyle = '#111';
+        ctx.strokeStyle = getThemeColor('--canvas-grid') || '#111';
         for (let i = 0; i <= SnakeApp.tileCount; i++) {
             ctx.beginPath();
             ctx.moveTo(i * size, 0);
@@ -349,11 +351,11 @@ export const SnakeApp = {
         const canvasSize = SnakeApp.tileCount * size;
         
         // Clear
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = getThemeColor('--canvas-bg') || '#000';
         ctx.fillRect(0, 0, canvasSize, canvasSize);
         
         // Draw grid
-        ctx.strokeStyle = '#111';
+        ctx.strokeStyle = getThemeColor('--canvas-grid') || '#111';
         for (let i = 0; i <= SnakeApp.tileCount; i++) {
             ctx.beginPath();
             ctx.moveTo(i * size, 0);
@@ -381,7 +383,7 @@ export const SnakeApp = {
         SnakeApp.snake.forEach((seg, i) => {
             // Gradient from head to tail
             const green = Math.floor(255 - (i / SnakeApp.snake.length) * 100);
-            ctx.fillStyle = i === 0 ? '#00FF00' : `rgb(0, ${green}, 0)`;
+                ctx.fillStyle = i === 0 ? (getThemeColor('--accent-green') || '#00FF00') : `rgb(0, ${green}, 0)`;
             
             ctx.fillRect(
                 seg.x * size + 1,

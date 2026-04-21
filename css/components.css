@@ -114,7 +114,7 @@
 
 .inset-panel.dark {
     background: var(--win-black);
-    color: #00FF00;
+    color: var(--accent-green);
 }
 
 /* Progress Bar */
@@ -173,6 +173,7 @@
     min-width: 300px;
     max-width: 90vw;
     animation: dialogAppear 0.15s ease-out;
+    color: var(--content-text);
 }
 
 @keyframes dialogAppear {
@@ -434,7 +435,7 @@
 }
 
 .privacy-titlebar {
-    background: linear-gradient(90deg, var(--win-blue), #1084d0);
+    background: linear-gradient(90deg, var(--win-blue), var(--win-blue));
     color: white;
     padding: 4px 8px;
     font-weight: bold;

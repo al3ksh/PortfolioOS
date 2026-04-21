@@ -358,7 +358,7 @@ export class Window {
                 <h3>${this.title}</h3>
                 <p>Portfolio OS v1.0</p>
                 <p>© 2024 All Rights Reserved</p>
-                <p style="margin-top: 10px; font-size: 11px; color: #666;">
+                <p style="margin-top: 10px; font-size: 11px; color: var(--content-muted);">
                     Windows 3.1 Style Portfolio
                 </p>
                 <button class="about-ok-btn">OK</button>

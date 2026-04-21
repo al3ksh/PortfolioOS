@@ -209,6 +209,7 @@
     cursor: pointer;
     padding: 2px 8px;
     display: block;
+    color: var(--content-text);
 }
 
 .menu-item:hover,
@@ -246,6 +247,7 @@
     cursor: pointer;
     font-size: var(--font-size-sm);
     white-space: nowrap;
+    color: var(--content-text);
 }
 
 .menu-dropdown-item:hover {
@@ -301,6 +303,7 @@
     text-align: center;
     max-width: 300px;
     box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+    color: var(--content-text);
 }
 
 .about-dialog-content .about-icon {
