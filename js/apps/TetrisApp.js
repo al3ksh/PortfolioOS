@@ -10,7 +10,7 @@ export const TetrisApp = {
     title: 'Tetris',
     icon: Icons.tetris,
     width: 360,
-    height: 520,
+    height: 580,
     hasMenu: true,
     menuItems: ['Game', 'Help'],
     resizable: false,
@@ -77,6 +77,9 @@ export const TetrisApp = {
                         '• ↑ or W to rotate\n' +
                         '• ↓ to soft drop\n' +
                         '• SPACE for hard drop\n' +
+                        '• Swipe on board (mobile):\n' +
+                        '   ←→ move, ↑ rotate, ↓ soft drop,\n' +
+                        '   fast ↓ swipe = hard drop\n' +
                         '• P to pause\n\n' +
                         'Clear lines to score!',
                         'How to Play'
@@ -95,7 +98,7 @@ export const TetrisApp = {
                         <div class="tetris-overlay" id="tetrisOverlay">
                             <div class="tetris-message">
                                 <h3>TETRIS</h3>
-                                <p>Press SPACE or tap to start</p>
+                                <p>Press SPACE, tap or swipe to start</p>
                             </div>
                         </div>
                     </div>
@@ -123,19 +126,6 @@ export const TetrisApp = {
                 <div class="tetris-controls">
                     <button class="win-btn" id="tetrisNewGame">New</button>
                     <button class="win-btn" id="tetrisPause">Pause</button>
-                </div>
-                <div class="mobile-controls" id="tetrisMobileControls">
-                    <div class="mobile-controls-row">
-                        <button class="mobile-btn" data-action="rotate">&#8635;</button>
-                    </div>
-                    <div class="mobile-controls-row">
-                        <button class="mobile-btn" data-action="left">&#9664;</button>
-                        <button class="mobile-btn" data-action="down">&#9660;</button>
-                        <button class="mobile-btn" data-action="right">&#9654;</button>
-                    </div>
-                    <div class="mobile-controls-row">
-                        <button class="mobile-btn wide" data-action="drop">DROP</button>
-                    </div>
                 </div>
             </div>
         `;
@@ -202,20 +192,9 @@ export const TetrisApp = {
         
         document.addEventListener('keydown', TetrisApp.keyHandler);
         
-        // Mobile touch controls
-        container.querySelectorAll('.mobile-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (TetrisApp.isPaused || TetrisApp.gameOver || !TetrisApp.currentPiece) return;
-                
-                const action = btn.dataset.action;
-                if (action === 'left') TetrisApp.movePiece(-1, 0);
-                if (action === 'right') TetrisApp.movePiece(1, 0);
-                if (action === 'down') TetrisApp.movePiece(0, 1);
-                if (action === 'rotate') TetrisApp.rotatePiece();
-                if (action === 'drop') TetrisApp.hardDrop();
-            });
-        });
+        // Swipe gestures on board
+        const boardWrapper = container.querySelector('.tetris-board-wrapper');
+        TetrisApp.initSwipeGestures(boardWrapper || TetrisApp.canvas);
         
         TetrisApp.drawEmpty();
     },
@@ -224,6 +203,55 @@ export const TetrisApp = {
         clearInterval(TetrisApp.gameLoop);
         TetrisApp.gameLoop = null;
         document.removeEventListener('keydown', TetrisApp.keyHandler);
+    },
+
+    initSwipeGestures(element) {
+        if (!element) return;
+        
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+        const MIN_SWIPE = 25;
+        const MAX_TIME = 300;
+        const HARD_DROP_THRESHOLD = 80;
+        
+        element.addEventListener('touchstart', (e) => {
+            if (TetrisApp.isPaused || TetrisApp.gameOver || !TetrisApp.currentPiece) return;
+            const t = e.touches[0];
+            touchStartX = t.clientX;
+            touchStartY = t.clientY;
+            touchStartTime = Date.now();
+        }, { passive: true });
+        
+        element.addEventListener('touchend', (e) => {
+            if (TetrisApp.isPaused || TetrisApp.gameOver || !TetrisApp.currentPiece) return;
+            const t = e.changedTouches[0];
+            const dx = t.clientX - touchStartX;
+            const dy = t.clientY - touchStartY;
+            const dt = Date.now() - touchStartTime;
+            
+            if (dt > MAX_TIME) return;
+            
+            const absDx = Math.abs(dx);
+            const absDy = Math.abs(dy);
+            
+            if (Math.max(absDx, absDy) < MIN_SWIPE) return;
+            
+            if (absDx > absDy) {
+                if (dx > 0) TetrisApp.movePiece(1, 0);
+                else TetrisApp.movePiece(-1, 0);
+            } else {
+                if (dy < 0) {
+                    TetrisApp.rotatePiece();
+                } else {
+                    if (dy > HARD_DROP_THRESHOLD && dt < 200) {
+                        TetrisApp.hardDrop();
+                    } else {
+                        TetrisApp.movePiece(0, 1);
+                    }
+                }
+            }
+        }, { passive: true });
     },
 
     drawEmpty() {
@@ -330,6 +358,15 @@ export const TetrisApp = {
             }
         }
         return false;
+    },
+
+    getGhostY() {
+        if (!TetrisApp.currentPiece) return 0;
+        let ghostY = TetrisApp.currentPiece.y;
+        while (!TetrisApp.collision(0, ghostY - TetrisApp.currentPiece.y + 1)) {
+            ghostY++;
+        }
+        return ghostY;
     },
 
     movePiece(dx, dy) {
@@ -443,6 +480,26 @@ export const TetrisApp = {
             }
         }
         
+        // Draw ghost piece
+        if (TetrisApp.currentPiece) {
+            const ghostY = TetrisApp.getGhostY();
+            const shape = TetrisApp.currentPiece.shape;
+            ctx.globalAlpha = 0.25;
+            for (let y = 0; y < shape.length; y++) {
+                for (let x = 0; x < shape[y].length; x++) {
+                    if (shape[y][x]) {
+                        TetrisApp.drawBlock(
+                            ctx,
+                            TetrisApp.currentPiece.x + x,
+                            ghostY + y,
+                            TetrisApp.currentPiece.color
+                        );
+                    }
+                }
+            }
+            ctx.globalAlpha = 1;
+        }
+
         // Draw current piece
         if (TetrisApp.currentPiece) {
             const shape = TetrisApp.currentPiece.shape;

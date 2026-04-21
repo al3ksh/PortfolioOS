@@ -1753,6 +1753,7 @@
 #snakeCanvas {
     display: block;
     background: #001100;
+    touch-action: none;
 }
 
 .snake-overlay {
@@ -1785,60 +1786,6 @@
     justify-content: center;
 }
 
-/* Mobile game controls */
-.mobile-controls {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 8px;
-    background: var(--win-gray);
-    border-top: 1px solid var(--win-dark-gray);
-}
-
-.mobile-controls-row {
-    display: flex;
-    gap: 4px;
-}
-
-.mobile-btn {
-    width: 50px;
-    height: 50px;
-    font-size: 20px;
-    font-weight: bold;
-    cursor: pointer;
-    background: var(--win-gray);
-    color: var(--win-black);
-    border: var(--border-normal) solid var(--win-dark-gray);
-    border-top-color: var(--win-white);
-    border-left-color: var(--win-white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.mobile-btn:active {
-    border-top-color: var(--win-dark-gray);
-    border-left-color: var(--win-dark-gray);
-    border-bottom-color: var(--win-white);
-    border-right-color: var(--win-white);
-    background: var(--win-dark-gray);
-}
-
-.mobile-btn.wide {
-    width: 110px;
-    font-size: 14px;
-}
-
-/* Show mobile controls on touch devices */
-@media (pointer: coarse), (max-width: 768px) {
-    .mobile-controls {
-        display: flex;
-    }
-}
-
 /* ============================================
    TETRIS GAME STYLES
    ============================================ */
@@ -1862,6 +1809,7 @@
     position: relative;
     border: 3px inset var(--win-light-gray);
     background: #000;
+    touch-action: none;
 }
 
 #tetrisCanvas {

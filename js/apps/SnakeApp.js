@@ -56,9 +56,10 @@ export const SnakeApp = {
                 import('../managers/DialogManager.js').then(({ DialogManager }) => {
                     DialogManager.alert(
                         'How to Play Snake:\n\n' +
-                        '• Use Arrow Keys or WASD to move\n' +
+                        '• Arrow Keys / WASD to move\n' +
+                        '• Swipe on canvas to turn (mobile)\n' +
                         '• Eat the red food to grow\n' +
-                        '• Don\'t hit the walls or yourself!\n' +
+                        "• Don't hit the walls or yourself!\n" +
                         '• Press P to pause\n' +
                         '• Press F2 for new game',
                         'How to Play'
@@ -88,23 +89,13 @@ export const SnakeApp = {
                     <div class="snake-overlay" id="snakeOverlay">
                         <div class="snake-message">
                             <h3>SNAKE</h3>
-                            <p>Press SPACE or tap to start</p>
+                            <p>Press SPACE, tap or swipe to start</p>
                         </div>
                     </div>
                 </div>
                 <div class="snake-controls">
                     <button class="win-btn" id="snakeNewGame">New Game</button>
                     <button class="win-btn" id="snakePause">Pause</button>
-                </div>
-                <div class="mobile-controls" id="snakeMobileControls">
-                    <div class="mobile-controls-row">
-                        <button class="mobile-btn" data-dir="up">&#9650;</button>
-                    </div>
-                    <div class="mobile-controls-row">
-                        <button class="mobile-btn" data-dir="left">&#9664;</button>
-                        <button class="mobile-btn" data-dir="down">&#9660;</button>
-                        <button class="mobile-btn" data-dir="right">&#9654;</button>
-                    </div>
                 </div>
             </div>
         `;
@@ -174,19 +165,8 @@ export const SnakeApp = {
         
         document.addEventListener('keydown', SnakeApp.keyHandler);
         
-        // Mobile touch controls
-        container.querySelectorAll('.mobile-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (SnakeApp.isPaused || SnakeApp.gameOver) return;
-                
-                const dir = btn.dataset.dir;
-                if (dir === 'up' && SnakeApp.direction !== 'down') SnakeApp.nextDirection = 'up';
-                if (dir === 'down' && SnakeApp.direction !== 'up') SnakeApp.nextDirection = 'down';
-                if (dir === 'left' && SnakeApp.direction !== 'right') SnakeApp.nextDirection = 'left';
-                if (dir === 'right' && SnakeApp.direction !== 'left') SnakeApp.nextDirection = 'right';
-            });
-        });
+        // Swipe gestures on canvas
+        SnakeApp.initSwipeGestures(SnakeApp.canvas);
         
         // Draw initial state
         SnakeApp.drawInitial();
@@ -196,6 +176,47 @@ export const SnakeApp = {
         clearInterval(SnakeApp.gameLoop);
         SnakeApp.gameLoop = null;
         document.removeEventListener('keydown', SnakeApp.keyHandler);
+    },
+
+    initSwipeGestures(canvas) {
+        if (!canvas) return;
+        
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+        const MIN_SWIPE = 30;
+        const MAX_TIME = 300;
+        
+        canvas.addEventListener('touchstart', (e) => {
+            if (SnakeApp.isPaused || SnakeApp.gameOver) return;
+            const t = e.touches[0];
+            touchStartX = t.clientX;
+            touchStartY = t.clientY;
+            touchStartTime = Date.now();
+        }, { passive: true });
+        
+        canvas.addEventListener('touchend', (e) => {
+            if (SnakeApp.isPaused || SnakeApp.gameOver) return;
+            const t = e.changedTouches[0];
+            const dx = t.clientX - touchStartX;
+            const dy = t.clientY - touchStartY;
+            const dt = Date.now() - touchStartTime;
+            
+            if (dt > MAX_TIME) return;
+            
+            const absDx = Math.abs(dx);
+            const absDy = Math.abs(dy);
+            
+            if (Math.max(absDx, absDy) < MIN_SWIPE) return;
+            
+            if (absDx > absDy) {
+                if (dx > 0 && SnakeApp.direction !== 'left') SnakeApp.nextDirection = 'right';
+                else if (dx < 0 && SnakeApp.direction !== 'right') SnakeApp.nextDirection = 'left';
+            } else {
+                if (dy > 0 && SnakeApp.direction !== 'up') SnakeApp.nextDirection = 'down';
+                else if (dy < 0 && SnakeApp.direction !== 'down') SnakeApp.nextDirection = 'up';
+            }
+        }, { passive: true });
     },
 
     drawInitial() {

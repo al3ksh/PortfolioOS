@@ -346,7 +346,8 @@
 
 /* Disable scrolling for full-height apps */
 .window-content:has(.browser-container),
-.window-content:has(.simplemode-container) {
+.window-content:has(.simplemode-container),
+.window-content:has(.tetris-container) {
     overflow: hidden;
 }
 
