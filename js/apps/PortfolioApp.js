@@ -167,24 +167,24 @@ export const PortfolioApp = {
                     </div>
                     <div class="card-content projects-content">
                         <div class="project-item">
-                            <strong>Czytaj24</strong>
-                            <span class="project-tech">Node.js, Express, MongoDB</span>
-                            <p>E-commerce bookstore with shopping cart and order management.</p>
+                            <strong><a href="https://github.com/al3ksh/BreadMusic" target="_blank">BreadMusic</a></strong>
+                            <span class="project-tech">JavaScript</span>
+                            <p>Discord music bot packed with features.</p>
                         </div>
                         <div class="project-item">
-                            <strong>BreadMusic</strong>
-                            <span class="project-tech">JavaScript, Discord.js</span>
-                            <p>Discord music bot with queue management.</p>
-                        </div>
-                        <div class="project-item">
-                            <strong>Shapey Tower</strong>
+                            <strong><a href="https://github.com/al3ksh/Shapey-Tower" target="_blank">Shapey-Tower</a></strong>
                             <span class="project-tech">C++</span>
-                            <p>Vertical arcade platformer with procedural generation.</p>
+                            <p>A tiny vertical arcade platformer.</p>
                         </div>
                         <div class="project-item">
-                            <strong>Portfolio OS</strong>
-                            <span class="project-tech">JavaScript, CSS, HTML</span>
+                            <strong><a href="https://github.com/al3ksh/PortfolioOS" target="_blank">PortfolioOS</a></strong>
+                            <span class="project-tech">JavaScript</span>
                             <p>Interactive Windows 3.1 style portfolio.</p>
+                        </div>
+                        <div class="project-item">
+                            <strong><a href="https://github.com/al3ksh/Tools" target="_blank">Tools</a></strong>
+                            <span class="project-tech">JavaScript</span>
+                            <p>Various utility scripts and tools.</p>
                         </div>
                     </div>
                 </div>
@@ -468,20 +468,20 @@ export const PortfolioApp = {
             <section>
                 <h2>Projects</h2>
                 <div class="project-item">
-                    <strong>Czytaj24</strong><span class="project-tech">Node.js, Express, MongoDB</span>
-                    <p class="project-desc">E-commerce bookstore with cart, user accounts, order management.</p>
+                    <strong><a href="https://github.com/al3ksh/BreadMusic" target="_blank">BreadMusic</a></strong><span class="project-tech">JavaScript</span>
+                    <p class="project-desc">Discord music bot packed with features.</p>
                 </div>
                 <div class="project-item">
-                    <strong>BreadMusic</strong><span class="project-tech">JavaScript, Discord.js</span>
-                    <p class="project-desc">Discord music bot with queue management and playback controls.</p>
+                    <strong><a href="https://github.com/al3ksh/Shapey-Tower" target="_blank">Shapey Tower</a></strong><span class="project-tech">C++</span>
+                    <p class="project-desc">A tiny vertical arcade platformer.</p>
                 </div>
                 <div class="project-item">
-                    <strong>Shapey Tower</strong><span class="project-tech">C++</span>
-                    <p class="project-desc">Vertical arcade platformer with procedural level generation.</p>
-                </div>
-                <div class="project-item">
-                    <strong>Portfolio OS</strong><span class="project-tech">JavaScript, CSS, HTML</span>
+                    <strong><a href="https://github.com/al3ksh/PortfolioOS" target="_blank">Portfolio OS</a></strong><span class="project-tech">JavaScript, CSS, HTML</span>
                     <p class="project-desc">Interactive Windows 3.1 style portfolio with apps and games.</p>
+                </div>
+                <div class="project-item">
+                    <strong><a href="https://github.com/al3ksh/Tools" target="_blank">Tools</a></strong><span class="project-tech">JavaScript</span>
+                    <p class="project-desc">Various utility scripts and tools.</p>
                 </div>
             </section>
         </div>

@@ -119,24 +119,24 @@ export const SimpleModeApp = {
                 <section class="simple-section">
                     <h2>${Icons.smFolder} Projects</h2>
                     <div class="simple-item">
-                        <strong>Czytaj24</strong>
-                        <p>E-commerce bookstore with full shopping cart, user accounts and order management.</p>
-                        <small>Node.js, Express, MongoDB, EJS</small>
+                        <strong><a href="https://github.com/al3ksh/BreadMusic" target="_blank">BreadMusic</a></strong>
+                        <p>Discord music bot packed with features.</p>
+                        <small>JavaScript</small>
                     </div>
                     <div class="simple-item">
-                        <strong>BreadMusic</strong>
-                        <p>Discord music bot with queue management, created with AI assistance.</p>
-                        <small>JavaScript, Discord.js</small>
-                    </div>
-                    <div class="simple-item">
-                        <strong>Shapey Tower</strong>
-                        <p>Vertical arcade platformer game with procedural generation.</p>
+                        <strong><a href="https://github.com/al3ksh/Shapey-Tower" target="_blank">Shapey-Tower</a></strong>
+                        <p>A tiny vertical arcade platformer.</p>
                         <small>C++</small>
                     </div>
                     <div class="simple-item">
-                        <strong>Portfolio OS</strong>
-                        <p>Interactive Windows 3.1 style portfolio with working apps and games.</p>
+                        <strong><a href="https://github.com/al3ksh/PortfolioOS" target="_blank">PortfolioOS</a></strong>
+                        <p>Interactive Windows 3.1 style portfolio.</p>
                         <small>JavaScript, CSS, HTML</small>
+                    </div>
+                    <div class="simple-item">
+                        <strong><a href="https://github.com/al3ksh/Tools" target="_blank">Tools</a></strong>
+                        <p>Various utility scripts and tools.</p>
+                        <small>JavaScript</small>
                     </div>
                 </section>
 

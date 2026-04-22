@@ -299,6 +299,15 @@
     border-bottom: 1px dotted var(--win-dark-gray);
 }
 
+.project-item a {
+    color: var(--win-black);
+    text-decoration: none;
+}
+
+.project-item a:hover {
+    text-decoration: underline;
+}
+
 .project-item:last-child {
     border-bottom: none;
     padding-bottom: 0;
