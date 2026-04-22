@@ -3,6 +3,7 @@
  */
 
 import { SoundManager } from './SoundManager.js';
+import { Icons } from '../icons.js';
 
 class DesktopGridManagerClass {
     constructor() {
@@ -356,15 +357,15 @@ class DesktopGridManagerClass {
         `;
 
         const items = [
-            { label: '🔄 Refresh', action: () => location.reload() },
+            { label: 'Refresh', icon: Icons.ctxRefresh, action: () => location.reload() },
             { type: 'separator' },
-            { label: '📐 Auto Arrange', action: () => this.autoArrange() },
-            { label: '🔤 Sort by Name', action: () => this.sortByName() },
+            { label: 'Auto Arrange', icon: Icons.ctxArrange, action: () => this.autoArrange() },
+            { label: 'Sort by Name', icon: Icons.ctxSort, action: () => this.sortByName() },
             { type: 'separator' },
-            { label: '⚙️ Settings', action: () => {
+            { label: 'Settings', icon: Icons.smSettings, action: () => {
                 import('../managers/WindowManager.js').then(m => m.WindowManager.createWindow('control'));
             }},
-            { label: 'ℹ️ System Info', action: () => {
+            { label: 'System Info', icon: Icons.smInfo, action: () => {
                 import('../managers/WindowManager.js').then(m => m.WindowManager.createWindow('sysinfo'));
             }}
         ];
@@ -377,7 +378,7 @@ class DesktopGridManagerClass {
             } else {
                 const menuItem = document.createElement('div');
                 menuItem.className = 'menu-item';
-                menuItem.textContent = item.label;
+                menuItem.innerHTML = (item.icon || '') + ' ' + item.label;
                 menuItem.addEventListener('mouseenter', () => {
                     menuItem.style.background = 'var(--win-blue)';
                     menuItem.style.color = 'var(--win-text-white)';

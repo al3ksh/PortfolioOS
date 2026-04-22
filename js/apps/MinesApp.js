@@ -30,7 +30,7 @@ export const MinesApp = {
         'Game': [
             { label: 'New Game', action: 'newGame', shortcut: 'F2' },
             { divider: true },
-            { label: 'Beginner (9×9, 10 mines)', action: 'beginner', checked: true },
+            { label: 'Beginner (9×9, 10 mines)', action: 'beginner' },
             { label: 'Intermediate (16×16, 40 mines)', action: 'intermediate' },
             { label: 'Expert (30×16, 99 mines)', action: 'expert' },
             { divider: true },
@@ -92,12 +92,11 @@ export const MinesApp = {
                 windowEl.style.height = '500px';
             } else if (name === 'expert') {
                 windowEl.style.width = '680px';
-                windowEl.style.height = '420px';
+                windowEl.style.height = '560px';
             } else {
                 windowEl.style.width = '250px';
                 windowEl.style.height = '350px';
             }
-            
             // Update grid class
             const gridEl = windowEl.querySelector('.mines-grid');
             if (gridEl) {
@@ -142,7 +141,7 @@ export const MinesApp = {
             <div class="mines-container">
                 <div class="mines-header">
                     <div class="mines-counter">010</div>
-                    <button class="mines-face" data-action="reset">🙂</button>
+                    <button class="mines-face" data-action="reset">${Icons.statusSmiley}</button>
                     <div class="mines-timer">000</div>
                 </div>
                 <div class="mines-grid size-9"></div>
@@ -152,6 +151,16 @@ export const MinesApp = {
 
     onInit() {
         MinesApp.initGame();
+        // Set initial checkmark on beginner
+        const windowEl = document.querySelector('#window-mines');
+        if (windowEl) {
+            windowEl.querySelectorAll('.menu-dropdown-item').forEach(item => {
+                const label = item.querySelector('.menu-dropdown-label');
+                if (item.dataset.action === 'beginner' && label && !label.textContent.startsWith('✓')) {
+                    label.textContent = '✓ ' + label.textContent;
+                }
+            });
+        }
     },
 
     initGame() {
@@ -174,7 +183,7 @@ export const MinesApp = {
         if (!gridEl) return;
 
         // Reset face
-        if (faceBtn) faceBtn.textContent = '🙂';
+            if (faceBtn) faceBtn.innerHTML = Icons.statusSmiley;
         if (counter) counter.textContent = String(MinesApp.mineCount).padStart(3, '0');
         if (timer) timer.textContent = '000';
 
@@ -273,7 +282,7 @@ export const MinesApp = {
             MinesApp.gameOver = true;
             cellEl?.classList.add('mine');
             MinesApp.revealAllMines();
-            MinesApp.setFace('😵');
+            MinesApp.setFace(Icons.statusDead);
             SoundManager.play('error');
             clearInterval(MinesApp.timerInterval);
             
@@ -300,7 +309,7 @@ export const MinesApp = {
         const totalSafe = (MinesApp.gridWidth * MinesApp.gridHeight) - MinesApp.mineCount;
         if (MinesApp.revealed === totalSafe) {
             MinesApp.gameOver = true;
-            MinesApp.setFace('😎');
+            MinesApp.setFace(Icons.statusCool);
             SoundManager.play('chord');
             clearInterval(MinesApp.timerInterval);
             
@@ -336,9 +345,9 @@ export const MinesApp = {
         return document.querySelector(`#window-mines .mine-cell[data-x="${x}"][data-y="${y}"]`);
     },
 
-    setFace(emoji) {
+    setFace(icon) {
         const face = document.querySelector('#window-mines .mines-face');
-        if (face) face.textContent = emoji;
+        if (face) face.innerHTML = icon;
     },
 
     revealAllMines() {
@@ -383,7 +392,7 @@ export const MinesApp = {
                 </div>
                 <div class="dialog-content">
                     <div class="dialog-icon-text">
-                        <span class="dialog-question-icon">${won ? '🏆' : '💣'}</span>
+                        <span class="dialog-question-icon">${won ? Icons.statusTrophy : Icons.statusBomb}</span>
                         <div class="dialog-message">
                             ${won 
                                 ? `You won in ${MinesApp.time} seconds!<br><br>Secret code: WIN31-${MinesApp.time}` 

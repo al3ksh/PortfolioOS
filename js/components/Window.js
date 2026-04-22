@@ -354,7 +354,7 @@ export class Window {
         dialog.className = 'about-dialog';
         dialog.innerHTML = `
             <div class="about-dialog-content">
-                <div class="about-icon">${this.icon || '📁'}</div>
+                <div class="about-icon">${this.icon || Icons.smFolder}</div>
                 <h3>${this.title}</h3>
                 <p>Portfolio OS v1.0</p>
                 <p>© 2024 All Rights Reserved</p>

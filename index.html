@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Aleksh - PortfolioOS</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23000080' width='100' height='100'/><rect fill='%23c0c0c0' x='10' y='10' width='80' height='70'/><rect fill='%23000080' x='15' y='15' width='70' height='15'/><text x='20' y='27' fill='white' font-size='12' font-family='Arial'>PortfolioOS</text><rect fill='white' x='20' y='35' width='60' height='40'/></svg>">
@@ -165,7 +168,7 @@
         <!-- Taskbar -->
         <div id="taskbar" class="taskbar">
             <button class="start-button">
-                <span class="start-icon">🪟</span>
+                <span class="start-icon" data-icon="startMenu"></span>
                 <span class="start-text">Start</span>
             </button>
             <div class="taskbar-windows"></div>
@@ -185,68 +188,68 @@
             </div>
             <div class="start-menu-items">
                 <div class="start-item" data-app="portfolio">
-                    <span class="menu-icon">📁</span>
+                    <span class="menu-icon" data-icon="smFolder"></span>
                     <span>Portfolio</span>
                 </div>
                 <div class="start-item" data-app="contact">
-                    <span class="menu-icon">📧</span>
+                    <span class="menu-icon" data-icon="smEnvelope"></span>
                     <span>Contact Me</span>
                 </div>
                 <div class="start-menu-divider"></div>
                 <div class="start-item" data-app="explorer">
-                    <span class="menu-icon">📂</span>
+                    <span class="menu-icon" data-icon="fileFolderOpen"></span>
                     <span>File Explorer</span>
                 </div>
                 <div class="start-item" data-app="notepad">
-                    <span class="menu-icon">📝</span>
+                    <span class="menu-icon" data-icon="smNotepad"></span>
                     <span>Notepad</span>
                 </div>
                 <div class="start-item" data-app="paint">
-                    <span class="menu-icon">🎨</span>
+                    <span class="menu-icon" data-icon="smPaint"></span>
                     <span>Paint</span>
                 </div>
                 <div class="start-item" data-app="terminal">
-                    <span class="menu-icon">💻</span>
+                    <span class="menu-icon" data-icon="smTerminal"></span>
                     <span>Terminal</span>
                 </div>
                 <div class="start-item" data-app="calc">
-                    <span class="menu-icon">🔢</span>
+                    <span class="menu-icon" data-icon="smCalc"></span>
                     <span>Calculator</span>
                 </div>
                 <div class="start-menu-divider"></div>
                 <div class="start-item" data-app="browser">
-                    <span class="menu-icon">🌐</span>
+                    <span class="menu-icon" data-icon="smBrowser"></span>
                     <span>Internet Explorer</span>
                 </div>
                 <div class="start-item" data-app="simplemode">
-                    <span class="menu-icon">📄</span>
+                    <span class="menu-icon" data-icon="smSimple"></span>
                     <span>Simple View</span>
                 </div>
                 <div class="start-menu-divider"></div>
                 <div class="start-item" data-app="mines">
-                    <span class="menu-icon">💣</span>
+                    <span class="menu-icon" data-icon="smMines"></span>
                     <span>Minesweeper</span>
                 </div>
                 <div class="start-item" data-app="tunes">
-                    <span class="menu-icon">🎵</span>
+                    <span class="menu-icon" data-icon="smTunes"></span>
                     <span>Tunes</span>
                 </div>
                 <div class="start-menu-divider"></div>
                 <div class="start-item" data-app="sysinfo">
-                    <span class="menu-icon">ℹ️</span>
+                    <span class="menu-icon" data-icon="smInfo"></span>
                     <span>System Info</span>
                 </div>
                 <div class="start-item" data-app="taskmgr">
-                    <span class="menu-icon">📊</span>
+                    <span class="menu-icon" data-icon="smTaskmgr"></span>
                     <span>Task Manager</span>
                 </div>
                 <div class="start-item" data-app="control">
-                    <span class="menu-icon">⚙️</span>
+                    <span class="menu-icon" data-icon="smSettings"></span>
                     <span>Settings</span>
                 </div>
                 <div class="start-menu-divider"></div>
                 <div class="start-item" data-app="readme">
-                    <span class="menu-icon">❓</span>
+                    <span class="menu-icon" data-icon="smHelp"></span>
                     <span>Help</span>
                 </div>
             </div>
@@ -254,6 +257,6 @@
     </div>
 
     <!-- Main Script (ES6 Module) -->
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/main.js?v=2"></script>
 </body>
 </html>

@@ -67,8 +67,7 @@ class DialogManagerClass {
                 ],
                 onClose: (action) => {
                     if (action === 'ok') {
-                        const input = document.getElementById(inputId);
-                        resolve(input?.value || '');
+                        resolve(dialog._promptValue || '');
                     } else {
                         resolve(null);
                     }
@@ -79,6 +78,24 @@ class DialogManagerClass {
                     input?.select();
                 }
             });
+
+            // Capture input value before dialog closes
+            const overlay = dialog;
+            overlay.querySelectorAll('[data-action]').forEach(btn => {
+                const origHandler = btn.onclick;
+                btn.addEventListener('click', () => {
+                    const input = overlay.querySelector('.dialog-input');
+                    dialog._promptValue = input ? input.value : '';
+                }, true);
+            });
+            // Also capture on Enter key
+            overlay.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const input = overlay.querySelector('.dialog-input');
+                    dialog._promptValue = input ? input.value : '';
+                }
+            }, true);
+
             this.show(dialog);
         });
     }

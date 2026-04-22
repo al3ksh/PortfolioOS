@@ -20,7 +20,7 @@ export const ContactApp = {
         return `
             <div class="contact-container">
                 <div class="contact-header">
-                    <div class="contact-icon">📧</div>
+                    <div class="contact-icon">${Icons.secMail}</div>
                     <div class="contact-title">
                         <h2>Get In Touch</h2>
                         <p>Send me a message and I'll get back to you!</p>
@@ -30,21 +30,21 @@ export const ContactApp = {
                 <form class="contact-form" id="contactForm">
                     <div class="form-group">
                         <label for="contactName">
-                            <span class="label-icon">👤</span> Your Name:
+                            <span class="label-icon">${Icons.labelName}</span> Your Name:
                         </label>
                         <input type="text" id="contactName" class="win-input" placeholder="John Doe" required>
                     </div>
 
                     <div class="form-group">
                         <label for="contactEmail">
-                            <span class="label-icon">📫</span> Email Address:
+                            <span class="label-icon">${Icons.labelEmail}</span> Email Address:
                         </label>
                         <input type="email" id="contactEmail" class="win-input" placeholder="john@example.com" required>
                     </div>
 
                     <div class="form-group">
                         <label for="contactSubject">
-                            <span class="label-icon">📋</span> Subject:
+                            <span class="label-icon">${Icons.labelSubject}</span> Subject:
                         </label>
                         <select id="contactSubject" class="win-select">
                             <option value="general">General Inquiry</option>
@@ -57,7 +57,7 @@ export const ContactApp = {
 
                     <div class="form-group">
                         <label for="contactMessage">
-                            <span class="label-icon">💬</span> Message:
+                            <span class="label-icon">${Icons.labelMessage}</span> Message:
                         </label>
                         <textarea id="contactMessage" class="win-textarea" rows="4" 
                             placeholder="Type your message here..." required></textarea>
@@ -65,23 +65,23 @@ export const ContactApp = {
 
                     <div class="form-actions">
                         <button type="submit" class="win-btn win-btn-primary">
-                            📤 Send Message
+                            ${Icons.actSend} Send Message
                         </button>
                         <button type="reset" class="win-btn">
-                            🗑️ Clear
+                            ${Icons.actTrash} Clear
                         </button>
                     </div>
                 </form>
 
                 <div class="contact-links">
                     <a href="https://github.com/al3ksh" target="_blank" class="contact-link">
-                        <span>🐙</span> GitHub
+                        <span>${Icons.socialGithub}</span> GitHub
                     </a>
                     <a href="https://discord.com/users/aleksh8" target="_blank" class="contact-link">
-                        <span>💬</span> Discord: aleksh8
+                        <span>${Icons.socialDiscord}</span> Discord: aleksh8
                     </a>
                     <a href="mailto:alex.szotek@gmail.com" class="contact-link">
-                        <span>📧</span> Email
+                        <span>${Icons.secMail}</span> Email
                     </a>
                 </div>
             </div>
@@ -114,7 +114,7 @@ export const ContactApp = {
         formEl.innerHTML = `
             <div class="contact-sending">
                 <div class="sending-animation">
-                    <div class="envelope">📧</div>
+                    <div class="envelope">${Icons.secMail}</div>
                     <div class="dots">
                         <span>.</span><span>.</span><span>.</span>
                     </div>
@@ -139,7 +139,7 @@ export const ContactApp = {
                 SoundManager.play('chord');
                 formEl.innerHTML = `
                     <div class="contact-success">
-                        <div class="success-icon">✅</div>
+                        <div class="success-icon">${Icons.statusSuccess}</div>
                         <h3>Message Sent!</h3>
                         <p>Thanks <strong>${name}</strong>!</p>
                         <p>I'll respond to <strong>${email}</strong> as soon as possible.</p>
@@ -161,11 +161,11 @@ export const ContactApp = {
             SoundManager.play('error');
             formEl.innerHTML = `
                 <div class="contact-success">
-                    <div class="success-icon">❌</div>
+                    <div class="success-icon">${Icons.statusError}</div>
                     <h3>Failed to Send</h3>
                     <p>${error.message || 'Something went wrong. Please try again.'}</p>
-                    <button class="win-btn" onclick="location.reload()">
-                        🔄 Try Again
+                        <button class="win-btn" onclick="location.reload()">
+                            ${Icons.ctxRefresh} Try Again
                     </button>
                 </div>
             `;

@@ -46,8 +46,8 @@ export const SimpleModeApp = {
         return `
             <div class="simplemode-container">
                 <div class="simplemode-toolbar">
-                    <span>📄 Plain HTML Portfolio View</span>
-                    <button class="win-btn win-btn-sm" id="simplePrintBtn">🖨️ Print</button>
+                    <span>${Icons.fileText} Plain HTML Portfolio View</span>
+                    <button class="win-btn win-btn-sm" id="simplePrintBtn">${Icons.actPrint} Print</button>
                 </div>
                 <div class="simplemode-content">
                     ${SimpleModeApp.getPortfolioContent()}
@@ -62,11 +62,11 @@ export const SimpleModeApp = {
                 <header class="simple-header">
                     <h1>Aleks Szotek</h1>
                     <p class="simple-subtitle">Full-Stack Developer</p>
-                    <p class="simple-location">📍 Silesia, Poland</p>
+                    <p class="simple-location">${Icons.secLocation} Silesia, Poland</p>
                 </header>
 
                 <section class="simple-section">
-                    <h2>👤 About Me</h2>
+                    <h2>${Icons.secUser} About Me</h2>
                     <p>Computer Science student at Silesian University of Technology. 
                     Certified in INF.03 (Web Dev & Databases) and INF.04 (App Development).
                     Backend & Web Developer — building efficient web applications with focus on
@@ -74,7 +74,7 @@ export const SimpleModeApp = {
                 </section>
 
                 <section class="simple-section">
-                    <h2>💼 Experience</h2>
+                    <h2>${Icons.secBriefcase} Experience</h2>
                     <div class="simple-item">
                         <strong>Full-Stack Developer (Contract)</strong> @ RecodeIT · D9 Space
                         <span class="simple-date">2024</span>
@@ -95,7 +95,7 @@ export const SimpleModeApp = {
                 </section>
 
                 <section class="simple-section">
-                    <h2>🛠️ Skills</h2>
+                    <h2>${Icons.secLightbulb} Skills</h2>
                     <div class="simple-skills">
                         <span class="simple-skill">JavaScript</span>
                         <span class="simple-skill">TypeScript</span>
@@ -117,7 +117,7 @@ export const SimpleModeApp = {
                 </section>
 
                 <section class="simple-section">
-                    <h2>📁 Projects</h2>
+                    <h2>${Icons.smFolder} Projects</h2>
                     <div class="simple-item">
                         <strong>Czytaj24</strong>
                         <p>E-commerce bookstore with full shopping cart, user accounts and order management.</p>
@@ -141,7 +141,7 @@ export const SimpleModeApp = {
                 </section>
 
                 <section class="simple-section">
-                    <h2>🎓 Education</h2>
+                    <h2>${Icons.secGraduation} Education</h2>
                     <div class="simple-item">
                         <strong>Computer Science</strong>
                         <span class="simple-date">present</span>
@@ -155,11 +155,11 @@ export const SimpleModeApp = {
                 </section>
 
                 <section class="simple-section">
-                    <h2>📫 Contact</h2>
+                    <h2>${Icons.secMail} Contact</h2>
                     <ul class="simple-contact">
-                        <li>📧 Email: <a href="mailto:alex.szotek@gmail.com">alex.szotek@gmail.com</a></li>
-                        <li>🐙 GitHub: <a href="https://github.com/al3ksh" target="_blank">@al3ksh</a></li>
-                        <li>💬 Discord: aleksh8</li>
+                        <li>${Icons.secMail} Email: <a href="mailto:alex.szotek@gmail.com">alex.szotek@gmail.com</a></li>
+                        <li>${Icons.socialGithub} GitHub: <a href="https://github.com/al3ksh" target="_blank">@al3ksh</a></li>
+                        <li>${Icons.socialDiscord} Discord: aleksh8</li>
                     </ul>
                 </section>
 

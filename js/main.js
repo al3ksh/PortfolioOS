@@ -9,6 +9,16 @@ import { DesktopGridManager } from './managers/DesktopGridManager.js';
 import { StorageManager } from './managers/StorageManager.js';
 import { DesktopIcon } from './components/DesktopIcon.js';
 import { Icons } from './icons.js';
+
+function replaceDataIcons() {
+    document.querySelectorAll('[data-icon]').forEach(el => {
+        const key = el.getAttribute('data-icon');
+        if (Icons[key]) {
+            el.innerHTML = Icons[key];
+            el.setAttribute('data-icon-replaced', '');
+        }
+    });
+}
 import { Apps } from './apps/index.js';
 import { ControlApp } from './apps/ControlApp.js';
 
@@ -64,20 +74,20 @@ class TaskbarManager {
         // Initialize sound icon based on current state
         if (soundBtn) {
             const initialEnabled = SoundManager.enabled;
-            soundBtn.textContent = initialEnabled ? '🔊' : '🔇';
+            soundBtn.innerHTML = initialEnabled ? Icons.statusSpeakerOn : Icons.statusSpeakerOff;
             soundBtn.title = initialEnabled ? 'Sound: ON' : 'Sound: OFF';
         }
         
         soundBtn?.addEventListener('click', () => {
             const enabled = SoundManager.toggle();
-            soundBtn.textContent = enabled ? '🔊' : '🔇';
+                soundBtn.innerHTML = enabled ? Icons.statusSpeakerOn : Icons.statusSpeakerOff;
             soundBtn.title = enabled ? 'Sound: ON' : 'Sound: OFF';
         });
 
         // Sync sound icon when changed from Control Panel
         SoundManager.addChangeListener((enabled) => {
             if (soundBtn) {
-                soundBtn.textContent = enabled ? '🔊' : '🔇';
+            soundBtn.innerHTML = enabled ? Icons.statusSpeakerOn : Icons.statusSpeakerOff;
                 soundBtn.title = enabled ? 'Sound: ON' : 'Sound: OFF';
             }
         });
@@ -440,7 +450,7 @@ class BootSequence {
                 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             </p>
             <p style="color: #FF5555;">
-                ⚠️ SYSTEM ERROR - Boot Failed
+                ${Icons.statusWarning} SYSTEM ERROR - Boot Failed
             </p>
             <p style="color: #FF5555;">
                 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -467,7 +477,7 @@ class BootSequence {
                     font-family: 'Courier New', monospace;
                     cursor: pointer;
                     margin-right: 10px;
-                ">🔄 Restart System</button>
+                ">${Icons.statusRestart} Restart System</button>
                 <button onclick="sessionStorage.clear(); localStorage.clear(); location.reload()" style="
                     background: #333;
                     color: #FF5;
@@ -475,7 +485,7 @@ class BootSequence {
                     padding: 8px 20px;
                     font-family: 'Courier New', monospace;
                     cursor: pointer;
-                ">🔧 Reset & Restart</button>
+                ">${Icons.statusWrench} Reset & Restart</button>
             </div>
             <p style="color: #666666; margin-top: 20px; font-size: 10px;">
                 Tip: Reset clears saved data and may fix corrupted settings.
@@ -597,6 +607,9 @@ class BootSequence {
         
         // Create desktop icons
         createDesktopIcons();
+        
+        // Replace data-icon placeholders with SVG icons
+        replaceDataIcons();
         
         // Start system clock
         startSystemClock();

@@ -87,7 +87,7 @@ export const PortfolioApp = {
                 <!-- About Card -->
                 <div class="bento-card" data-span="2x1">
                     <div class="card-header">
-                        <div class="card-icon">👤</div>
+                        <div class="card-icon">${Icons.secUser}</div>
                         <span class="card-title">About Me</span>
                     </div>
                     <div class="card-content">
@@ -100,7 +100,7 @@ export const PortfolioApp = {
                 <!-- Experience Card -->
                 <div class="bento-card" data-span="2x1">
                     <div class="card-header">
-                        <div class="card-icon">💼</div>
+                        <div class="card-icon">${Icons.secBriefcase}</div>
                         <span class="card-title">Experience</span>
                     </div>
                     <div class="card-content experience-content">
@@ -134,7 +134,7 @@ export const PortfolioApp = {
                 <!-- Skills Card -->
                 <div class="bento-card">
                     <div class="card-header">
-                        <div class="card-icon">💡</div>
+                        <div class="card-icon">${Icons.secLightbulb}</div>
                         <span class="card-title">Skills</span>
                     </div>
                     <div class="card-content">
@@ -192,7 +192,7 @@ export const PortfolioApp = {
                 <!-- Education Card -->
                 <div class="bento-card">
                     <div class="card-header">
-                        <div class="card-icon">🎓</div>
+                        <div class="card-icon">${Icons.secGraduation}</div>
                         <span class="card-title">Education</span>
                     </div>
                     <div class="card-content">
@@ -212,14 +212,14 @@ export const PortfolioApp = {
                 <!-- Contact Card -->
                 <div class="bento-card">
                     <div class="card-header">
-                        <div class="card-icon">✉️</div>
+                        <div class="card-icon">${Icons.secMail}</div>
                         <span class="card-title">Contact</span>
                     </div>
                     <div class="card-content">
                         <ul class="win-list contact-list">
-                            <li><a href="mailto:alex.szotek@gmail.com">📧 alex.szotek@gmail.com</a></li>
-                            <li><a href="https://github.com/al3ksh" target="_blank">🐙 github.com/al3ksh</a></li>
-                            <li>💬 Discord: aleksh8</li>
+                            <li><a href="mailto:alex.szotek@gmail.com">${Icons.secMail} alex.szotek@gmail.com</a></li>
+                            <li><a href="https://github.com/al3ksh" target="_blank">${Icons.socialGithub} github.com/al3ksh</a></li>
+                            <li>${Icons.socialDiscord} Discord: aleksh8</li>
                         </ul>
                     </div>
                 </div>
@@ -228,10 +228,10 @@ export const PortfolioApp = {
                 <div class="bento-card action-card" data-span="2x1">
                     <div class="action-buttons">
                         <button class="win-btn" id="downloadCvBtn">
-                            📄 Download CV
+                            ${Icons.actDownload} Download CV
                         </button>
                         <button class="win-btn primary" id="sendMessageBtn">
-                            ✉️ Send Message
+                            ${Icons.actSend} Send Message
                         </button>
                     </div>
                 </div>

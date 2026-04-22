@@ -40,10 +40,6 @@
     transform: translate(1px, 1px);
 }
 
-.win-btn.primary {
-    border: 3px solid var(--win-black);
-}
-
 .win-btn:disabled {
     color: var(--win-dark-gray);
     cursor: not-allowed;
@@ -240,6 +236,11 @@
 .dialog-question-icon {
     font-size: 32px;
     flex-shrink: 0;
+}
+
+.dialog-question-icon svg {
+    width: 40px;
+    height: 40px;
 }
 
 .dialog-icon {
@@ -492,6 +493,5 @@
 }
 
 .privacy-btn-primary {
-    border: 3px solid var(--win-black);
     font-weight: bold;
 }

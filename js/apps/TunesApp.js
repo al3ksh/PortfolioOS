@@ -9,7 +9,7 @@ export const TunesApp = {
     title: 'Tunes.exe - Music Player',
     icon: Icons.tunes,
     width: 300,
-    height: 250,
+    height: 310,
     hasMenu: false,
     resizable: false,
     

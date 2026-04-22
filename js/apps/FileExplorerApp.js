@@ -203,26 +203,26 @@ export const FileExplorerApp = {
                         'System32': {
                             type: 'folder',
                             children: {
-                                'config.sys': { type: 'file', size: '512 B', icon: '⚙️', content: 'config.sys' },
-                                'autoexec.bat': { type: 'file', size: '256 B', icon: '📄', content: 'autoexec.bat' },
-                                'win.ini': { type: 'file', size: '1 KB', icon: '⚙️', content: 'win.ini' },
-                                'secrets.dll': { type: 'file', size: '???', icon: '🔒', hidden: true }
+                                'config.sys': { type: 'file', size: '512 B', icon: Icons.fileConfig, content: 'config.sys' },
+                                'autoexec.bat': { type: 'file', size: '256 B', icon: Icons.fileText, content: 'autoexec.bat' },
+                                'win.ini': { type: 'file', size: '1 KB', icon: Icons.fileConfig, content: 'win.ini' },
+                                'secrets.dll': { type: 'file', size: '???', icon: Icons.fileLock, hidden: true }
                             }
                         },
                         'Fonts': {
                             type: 'folder',
                             children: {
-                                'Arial.ttf': { type: 'file', size: '150 KB', icon: '🔤' },
-                                'Times.ttf': { type: 'file', size: '180 KB', icon: '🔤' },
-                                'MSSerif.ttf': { type: 'file', size: '120 KB', icon: '🔤' }
+                                'Arial.ttf': { type: 'file', size: '150 KB', icon: Icons.fileFont },
+                                'Times.ttf': { type: 'file', size: '180 KB', icon: Icons.fileFont },
+                                'MSSerif.ttf': { type: 'file', size: '120 KB', icon: Icons.fileFont }
                             }
                         },
                         'Media': {
                             type: 'folder',
                             children: {
-                                'startup.wav': { type: 'file', size: '420 KB', icon: '🔊' },
-                                'chord.wav': { type: 'file', size: '24 KB', icon: '🔊' },
-                                'ding.wav': { type: 'file', size: '12 KB', icon: '🔊' }
+                                'startup.wav': { type: 'file', size: '420 KB', icon: Icons.fileAudio },
+                                'chord.wav': { type: 'file', size: '24 KB', icon: Icons.fileAudio },
+                                'ding.wav': { type: 'file', size: '12 KB', icon: Icons.fileAudio }
                             }
                         }
                     }
@@ -233,32 +233,32 @@ export const FileExplorerApp = {
                         'Portfolio OS': {
                             type: 'folder',
                             children: {
-                                'portfolio.exe': { type: 'file', size: '2.1 MB', icon: '💼', action: 'portfolio' },
-                                'readme.txt': { type: 'file', size: '4 KB', icon: '📝', action: 'readme' },
-                                'contact.exe': { type: 'file', size: '512 KB', icon: '📧', action: 'contact' },
-                                'simple.exe': { type: 'file', size: '128 KB', icon: '📄', action: 'simplemode' }
+                                'portfolio.exe': { type: 'file', size: '2.1 MB', icon: Icons.fileExe, action: 'portfolio' },
+                                'readme.txt': { type: 'file', size: '4 KB', icon: Icons.fileText, action: 'readme' },
+                                'contact.exe': { type: 'file', size: '512 KB', icon: Icons.fileExe, action: 'contact' },
+                                'simple.exe': { type: 'file', size: '128 KB', icon: Icons.fileText, action: 'simplemode' }
                             }
                         },
                         'Accessories': {
                             type: 'folder',
                             children: {
-                                'notepad.exe': { type: 'file', size: '64 KB', icon: '📝', action: 'notepad' },
-                                'calc.exe': { type: 'file', size: '48 KB', icon: '🔢', action: 'calc' },
-                                'paint.exe': { type: 'file', size: '256 KB', icon: '🎨', action: 'paint' },
-                                'terminal.exe': { type: 'file', size: '96 KB', icon: '⬛', action: 'terminal' }
+                                'notepad.exe': { type: 'file', size: '64 KB', icon: Icons.fileText, action: 'notepad' },
+                                'calc.exe': { type: 'file', size: '48 KB', icon: Icons.fileText, action: 'calc' },
+                                'paint.exe': { type: 'file', size: '256 KB', icon: Icons.fileText, action: 'paint' },
+                                'terminal.exe': { type: 'file', size: '96 KB', icon: Icons.smTerminal, action: 'terminal' }
                             }
                         },
                         'Internet': {
                             type: 'folder',
                             children: {
-                                'iexplore.exe': { type: 'file', size: '1.2 MB', icon: '🌐', action: 'browser' }
+                                'iexplore.exe': { type: 'file', size: '1.2 MB', icon: Icons.smBrowser, action: 'browser' }
                             }
                         },
                         'Games': {
                             type: 'folder',
                             children: {
-                                'minesweeper.exe': { type: 'file', size: '180 KB', icon: '💣', action: 'minesweeper' },
-                                'snake.exe': { type: 'file', size: '96 KB', icon: '🐍', action: 'snake' }
+                                'minesweeper.exe': { type: 'file', size: '180 KB', icon: Icons.smMines, action: 'minesweeper' },
+                                'snake.exe': { type: 'file', size: '96 KB', icon: Icons.fileExe, action: 'snake' }
                             }
                         }
                     }
@@ -272,30 +272,30 @@ export const FileExplorerApp = {
                                 'Desktop': {
                                     type: 'folder',
                                     children: {
-                                        'Portfolio.lnk': { type: 'file', size: '1 KB', icon: '🔗', action: 'portfolio' },
-                                        'README.txt': { type: 'file', size: '2 KB', icon: '📝', action: 'readme' }
+                                        'Portfolio.lnk': { type: 'file', size: '1 KB', icon: Icons.fileLink, action: 'portfolio' },
+                                        'README.txt': { type: 'file', size: '2 KB', icon: Icons.fileText, action: 'readme' }
                                     }
                                 },
                                 'Documents': {
                                     type: 'folder',
                                     children: {
-                                        'cv.txt': { type: 'file', size: '8 KB', icon: '📄', content: 'cv' },
-                                        'projects.txt': { type: 'file', size: '4 KB', icon: '📄', content: 'projects' },
-                                        'notes.txt': { type: 'file', size: '1 KB', icon: '📝', content: 'notes' }
+                                         'cv.txt': { type: 'file', size: '8 KB', icon: Icons.fileText, content: 'cv' },
+                                         'projects.txt': { type: 'file', size: '4 KB', icon: Icons.fileText, content: 'projects' },
+                                         'notes.txt': { type: 'file', size: '1 KB', icon: Icons.fileText, content: 'notes' }
                                     }
                                 },
                                 'Pictures': {
                                     type: 'folder',
                                     children: {
-                                        'avatar.png': { type: 'file', size: '128 KB', icon: '🖼️' },
-                                        'screenshot.png': { type: 'file', size: '512 KB', icon: '🖼️' }
+                                         'avatar.png': { type: 'file', size: '128 KB', icon: Icons.fileImage },
+                                         'screenshot.png': { type: 'file', size: '512 KB', icon: Icons.fileImage }
                                     }
                                 },
                                 '.secret': {
                                     type: 'folder',
                                     hidden: true,
                                     children: {
-                                        'easter_egg.txt': { type: 'file', size: '???', icon: '🥚', content: 'easter_egg' }
+                                         'easter_egg.txt': { type: 'file', size: '???', icon: Icons.fileText, content: 'easter_egg' }
                                     }
                                 }
                             }
@@ -313,10 +313,10 @@ export const FileExplorerApp = {
                         'portfolio-os': {
                             type: 'folder',
                             children: {
-                                'index.html': { type: 'file', size: '12 KB', icon: '🌐' },
-                                'style.css': { type: 'file', size: '24 KB', icon: '🎨' },
-                                'main.js': { type: 'file', size: '48 KB', icon: '📜' },
-                                'README.md': { type: 'file', size: '3 KB', icon: '📝', content: 'project_readme' }
+                                'index.html': { type: 'file', size: '12 KB', icon: Icons.smBrowser },
+                                'style.css': { type: 'file', size: '24 KB', icon: Icons.fileText },
+                                'main.js': { type: 'file', size: '48 KB', icon: Icons.fileText },
+                                'README.md': { type: 'file', size: '3 KB', icon: Icons.fileText, content: 'project_readme' }
                             }
                         }
                     }
@@ -324,8 +324,8 @@ export const FileExplorerApp = {
                 'Backup': {
                     type: 'folder',
                     children: {
-                        'important.zip': { type: 'file', size: '15 MB', icon: '📦' },
-                        'memories.zip': { type: 'file', size: '2.3 GB', icon: '📦' }
+                        'important.zip': { type: 'file', size: '15 MB', icon: Icons.fileZip },
+                        'memories.zip': { type: 'file', size: '2.3 GB', icon: Icons.fileZip }
                     }
                 }
             }
@@ -500,11 +500,11 @@ v1.0.2026`
         return `
             <div class="explorer-container">
                 <div class="explorer-toolbar">
-                    <button class="explorer-btn" id="btnBack" title="Back">◀</button>
-                    <button class="explorer-btn" id="btnUp" title="Up">⬆</button>
-                    <button class="explorer-btn" id="btnRefresh" title="Refresh">🔄</button>
+                    <button class="explorer-btn" id="btnBack" title="Back">${Icons.navBack}</button>
+                    <button class="explorer-btn" id="btnUp" title="Up">${Icons.navUp}</button>
+                    <button class="explorer-btn" id="btnRefresh" title="Refresh">${Icons.ctxRefresh}</button>
                     <div class="explorer-address">
-                        <span class="address-icon">📁</span>
+                        <span class="address-icon">${Icons.smFolder}</span>
                         <input type="text" id="addressBar" class="win-input" value="C:\\" readonly>
                     </div>
                 </div>
@@ -512,7 +512,7 @@ v1.0.2026`
                 <div class="explorer-main">
                     <div class="explorer-sidebar">
                         <div class="sidebar-section">
-                            <div class="sidebar-header">💻 This PC</div>
+                            <div class="sidebar-header">${Icons.explorer} This PC</div>
                             <div class="sidebar-tree" id="folderTree"></div>
                         </div>
                     </div>
@@ -568,7 +568,7 @@ v1.0.2026`
         Object.keys(FileExplorerApp.fileSystem).forEach(drive => {
             const driveEl = document.createElement('div');
             driveEl.className = 'tree-item drive';
-            driveEl.innerHTML = `<span class="tree-icon">💾</span><span>${drive}</span>`;
+            driveEl.innerHTML = `<span class="tree-icon">${Icons.fileDrive}</span><span>${drive}</span>`;
             driveEl.addEventListener('click', () => {
                 FileExplorerApp.navigateTo(container, [drive]);
                 SoundManager.play('click');
@@ -583,7 +583,7 @@ v1.0.2026`
                     if (item.type === 'folder') {
                         const folderEl = document.createElement('div');
                         folderEl.className = 'tree-item folder';
-                        folderEl.innerHTML = `<span class="tree-icon">📁</span><span>${folder}</span>`;
+                        folderEl.innerHTML = `<span class="tree-icon">${Icons.smFolder}</span><span>${folder}</span>`;
                         folderEl.addEventListener('click', () => {
                             FileExplorerApp.navigateTo(container, [drive, folder]);
                             SoundManager.play('click');
@@ -639,9 +639,9 @@ v1.0.2026`
                 el.dataset.name = name;
                 el.dataset.type = item.type;
 
-                let icon = '📄';
-                if (item.type === 'drive') icon = '💾';
-                else if (item.type === 'folder') icon = '📁';
+                let icon = Icons.fileText;
+                if (item.type === 'drive') icon = Icons.fileDrive;
+                else if (item.type === 'folder') icon = Icons.smFolder;
                 else if (item.icon) icon = item.icon;
 
                 el.innerHTML = `
@@ -760,7 +760,7 @@ v1.0.2026`
         modal.innerHTML = `
             <div class="file-viewer-window">
                 <div class="file-viewer-titlebar">
-                    <span>📄 ${filename}</span>
+                    <span>${Icons.fileText} ${filename}</span>
                     <button class="file-viewer-close">×</button>
                 </div>
                 <div class="file-viewer-content">

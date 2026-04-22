@@ -37,9 +37,9 @@ export const BrowserApp = {
         'Favorites': [
             { label: 'Add to Favorites...', action: 'addFavorite', disabled: true },
             { divider: true },
-            { label: '📁 Wikipedia', action: 'goWiki' },
-            { label: '📁 Google', action: 'goGoogle' },
-            { label: '📁 GitHub', action: 'goGitHub' }
+            { label: ' Wikipedia', action: 'goWiki' },
+            { label: ' Google', action: 'goGoogle' },
+            { label: ' GitHub', action: 'goGitHub' }
         ],
         'Help': [
             { label: 'About Internet Explorer', action: 'about' }
@@ -53,13 +53,13 @@ export const BrowserApp = {
             <div class="browser-container">
                 <div class="browser-toolbar">
                     <div class="browser-nav-buttons">
-                        <button class="browser-nav-btn" id="browserBack" title="Back" disabled>◀</button>
-                        <button class="browser-nav-btn" id="browserForward" title="Forward" disabled>▶</button>
-                        <button class="browser-nav-btn" id="browserRefresh" title="Refresh">🔄</button>
-                        <button class="browser-nav-btn" id="browserHome" title="Home">🏠</button>
+                        <button class="browser-nav-btn" id="browserBack" title="Back" disabled>${Icons.navBack}</button>
+                        <button class="browser-nav-btn" id="browserForward" title="Forward" disabled>${Icons.navForward}</button>
+                        <button class="browser-nav-btn" id="browserRefresh" title="Refresh">${Icons.ctxRefresh}</button>
+                        <button class="browser-nav-btn" id="browserHome" title="Home">${Icons.navHome}</button>
                     </div>
                     <div class="browser-address-bar">
-                        <span class="address-icon">🌐</span>
+                        <span class="address-icon">${Icons.navGlobe}</span>
                         <input type="text" id="browserUrl" class="browser-url-input" 
                             placeholder="Type a URL and press Enter..." 
                             value="about:home">
@@ -80,7 +80,7 @@ export const BrowserApp = {
                 
                 <div class="browser-statusbar">
                     <span id="browserStatus">Ready</span>
-                    <span class="browser-security">🔒 Internet Zone</span>
+                    <span class="browser-security">${Icons.navLock} Internet Zone</span>
                 </div>
             </div>
         `;
@@ -100,7 +100,7 @@ export const BrowserApp = {
                 <div class="home-search">
                     <input type="text" id="homeSearchInput" class="home-search-input" 
                         placeholder="Search the web...">
-                    <button class="win-btn" id="homeSearchBtn">🔍 Search</button>
+                    <button class="win-btn" id="homeSearchBtn">${Icons.navSearch} Search</button>
                 </div>
                 
                 <div class="home-quicklinks">
@@ -341,12 +341,12 @@ export const BrowserApp = {
         if (content) {
             content.innerHTML = `
                 <div class="browser-error">
-                    <div class="error-icon">🔒</div>
+                    <div class="error-icon">${Icons.navLock}</div>
                     <h2>This page blocks embedding</h2>
                     <p>The page <strong>${url}</strong> blocks iframe display for security reasons.</p>
                     <p class="error-note">Most large sites (Google, YouTube, GitHub, LinkedIn) use this protection.</p>
-                    <button class="win-btn" id="openInNewTab">🌐 Open in New Tab</button>
-                    <button class="win-btn" id="goHomeBtn" style="margin-left: 10px;">🏠 Back to Home</button>
+                    <button class="win-btn" id="openInNewTab">${Icons.navGlobe} Open in New Tab</button>
+                    <button class="win-btn" id="goHomeBtn" style="margin-left: 10px;">${Icons.navHome} Back to Home</button>
                 </div>
             `;
             
@@ -367,7 +367,7 @@ export const BrowserApp = {
         if (content) {
             content.innerHTML = `
                 <div class="browser-error">
-                    <div class="error-icon">⚠️</div>
+                    <div class="error-icon">${Icons.statusWarning}</div>
                     <h2>Cannot display this page</h2>
                     <p>The page at <strong>${url}</strong> refused to connect.</p>
                     <p class="error-note">Many websites block iframe embedding for security reasons.</p>

@@ -282,7 +282,7 @@ export const SnakeApp = {
         
         if (SnakeApp.isPaused) {
             if (overlay) overlay.style.display = 'flex';
-            if (message) message.innerHTML = '<h3>⏸️ PAUSED</h3><p>Press P to continue</p>';
+            if (message) message.innerHTML = '<h3>' + Icons.statusPause + ' PAUSED</h3><p>Press P to continue</p>';
         } else {
             if (overlay) overlay.style.display = 'none';
         }
@@ -455,7 +455,7 @@ export const SnakeApp = {
         if (overlay) overlay.style.display = 'flex';
         if (message) {
             message.innerHTML = `
-                <h3>💀 GAME OVER</h3>
+                <h3>${Icons.statusSkull} GAME OVER</h3>
                 <p>Score: ${SnakeApp.score}</p>
                 <p>Press SPACE to play again</p>
             `;

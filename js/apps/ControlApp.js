@@ -28,7 +28,7 @@ export const ControlApp = {
         return `
             <div class="control-container">
                 <div class="control-section">
-                    <h3>🎨 Desktop Wallpaper</h3>
+                    <h3>${Icons.cpWallpaper} Desktop Wallpaper</h3>
                     <label class="win-checkbox" style="margin-bottom: 8px;">
                         <input type="checkbox" id="autoThemeEnabled" ${ControlApp.autoTheme ? 'checked' : ''}>
                         Auto theme (Dark 19:00-7:00, Light otherwise)
@@ -74,7 +74,7 @@ export const ControlApp = {
                 </div>
 
                 <div class="control-section">
-                    <h3>📺 Display Effects</h3>
+                    <h3>${Icons.cpDisplay} Display Effects</h3>
                     <label class="win-checkbox">
                         <input type="checkbox" id="crtEnabled" ${ControlApp.crtEnabled ? 'checked' : ''}>
                         CRT Scanline Effect (retro monitor look)
@@ -82,7 +82,7 @@ export const ControlApp = {
                 </div>
 
                 <div class="control-section">
-                    <h3>🔊 Sound Settings</h3>
+                    <h3>${Icons.cpSound} Sound Settings</h3>
                     <label class="win-checkbox">
                         <input type="checkbox" id="soundEnabled" ${SoundManager.enabled ? 'checked' : ''}>
                         Enable system sounds
@@ -96,15 +96,15 @@ export const ControlApp = {
                 </div>
 
                 <div class="control-section">
-                    <h3>💾 Session Management</h3>
+                    <h3>${Icons.cpSession} Session Management</h3>
                     <p style="font-size: 11px; color: #808080; margin-bottom: 8px;">
                         Window positions and open apps are saved automatically.
                     </p>
-                    <button class="win-btn" id="clearSessionBtn">🗑️ Clear Saved Session</button>
+                    <button class="win-btn" id="clearSessionBtn">${Icons.actTrash} Clear Saved Session</button>
                 </div>
 
                 <div class="control-section">
-                    <h3>ℹ️ About</h3>
+                    <h3>${Icons.cpAbout} About</h3>
                     <div class="inset-panel">
                         <p style="font-size: 12px; margin-bottom: 5px;"><strong>Portfolio OS v1.0</strong></p>
                         <p style="font-size: 11px; color: #808080;">

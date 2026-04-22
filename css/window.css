@@ -307,8 +307,17 @@
 }
 
 .about-dialog-content .about-icon {
-    font-size: 48px;
-    margin-bottom: 10px;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+}
+
+.about-dialog-content .about-icon svg {
+    width: 48px;
+    height: 48px;
 }
 
 .about-dialog-content h3 {
@@ -350,7 +359,9 @@
 /* Disable scrolling for full-height apps */
 .window-content:has(.browser-container),
 .window-content:has(.simplemode-container),
-.window-content:has(.tetris-container) {
+.window-content:has(.tetris-container),
+.window-content:has(.mines-container),
+.window-content:has(.tunes-container) {
     overflow: hidden;
 }
 

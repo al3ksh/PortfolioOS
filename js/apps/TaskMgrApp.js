@@ -268,7 +268,7 @@ export const TaskMgrApp = {
                 const { DialogManager } = await import('../managers/DialogManager.js');
                 const confirmed = await DialogManager.confirm(
                     `WARNING: Terminating "${name}" may cause system instability.\n\nAre you sure you want to end this process?`,
-                    '⚠️ End Process'
+                    'End Process'
                 );
                 
                 if (confirmed) {

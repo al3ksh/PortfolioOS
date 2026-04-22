@@ -145,8 +145,8 @@ export const SysInfoApp = {
                 </div>
 
                 <div class="sysinfo-footer">
-                    <button class="win-btn" id="refreshSysInfo">🔄 Refresh</button>
-                    <button class="win-btn" id="exportSysInfo">📋 Copy to Clipboard</button>
+                    <button class="win-btn" id="refreshSysInfo">${Icons.ctxRefresh} Refresh</button>
+                    <button class="win-btn" id="exportSysInfo">${Icons.actCopy} Copy to Clipboard</button>
                 </div>
             </div>
         `;

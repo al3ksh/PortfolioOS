@@ -267,26 +267,26 @@ export const PaintApp = {
             <div class="paint-container">
                 <div class="paint-toolbar">
                     <div class="tool-group">
-                        <button class="paint-tool active" data-tool="brush" title="Brush">🖌️</button>
-                        <button class="paint-tool" data-tool="pencil" title="Pencil">✏️</button>
-                        <button class="paint-tool" data-tool="eraser" title="Eraser">🧽</button>
-                        <button class="paint-tool" data-tool="fill" title="Fill">🪣</button>
+                        <button class="paint-tool active" data-tool="brush" title="Brush">${Icons.toolBrush}</button>
+                        <button class="paint-tool" data-tool="pencil" title="Pencil">${Icons.toolPencil}</button>
+                        <button class="paint-tool" data-tool="eraser" title="Eraser">${Icons.toolEraser}</button>
+                        <button class="paint-tool" data-tool="fill" title="Fill">${Icons.toolFill}</button>
                     </div>
                     <div class="tool-group">
-                        <button class="paint-tool" data-tool="line" title="Line">📏</button>
-                        <button class="paint-tool" data-tool="rect" title="Rectangle">⬜</button>
-                        <button class="paint-tool" data-tool="circle" title="Circle">⭕</button>
+                        <button class="paint-tool" data-tool="line" title="Line">${Icons.toolLine}</button>
+                        <button class="paint-tool" data-tool="rect" title="Rectangle">${Icons.toolRect}</button>
+                        <button class="paint-tool" data-tool="circle" title="Circle">${Icons.toolCircle}</button>
                     </div>
                     <div class="tool-group">
-                        <button class="paint-tool" data-tool="text" title="Text">🔤</button>
-                        <button class="paint-tool" data-tool="eyedropper" title="Color Picker">💉</button>
+                        <button class="paint-tool" data-tool="text" title="Text">${Icons.toolText}</button>
+                        <button class="paint-tool" data-tool="eyedropper" title="Color Picker">${Icons.toolPicker}</button>
                     </div>
                     <div class="tool-separator"></div>
                     <div class="brush-sizes">
-                        <button class="size-btn ${PaintApp.brushSize === 1 ? 'active' : ''}" data-size="1">•</button>
-                        <button class="size-btn ${PaintApp.brushSize === 3 ? 'active' : ''}" data-size="3">●</button>
-                        <button class="size-btn ${PaintApp.brushSize === 5 ? 'active' : ''}" data-size="5">⬤</button>
-                        <button class="size-btn ${PaintApp.brushSize === 10 ? 'active' : ''}" data-size="10">🔴</button>
+                        <button class="size-btn ${PaintApp.brushSize === 1 ? 'active' : ''}" data-size="1"><span style="display:inline-block;width:3px;height:3px;background:#000;border-radius:50%"></span></button>
+                        <button class="size-btn ${PaintApp.brushSize === 3 ? 'active' : ''}" data-size="3"><span style="display:inline-block;width:6px;height:6px;background:#000;border-radius:50%"></span></button>
+                        <button class="size-btn ${PaintApp.brushSize === 5 ? 'active' : ''}" data-size="5"><span style="display:inline-block;width:9px;height:9px;background:#000;border-radius:50%"></span></button>
+                        <button class="size-btn ${PaintApp.brushSize === 10 ? 'active' : ''}" data-size="10"><span style="display:inline-block;width:13px;height:13px;background:#000;border-radius:50%"></span></button>
                     </div>
                 </div>
 
@@ -308,8 +308,8 @@ export const PaintApp = {
                 <div class="paint-statusbar">
                     <span id="cursorPos">0, 0</span>
                     <span id="canvasSize">500 x 350</span>
-                    <button class="win-btn win-btn-sm" id="clearCanvas">🗑️ Clear</button>
-                    <button class="win-btn win-btn-sm" id="saveCanvas">💾 Save</button>
+                    <button class="win-btn win-btn-sm" id="clearCanvas">${Icons.actTrash} Clear</button>
+                    <button class="win-btn win-btn-sm" id="saveCanvas">${Icons.actSave} Save</button>
                 </div>
             </div>
         `;
@@ -458,7 +458,7 @@ export const PaintApp = {
         PaintApp.isDrawing = true;
         PaintApp.lastX = e.offsetX;
         PaintApp.lastY = e.offsetY;
-        
+
         // Save to undo history before any drawing operation
         if (PaintApp.canvas) {
             PaintApp.saveToHistory(PaintApp.canvas);
@@ -468,27 +468,42 @@ export const PaintApp = {
         if (PaintApp.currentTool === 'fill') {
             PaintApp.floodFill(e.offsetX, e.offsetY);
             PaintApp.isDrawing = false;
+            return;
         }
 
         // For eyedropper, pick color
         if (PaintApp.currentTool === 'eyedropper') {
             PaintApp.pickColor(e.offsetX, e.offsetY);
             PaintApp.isDrawing = false;
-            // Don't save to history for eyedropper
             PaintApp.undoHistory.pop();
+            return;
         }
 
-        // For text tool
+        // For text tool - show prompt and draw
         if (PaintApp.currentTool === 'text') {
-            PaintApp.addText(e.offsetX, e.offsetY);
+            const px = e.offsetX, py = e.offsetY;
+            const color = PaintApp.currentColor;
+            const fontSize = Math.max(12, PaintApp.brushSize * 4);
+            const cvs = PaintApp.canvas;
+            (async () => {
+                try {
+                    const { DialogManager } = await import('../managers/DialogManager.js');
+                    const text = await DialogManager.prompt('Enter text:', '', 'Add Text');
+                    if (!text || !cvs) return;
+                    const ctx = cvs.getContext('2d');
+                    ctx.fillStyle = color;
+                    ctx.font = `${fontSize}px Arial`;
+                    ctx.fillText(text, px, py);
+                } catch(err) { console.error('TEXT ERROR:', err); }
+            })();
             PaintApp.isDrawing = false;
+            return;
         }
 
         // For shapes, store start point
         if (['line', 'rect', 'circle'].includes(PaintApp.currentTool)) {
             PaintApp.startX = e.offsetX;
             PaintApp.startY = e.offsetY;
-            // Save canvas state for preview
             PaintApp.savedImageData = PaintApp.ctx.getImageData(0, 0, PaintApp.canvas.width, PaintApp.canvas.height);
         }
     },
@@ -626,8 +641,11 @@ export const PaintApp = {
         const { DialogManager } = await import('../managers/DialogManager.js');
         const text = await DialogManager.prompt('Enter text:', '', 'Add Text');
         if (!text) return;
-        
-        const ctx = PaintApp.ctx;
+
+        const canvas = document.querySelector('#paintCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
         ctx.fillStyle = PaintApp.currentColor;
         ctx.font = `${Math.max(12, PaintApp.brushSize * 4)}px Arial`;
         ctx.fillText(text, x, y);

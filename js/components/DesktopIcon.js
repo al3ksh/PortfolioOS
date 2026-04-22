@@ -5,6 +5,7 @@
 import { WindowManager } from '../managers/WindowManager.js';
 import { SoundManager } from '../managers/SoundManager.js';
 import { DesktopGridManager } from '../managers/DesktopGridManager.js';
+import { Icons } from '../icons.js';
 
 export class DesktopIcon {
     constructor(config) {
@@ -202,9 +203,9 @@ export class DesktopIcon {
         `;
 
         const items = [
-            { label: '📂 Open', action: () => this.open() },
+            { label: 'Open', icon: Icons.ctxOpen, action: () => this.open() },
             { type: 'separator' },
-            { label: '📋 Properties', action: () => this.showProperties() }
+            { label: 'Properties', icon: Icons.ctxProps, action: () => this.showProperties() }
         ];
 
         items.forEach(item => {
@@ -215,7 +216,7 @@ export class DesktopIcon {
             } else {
                 const menuItem = document.createElement('div');
                 menuItem.className = 'menu-item';
-                menuItem.textContent = item.label;
+                menuItem.innerHTML = (item.icon || '') + ' ' + item.label;
                 menuItem.addEventListener('mouseenter', () => {
                     menuItem.style.background = 'var(--win-blue)';
                     menuItem.style.color = 'var(--win-text-white)';

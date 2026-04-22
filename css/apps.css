@@ -2,6 +2,62 @@
    APPLICATION-SPECIFIC STYLES
    ============================================ */
 
+/* Global SVG icon sizing - constrain all inline SVG icons */
+.paint-tool,
+.win-btn,
+.card-icon,
+.taskbar-window-btn,
+.tray-icon,
+.tool-group button,
+.status-btn,
+.section-header,
+.form-label,
+.social-link,
+.action-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.menu-item {
+    display: block;
+}
+
+.social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.social-link svg {
+    width: 20px;
+    height: 20px;
+}
+
+.paint-tool svg,
+.tool-group button svg {
+    width: 20px;
+    height: 20px;
+}
+
+.paint-tool svg,
+.win-btn svg,
+.menu-icon svg,
+.card-icon svg,
+.icon-context-menu svg,
+.desktop-context-menu svg,
+.taskbar-window-btn svg,
+.tray-icon svg,
+.status-btn svg,
+.section-header svg,
+.form-label svg,
+.action-card svg,
+.paint-statusbar .win-btn-sm svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
 /* ============================================
    PORTFOLIO APP (BENTO GRID)
    ============================================ */
@@ -287,11 +343,17 @@
 
 .contact-list li {
     margin-bottom: var(--space-xs);
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .contact-list a {
     color: var(--win-blue);
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .contact-list a:hover {
@@ -353,6 +415,7 @@
     flex-direction: column;
     align-items: center;
     padding: var(--space-md);
+    overflow: hidden;
 }
 
 .mines-header {
@@ -470,6 +533,7 @@
 .tunes-container {
     padding: var(--space-md);
     text-align: center;
+    overflow: hidden;
 }
 
 .tunes-display {
@@ -562,6 +626,14 @@
     margin-bottom: var(--space-sm);
     padding-bottom: var(--space-xs);
     border-bottom: 1px solid var(--win-dark-gray);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.control-section h3 svg {
+    width: 20px;
+    height: 20px;
 }
 
 .theme-options {
@@ -996,7 +1068,16 @@
 }
 
 .contact-icon {
-    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.contact-icon svg {
+    width: 32px;
+    height: 32px;
 }
 
 .contact-title h2 {
@@ -1031,7 +1112,17 @@
 }
 
 .label-icon {
-    font-size: 14px;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.label-icon svg {
+    width: 14px;
+    height: 14px;
 }
 
 .win-input, .win-select, .win-textarea {
@@ -1067,8 +1158,9 @@
 }
 
 .contact-link {
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 4px;
     padding: 6px 12px;
     background: var(--win-gray);
@@ -1076,6 +1168,12 @@
     text-decoration: none;
     color: var(--win-black);
     font-size: 12px;
+}
+
+.contact-link svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
 }
 
 .contact-link:hover {
@@ -1420,8 +1518,17 @@
 }
 
 .explorer-item .item-icon {
-    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 4px;
+}
+
+.explorer-item .item-icon svg {
+    width: 24px;
+    height: 24px;
 }
 
 .explorer-item .item-name {
@@ -1454,7 +1561,13 @@
 }
 
 .explorer-content.view-large .explorer-item .item-icon {
-    font-size: 48px;
+    width: 48px;
+    height: 48px;
+}
+
+.explorer-content.view-large .explorer-item .item-icon svg {
+    width: 36px;
+    height: 36px;
 }
 
 .explorer-content.view-small .explorer-item {
@@ -1463,7 +1576,8 @@
 }
 
 .explorer-content.view-small .explorer-item .item-icon {
-    font-size: 20px;
+    width: 20px;
+    height: 20px;
 }
 
 .explorer-content.view-list {
@@ -1479,7 +1593,8 @@
 }
 
 .explorer-content.view-list .explorer-item .item-icon {
-    font-size: 16px;
+    width: 16px;
+    height: 16px;
     margin-bottom: 0;
     margin-right: 8px;
 }
@@ -1502,7 +1617,8 @@
 }
 
 .explorer-content.view-details .explorer-item .item-icon {
-    font-size: 16px;
+    width: 16px;
+    height: 16px;
     margin-bottom: 0;
     margin-right: 8px;
     width: 20px;
@@ -1656,6 +1772,7 @@
     background: var(--win-dark-gray);
     padding: 8px;
     overflow: auto;
+    position: relative;
 }
 
 #paintCanvas {
@@ -1834,9 +1951,20 @@
     color: white;
 }
 
+.tetris-message {
+    text-align: center;
+    width: 100%;
+}
+
 .tetris-message h3 {
     font-size: 20px;
-    margin: 0 0 10px 0;
+    margin: 0 0 10px -20px;
+}
+
+.tetris-message h3 svg {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
 }
 
 .tetris-message p {
