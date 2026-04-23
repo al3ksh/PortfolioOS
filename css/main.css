@@ -303,6 +303,31 @@
     .start-item {
         padding: 10px 12px;
     }
+
+    .start-menu {
+        width: calc(100vw - 16px);
+        max-width: 280px;
+        left: 8px;
+        right: auto;
+        max-height: calc(100vh - 50px);
+        overflow: hidden;
+    }
+
+    .start-menu-item,
+    .start-item {
+        padding: 7px 10px;
+    }
+
+    .snake-container,
+    .tetris-container {
+        overflow: hidden;
+    }
+
+    .snake-container canvas,
+    .tetris-container canvas {
+        max-width: 100%;
+        height: auto !important;
+    }
     
     .calc-btn {
         padding: 14px 10px;

@@ -109,6 +109,25 @@ export const SnakeApp = {
 
         SnakeApp.canvas = container.querySelector('#snakeCanvas');
         SnakeApp.ctx = SnakeApp.canvas?.getContext('2d');
+
+        // Resize canvas to fit container on mobile
+        const gameArea = container.querySelector('.snake-game-area');
+        if (gameArea && SnakeApp.canvas) {
+            const fitCanvas = () => {
+                const maxW = gameArea.clientWidth - 6;
+                if (maxW < 380) {
+                    const scale = maxW / 380;
+                    SnakeApp.canvas.style.width = maxW + 'px';
+                    SnakeApp.canvas.style.height = Math.floor(380 * scale) + 'px';
+                } else {
+                    SnakeApp.canvas.style.width = '';
+                    SnakeApp.canvas.style.height = '';
+                }
+            };
+            fitCanvas();
+            window.addEventListener('resize', fitCanvas);
+            SnakeApp._fitCanvas = fitCanvas;
+        }
         
         // Button handlers
         container.querySelector('#snakeNewGame')?.addEventListener('click', () => {

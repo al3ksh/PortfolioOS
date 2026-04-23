@@ -1877,12 +1877,14 @@
     justify-content: center;
     align-items: center;
     background: var(--canvas-bg);
+    overflow: hidden;
 }
 
 #snakeCanvas {
     display: block;
     background: var(--canvas-grid);
     touch-action: none;
+    max-width: 100%;
 }
 
 .snake-overlay {
