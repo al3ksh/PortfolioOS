@@ -9,7 +9,7 @@ export const PortfolioApp = {
     id: 'portfolio',
     title: 'Portfolio.exe',
     icon: Icons.portfolio,
-    width: 950,
+    width: 1000,
     height: 650,
     minWidth: 650,
     minHeight: 450,
