@@ -145,7 +145,13 @@ export const TetrisApp = {
         // Buttons
         container.querySelector('#tetrisNewGame')?.addEventListener('click', () => TetrisApp.startGame());
         container.querySelector('#tetrisPause')?.addEventListener('click', () => TetrisApp.togglePause());
-        container.querySelector('#tetrisOverlay')?.addEventListener('click', () => TetrisApp.startGame());
+        container.querySelector('#tetrisOverlay')?.addEventListener('click', () => {
+            if (TetrisApp.isPaused) {
+                TetrisApp.togglePause();
+            } else {
+                TetrisApp.startGame();
+            }
+        });
 
         // Keyboard
         TetrisApp.keyHandler = (e) => {
@@ -193,6 +199,27 @@ export const TetrisApp = {
         };
         
         document.addEventListener('keydown', TetrisApp.keyHandler);
+
+        // Pause when tab hidden, resume when visible
+        TetrisApp._visHandler = () => {
+            if (document.hidden) {
+                if (!TetrisApp.isPaused && !TetrisApp.gameOver && TetrisApp.gameLoop) {
+                    TetrisApp._wasRunning = true;
+                    TetrisApp.isPaused = true;
+                    clearInterval(TetrisApp.gameLoop);
+                    TetrisApp.gameLoop = null;
+                }
+            } else {
+                if (TetrisApp._wasRunning && !TetrisApp.gameOver && !TetrisApp.gameLoop) {
+                    TetrisApp._wasRunning = false;
+                    TetrisApp.isPaused = false;
+                    const overlay = document.querySelector('#tetrisOverlay');
+                    if (overlay) overlay.style.display = 'none';
+                    TetrisApp.gameLoop = setInterval(() => TetrisApp.update(), TetrisApp.dropInterval);
+                }
+            }
+        };
+        document.addEventListener('visibilitychange', TetrisApp._visHandler);
         
         // Swipe gestures on board
         const boardWrapper = container.querySelector('.tetris-board-wrapper');
@@ -205,52 +232,55 @@ export const TetrisApp = {
         clearInterval(TetrisApp.gameLoop);
         TetrisApp.gameLoop = null;
         document.removeEventListener('keydown', TetrisApp.keyHandler);
+        document.removeEventListener('visibilitychange', TetrisApp._visHandler);
+        TetrisApp._wasRunning = false;
     },
 
     initSwipeGestures(element) {
         if (!element) return;
-        
+
         let touchStartX = 0;
         let touchStartY = 0;
-        let touchStartTime = 0;
-        const MIN_SWIPE = 25;
-        const MAX_TIME = 300;
-        const HARD_DROP_THRESHOLD = 80;
-        
+        let holdTimer = null;
+
         element.addEventListener('touchstart', (e) => {
             if (TetrisApp.isPaused || TetrisApp.gameOver || !TetrisApp.currentPiece) return;
             const t = e.touches[0];
             touchStartX = t.clientX;
             touchStartY = t.clientY;
-            touchStartTime = Date.now();
+
+            // Hold to soft-drop (speed up, repeats)
+            holdTimer = setTimeout(() => {
+                if (!TetrisApp.isPaused && !TetrisApp.gameOver && TetrisApp.currentPiece) {
+                    TetrisApp.movePiece(0, 1);
+                }
+                holdTimer = setInterval(() => {
+                    if (!TetrisApp.isPaused && !TetrisApp.gameOver && TetrisApp.currentPiece) {
+                        TetrisApp.movePiece(0, 1);
+                    }
+                }, 80);
+            }, 200);
         }, { passive: true });
-        
+
         element.addEventListener('touchend', (e) => {
+            clearTimeout(holdTimer);
+            clearInterval(holdTimer);
+
             if (TetrisApp.isPaused || TetrisApp.gameOver || !TetrisApp.currentPiece) return;
             const t = e.changedTouches[0];
             const dx = t.clientX - touchStartX;
             const dy = t.clientY - touchStartY;
-            const dt = Date.now() - touchStartTime;
-            
-            if (dt > MAX_TIME) return;
-            
-            const absDx = Math.abs(dx);
-            const absDy = Math.abs(dy);
-            
-            if (Math.max(absDx, absDy) < MIN_SWIPE) return;
-            
-            if (absDx > absDy) {
+
+            if (Math.abs(dx) < 20 && Math.abs(dy) < 20) return; // tap, not swipe
+
+            if (Math.abs(dx) > Math.abs(dy)) {
                 if (dx > 0) TetrisApp.movePiece(1, 0);
                 else TetrisApp.movePiece(-1, 0);
             } else {
                 if (dy < 0) {
                     TetrisApp.rotatePiece();
                 } else {
-                    if (dy > HARD_DROP_THRESHOLD && dt < 200) {
-                        TetrisApp.hardDrop();
-                    } else {
-                        TetrisApp.movePiece(0, 1);
-                    }
+                    TetrisApp.hardDrop();
                 }
             }
         }, { passive: true });

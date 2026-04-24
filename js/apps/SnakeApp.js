@@ -138,9 +138,13 @@ export const SnakeApp = {
             SnakeApp.togglePause();
         });
 
-        // Click overlay to start
+        // Click overlay to start or unpause
         container.querySelector('#snakeOverlay')?.addEventListener('click', () => {
-            SnakeApp.startGame();
+            if (SnakeApp.isPaused) {
+                SnakeApp.togglePause();
+            } else {
+                SnakeApp.startGame();
+            }
         });
 
         // Keyboard controls
@@ -185,6 +189,27 @@ export const SnakeApp = {
         };
         
         document.addEventListener('keydown', SnakeApp.keyHandler);
+
+        // Pause when tab hidden, resume when visible
+        SnakeApp._visHandler = () => {
+            if (document.hidden) {
+                if (!SnakeApp.isPaused && !SnakeApp.gameOver && SnakeApp.gameLoop) {
+                    SnakeApp._wasRunning = true;
+                    SnakeApp.isPaused = true;
+                    clearInterval(SnakeApp.gameLoop);
+                    SnakeApp.gameLoop = null;
+                }
+            } else {
+                if (SnakeApp._wasRunning && !SnakeApp.gameOver && !SnakeApp.gameLoop) {
+                    SnakeApp._wasRunning = false;
+                    SnakeApp.isPaused = false;
+                    const overlay = document.querySelector('#snakeOverlay');
+                    if (overlay) overlay.style.display = 'none';
+                    SnakeApp.gameLoop = setInterval(() => SnakeApp.update(), 120);
+                }
+            }
+        };
+        document.addEventListener('visibilitychange', SnakeApp._visHandler);
         
         // Swipe gestures on canvas
         SnakeApp.initSwipeGestures(SnakeApp.canvas);
@@ -197,6 +222,8 @@ export const SnakeApp = {
         clearInterval(SnakeApp.gameLoop);
         SnakeApp.gameLoop = null;
         document.removeEventListener('keydown', SnakeApp.keyHandler);
+        document.removeEventListener('visibilitychange', SnakeApp._visHandler);
+        SnakeApp._wasRunning = false;
     },
 
     initSwipeGestures(canvas) {
