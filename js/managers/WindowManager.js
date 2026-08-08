@@ -2,8 +2,8 @@
  * Window Manager - Handles multiple windows, z-index, focus
  */
 
-import { Window } from '../components/Window.js';
-import { Apps } from '../apps/index.js';
+import { Window } from '../components/Window.js?v=15';
+import { Apps } from '../apps/index.js?v=15';
 
 class WindowManagerClass {
     constructor() {
@@ -73,16 +73,27 @@ class WindowManagerClass {
         // Load saved position from localStorage
         const savedPos = Window.loadPosition(appId);
         
+        const minWidth = app.minWidth || 200;
+        const minHeight = app.minHeight || 150;
+        const taskbarHeight = document.querySelector('.taskbar')?.offsetHeight || 48;
+        const availableWidth = globalThis.innerWidth;
+        const availableHeight = Math.max(0, globalThis.innerHeight - taskbarHeight);
+        const requestedWidth = savedPos?.width || app.width || 400;
+        const requestedHeight = savedPos?.height || app.height || 300;
+        const configuredWidth = Math.min(Math.max(minWidth, requestedWidth), Math.max(minWidth, availableWidth));
+        const configuredHeight = Math.min(Math.max(minHeight, requestedHeight), Math.max(minHeight, availableHeight));
+        const requestedX = options.x ?? savedPos?.x ?? 100 + (this.windows.size * 30);
+        const requestedY = options.y ?? savedPos?.y ?? 80 + (this.windows.size * 30);
         const windowConfig = {
             id: options.allowMultiple ? `${appId}-${Date.now()}` : appId,
             title: app.title,
             icon: app.icon,
-            width: savedPos?.width || app.width || 400,
-            height: savedPos?.height || app.height || 300,
-            minWidth: app.minWidth || 200,
-            minHeight: app.minHeight || 150,
-            x: options.x ?? savedPos?.x ?? 100 + (this.windows.size * 30),
-            y: options.y ?? savedPos?.y ?? 80 + (this.windows.size * 30),
+            width: configuredWidth,
+            height: configuredHeight,
+            minWidth,
+            minHeight,
+            x: Math.max(0, Math.min(requestedX, availableWidth - configuredWidth)),
+            y: Math.max(0, Math.min(requestedY, availableHeight - configuredHeight)),
             resizable: app.resizable !== false,
             hasMenu: app.hasMenu !== false,
             menuItems: app.menuItems || ['File', 'Help'],
@@ -235,9 +246,11 @@ class WindowManagerClass {
      * Add minimized window to tray
      */
     addToTray(windowId, window) {
-        const trayIcon = document.createElement('div');
+        const trayIcon = document.createElement('button');
+        trayIcon.type = 'button';
         trayIcon.className = 'minimized-icon';
         trayIcon.dataset.windowId = windowId;
+        trayIcon.setAttribute('aria-label', `Restore ${window.title}`);
         trayIcon.innerHTML = `
             <span class="mini-icon">${window.icon || ''}</span>
             <span class="mini-title">${window.title}</span>

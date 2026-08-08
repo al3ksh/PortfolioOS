@@ -2,9 +2,9 @@
  * System Information App - Detailed "system" info with charts
  */
 
-import { Icons } from '../icons.js';
-import { WindowManager } from '../managers/WindowManager.js';
-import { SoundManager } from '../managers/SoundManager.js';
+import { Icons } from '../icons.js?v=15';
+import { WindowManager } from '../managers/WindowManager.js?v=15';
+import { SoundManager } from '../managers/SoundManager.js?v=15';
 
 export const SysInfoApp = {
     id: 'sysinfo',
@@ -20,6 +20,8 @@ export const SysInfoApp = {
     render() {
         const startTime = sessionStorage.getItem('bootTime') || new Date().toISOString();
         const uptime = SysInfoApp.calculateUptime(startTime);
+        const info = SysInfoApp.getRuntimeInfo();
+        const esc = (value) => SysInfoApp.escapeHtml(value);
         
         return `
             <div class="sysinfo-container">
@@ -34,16 +36,16 @@ export const SysInfoApp = {
                     <!-- General Tab -->
                     <div class="sysinfo-panel" id="sysinfo-general">
                         <div class="sysinfo-section">
-                            <h3>🖥️ Operating System</h3>
+                            <h3>${Icons.sysOs} Operating System</h3>
                             <table class="sysinfo-table">
-                                <tr><td>OS Name:</td><td>Portfolio OS Professional</td></tr>
+                                <tr><td>OS Name:</td><td>PortfolioOS 98 SE</td></tr>
                                 <tr><td>Version:</td><td>1.0.2026 (Build 31337)</td></tr>
                                 <tr><td>Architecture:</td><td>Retro 32-bit</td></tr>
                                 <tr><td>System Type:</td><td>Web-based Workstation</td></tr>
                             </table>
                         </div>
                         <div class="sysinfo-section">
-                            <h3>👤 User Information</h3>
+                            <h3>${Icons.secUser} User Information</h3>
                             <table class="sysinfo-table">
                                 <tr><td>User Name:</td><td>PORTFOLIO\\Visitor</td></tr>
                                 <tr><td>Registered To:</td><td>Aleks Szotek</td></tr>
@@ -51,7 +53,7 @@ export const SysInfoApp = {
                             </table>
                         </div>
                         <div class="sysinfo-section">
-                            <h3>⏱️ System Uptime</h3>
+                            <h3>${Icons.sysUptime} System Uptime</h3>
                             <div class="uptime-display" id="uptimeDisplay">${uptime}</div>
                         </div>
                     </div>
@@ -59,27 +61,28 @@ export const SysInfoApp = {
                     <!-- Hardware Tab -->
                     <div class="sysinfo-panel hidden" id="sysinfo-hardware">
                         <div class="sysinfo-section">
-                            <h3>🔧 Processor</h3>
+                            <h3>${Icons.sysProcessor} Processor</h3>
                             <table class="sysinfo-table">
-                                <tr><td>CPU:</td><td>JavaScript V8 Engine @ ∞ GHz</td></tr>
-                                <tr><td>Cores:</td><td>${navigator.hardwareConcurrency || 4} Logical Processors</td></tr>
-                                <tr><td>Cache:</td><td>640 KB (Should be enough)</td></tr>
+                                <tr><td>CPU:</td><td>Human Brain @ variable MHz</td></tr>
+                                <tr><td>Cores:</td><td>${esc(info.cores)}</td></tr>
+                                <tr><td>Cache:</td><td>Creative cache (browser-managed)</td></tr>
                             </table>
                         </div>
                         <div class="sysinfo-section">
-                            <h3>💾 Memory</h3>
+                            <h3>${Icons.sysMemory} Memory</h3>
                             <table class="sysinfo-table">
-                                <tr><td>Total RAM:</td><td>${navigator.deviceMemory || 8} GB</td></tr>
-                                <tr><td>Available:</td><td>Plenty</td></tr>
-                                <tr><td>Virtual Memory:</td><td>Unlimited (It's the web!)</td></tr>
+                                <tr><td>Total RAM:</td><td>probably enough</td></tr>
+                                <tr><td>Browser hint:</td><td>${esc(info.deviceMemory)}</td></tr>
+                                <tr><td>Available:</td><td>Browser does not expose this</td></tr>
                             </table>
                         </div>
                         <div class="sysinfo-section">
-                            <h3>🖼️ Display</h3>
+                            <h3>${Icons.sysDisplay} Display</h3>
                             <table class="sysinfo-table">
-                                <tr><td>Resolution:</td><td>${window.screen.width} x ${window.screen.height}</td></tr>
-                                <tr><td>Color Depth:</td><td>${window.screen.colorDepth}-bit</td></tr>
-                                <tr><td>Pixel Ratio:</td><td>${window.devicePixelRatio}x</td></tr>
+                                <tr><td>Resolution:</td><td id="sysinfoResolution">${esc(info.resolution)}</td></tr>
+                                <tr><td>Viewport:</td><td id="sysinfoViewport">${esc(info.viewport)}</td></tr>
+                                <tr><td>Color Depth:</td><td>${esc(info.colorDepth)}</td></tr>
+                                <tr><td>Pixel Ratio:</td><td>${esc(info.pixelRatio)}</td></tr>
                             </table>
                         </div>
                     </div>
@@ -87,7 +90,7 @@ export const SysInfoApp = {
                     <!-- Performance Tab -->
                     <div class="sysinfo-panel hidden" id="sysinfo-performance">
                         <div class="sysinfo-section">
-                            <h3>📊 Resource Usage</h3>
+                            <h3>${Icons.sysPerformance} Resource Usage</h3>
                             <div class="perf-meters">
                                 <div class="perf-meter">
                                     <label>CPU Usage</label>
@@ -113,7 +116,7 @@ export const SysInfoApp = {
                             </div>
                         </div>
                         <div class="sysinfo-section">
-                            <h3>📈 Process Statistics</h3>
+                            <h3>${Icons.sysProcesses} Process Statistics</h3>
                             <table class="sysinfo-table">
                                 <tr><td>Open Windows:</td><td id="openWindows">${WindowManager.windows.size}</td></tr>
                                 <tr><td>DOM Elements:</td><td id="domElements">${document.getElementsByTagName('*').length}</td></tr>
@@ -125,20 +128,23 @@ export const SysInfoApp = {
                     <!-- Network Tab -->
                     <div class="sysinfo-panel hidden" id="sysinfo-network">
                         <div class="sysinfo-section">
-                            <h3>🌐 Connection</h3>
+                            <h3>${Icons.sysNetwork} Connection</h3>
                             <table class="sysinfo-table">
-                                <tr><td>Status:</td><td>${navigator.onLine ? '🟢 Online' : '🔴 Offline'}</td></tr>
-                                <tr><td>Type:</td><td>${navigator.connection?.effectiveType || 'Unknown'}</td></tr>
-                                <tr><td>Downlink:</td><td>${navigator.connection?.downlink || '?'} Mbps</td></tr>
+                                <tr><td>Status:</td><td class="sysinfo-status" id="sysinfoOnline">${info.online ? `${Icons.statusSuccess} Online` : `${Icons.statusError} Offline`}</td></tr>
+                                <tr><td>Type:</td><td>${esc(info.connectionType)}</td></tr>
+                                <tr><td>Downlink:</td><td>${esc(info.downlink)}</td></tr>
                             </table>
                         </div>
                         <div class="sysinfo-section">
-                            <h3>🔗 Browser Info</h3>
+                            <h3>${Icons.sysBrowser} Browser Info</h3>
                             <table class="sysinfo-table">
-                                <tr><td>User Agent:</td><td class="ua-cell">${navigator.userAgent.substring(0, 60)}...</td></tr>
-                                <tr><td>Language:</td><td>${navigator.language}</td></tr>
+                                <tr><td>User Agent:</td><td class="ua-cell">${esc(info.userAgent)}</td></tr>
+                                <tr><td>Language:</td><td>${esc(info.language)}</td></tr>
+                                <tr><td>Languages:</td><td>${esc(info.languages)}</td></tr>
+                                <tr><td>Platform:</td><td>${esc(info.platform)}</td></tr>
+                                <tr><td>Color scheme:</td><td id="sysinfoColorScheme">${esc(info.colorScheme)}</td></tr>
+                                <tr><td>Local time:</td><td id="sysinfoLocalTime">${esc(info.localTime)}</td></tr>
                                 <tr><td>Cookies:</td><td>${navigator.cookieEnabled ? 'Enabled' : 'Disabled'}</td></tr>
-                                <tr><td>Platform:</td><td>${navigator.platform}</td></tr>
                             </table>
                         </div>
                     </div>
@@ -181,6 +187,10 @@ export const SysInfoApp = {
             SysInfoApp.exportInfo();
         });
 
+        SysInfoApp.runtimeHandler = () => SysInfoApp.updateRuntimeValues(container);
+        window.addEventListener('online', SysInfoApp.runtimeHandler);
+        window.addEventListener('offline', SysInfoApp.runtimeHandler);
+
         // Update stats periodically
         SysInfoApp.updateInterval = setInterval(() => {
             if (document.querySelector('#window-sysinfo')) {
@@ -195,6 +205,11 @@ export const SysInfoApp = {
         if (SysInfoApp.updateInterval) {
             clearInterval(SysInfoApp.updateInterval);
         }
+        if (SysInfoApp.runtimeHandler) {
+            window.removeEventListener('online', SysInfoApp.runtimeHandler);
+            window.removeEventListener('offline', SysInfoApp.runtimeHandler);
+            SysInfoApp.runtimeHandler = null;
+        }
     },
 
     calculateUptime(startTime) {
@@ -207,6 +222,66 @@ export const SysInfoApp = {
         const seconds = Math.floor((diff % 60000) / 1000);
         
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    },
+
+    escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = String(value ?? '');
+        return div.innerHTML;
+    },
+
+    getRuntimeInfo() {
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)')?.matches;
+        const prefersLight = window.matchMedia?.('(prefers-color-scheme: light)')?.matches;
+        const colorScheme = prefersDark ? 'Dark' : prefersLight ? 'Light' : 'No preference reported';
+        const cores = Number.isFinite(navigator.hardwareConcurrency)
+            ? `${navigator.hardwareConcurrency} logical processor${navigator.hardwareConcurrency === 1 ? '' : 's'}`
+            : 'Not reported by browser';
+        let localTime;
+        try {
+            localTime = new Intl.DateTimeFormat(undefined, {
+                dateStyle: 'medium',
+                timeStyle: 'medium'
+            }).format(new Date());
+        } catch {
+            localTime = new Date().toLocaleString();
+        }
+
+        return {
+            resolution: `${window.screen.width} × ${window.screen.height}`,
+            viewport: `${window.innerWidth} × ${window.innerHeight}`,
+            colorDepth: `${window.screen.colorDepth || 'Unknown'}-bit`,
+            pixelRatio: `${window.devicePixelRatio || 1}x`,
+            language: navigator.language || 'Not reported',
+            languages: navigator.languages?.join(', ') || navigator.language || 'Not reported',
+            platform: navigator.userAgentData?.platform || navigator.platform || 'Not reported',
+            cores,
+            deviceMemory: navigator.deviceMemory ? `Approx. ${navigator.deviceMemory} GB (coarse browser hint)` : 'Not reported by browser',
+            colorScheme,
+            localTime,
+            online: navigator.onLine,
+            connectionType: connection?.effectiveType || 'Not reported',
+            downlink: Number.isFinite(connection?.downlink) ? `${connection.downlink} Mbps` : 'Not reported',
+            userAgent: navigator.userAgent || 'Not reported'
+        };
+    },
+
+    updateRuntimeValues(container) {
+        const info = SysInfoApp.getRuntimeInfo();
+        const resolution = container.querySelector('#sysinfoResolution');
+        const viewport = container.querySelector('#sysinfoViewport');
+        const localTime = container.querySelector('#sysinfoLocalTime');
+        const colorScheme = container.querySelector('#sysinfoColorScheme');
+        const online = container.querySelector('#sysinfoOnline');
+
+        if (resolution) resolution.textContent = info.resolution;
+        if (viewport) viewport.textContent = info.viewport;
+        if (localTime) localTime.textContent = info.localTime;
+        if (colorScheme) colorScheme.textContent = info.colorScheme;
+        if (online) {
+            online.innerHTML = info.online ? `${Icons.statusSuccess} Online` : `${Icons.statusError} Offline`;
+        }
     },
 
     updateStats(container) {
@@ -245,33 +320,40 @@ export const SysInfoApp = {
         // Update DOM count
         const domElements = container.querySelector('#domElements');
         if (domElements) domElements.textContent = document.getElementsByTagName('*').length;
+
+        SysInfoApp.updateRuntimeValues(container);
     },
 
     exportInfo() {
-        const info = `
+        const info = SysInfoApp.getRuntimeInfo();
+        const report = `
 Portfolio OS System Information
 ================================
 Generated: ${new Date().toLocaleString()}
 
-OS: Portfolio OS Professional v1.0.2026
+OS: PortfolioOS 98 SE v1.0.2026
 Architecture: Retro 32-bit
 User: PORTFOLIO\\Visitor
 
-CPU: JavaScript V8 Engine
-Cores: ${navigator.hardwareConcurrency || 4}
-RAM: ${navigator.deviceMemory || 8} GB
+CPU: Human Brain @ variable MHz
+Cores: ${info.cores}
+RAM: probably enough
 
-Display: ${window.screen.width} x ${window.screen.height}
-Color Depth: ${window.screen.colorDepth}-bit
+Display: ${info.resolution}
+Viewport: ${info.viewport}
+Color Depth: ${info.colorDepth}
+Language: ${info.language}
+Platform: ${info.platform}
+Color scheme: ${info.colorScheme}
+Local time: ${info.localTime}
 
 Browser: ${navigator.userAgent}
-Language: ${navigator.language}
-Online: ${navigator.onLine ? 'Yes' : 'No'}
+Online: ${info.online ? 'Yes' : 'No'}
         `.trim();
 
-        navigator.clipboard.writeText(info).then(() => {
+        navigator.clipboard.writeText(report).then(() => {
             SoundManager.play('chord');
-            import('../managers/DialogManager.js').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
                 DialogManager.alert('System information copied to clipboard!', 'Copy Successful');
             });
         });

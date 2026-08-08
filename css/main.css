@@ -2,13 +2,13 @@
    WIN 3.1 PORTFOLIO OS - MAIN STYLESHEET
    ============================================ */
 
-@import url('variables.css');
-@import url('base.css');
-@import url('boot.css');
-@import url('desktop.css');
-@import url('window.css');
-@import url('components.css');
-@import url('apps.css');
+@import url('variables.css?v=15');
+@import url('base.css?v=15');
+@import url('boot.css?v=15');
+@import url('desktop.css?v=15');
+@import url('window.css?v=15');
+@import url('components.css?v=15');
+@import url('apps.css?v=15');
 
 /* ============================================
    MOBILE RESPONSIVE STYLES
@@ -41,15 +41,13 @@
     
     /* Desktop icons bigger and better spaced */
     .desktop-icons {
-        grid-template-columns: repeat(2, 90px);
-        gap: 12px;
         padding: 12px;
         height: calc(100% - 48px - env(safe-area-inset-bottom, 0));
     }
     
     .desktop-icon {
-        width: 85px;
-        padding: 8px 4px;
+        width: 82px;
+        padding: 6px 2px;
     }
     
     .desktop-icon .icon-image {
@@ -280,13 +278,11 @@
     }
     
     .desktop-icons {
-        grid-template-columns: repeat(2, 80px);
-        gap: 8px;
         padding: 8px;
     }
     
     .desktop-icon {
-        width: 75px;
+        width: 78px;
     }
     
     .desktop-icon .icon-image {

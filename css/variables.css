@@ -207,21 +207,21 @@
     --win-blue: #4a4a8a;
     --win-black: #e0e0e0;
     --win-white: #3d3d5c;
-    --win-dark-gray: #404060;
+    --win-dark-gray: #70708a;
     --win-light-gray: #3d3d5c;
     --win-text-white: #ffffff;
     --selection-bg: #4a4a8a;
     --selection-text: #ffffff;
     --content-bg: #1a1a2e;
     --content-text: #e0e0e0;
-    --content-muted: #808090;
-    --content-dim: #606080;
-    --content-subtle: #a0a0b0;
+    --content-muted: #b8b8c8;
+    --content-dim: #9e9eb4;
+    --content-subtle: #d0d0dc;
     --canvas-bg: #111118;
     --canvas-grid: #1a1a24;
     --canvas-grid-alt: #222233;
     --term-bg: #0a0a14;
-    --term-fg: #c0c0d0;
+    --term-fg: #d5d5e2;
     --calc-screen-bg: #1a2a1a;
     --calc-screen-fg: #00ff00;
     --calc-btn-op: #ff8c00;
@@ -234,15 +234,15 @@
     --accent-blue: #4488ff;
     --accent-yellow: #ddcc00;
     --browser-page-bg: #23233a;
-    --browser-link: #7a7aaa;
+    --browser-link: #b7b8ff;
     --browser-info-bg: #2d2d44;
     --browser-info-border: #5a5a7a;
     --browser-error: #cc4444;
     --simple-accent: #6a6aaa;
     --simple-border: #404060;
     --simple-text: #e0e0e0;
-    --simple-muted: #808090;
-    --simple-dim: #606070;
+    --simple-muted: #b8b8c8;
+    --simple-dim: #9e9eb4;
     --simple-skill-bg: #3d3d5c;
     --simple-skill-text: #c0c0e0;
     --profile-dark: #0f0f1a;
@@ -266,6 +266,16 @@
 
 [data-theme="dark"] .start-menu-logo {
     background: linear-gradient(180deg, var(--win-blue) 0%, var(--win-gray) 100%);
+}
+
+[data-theme="dark"] .sysinfo-table td,
+[data-theme="dark"] .projects-toolbar,
+[data-theme="dark"] .projects-source {
+    color: var(--content-text);
+}
+
+[data-theme="dark"] .sysinfo-table td:first-child {
+    color: var(--content-subtle);
 }
 
 [data-theme="dark"] .browser-home-page {

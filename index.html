@@ -5,10 +5,16 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Aleksh - PortfolioOS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Aleks Szotek — full-stack developer portfolio with selected projects, experience and contact details.">
+    <meta property="og:title" content="Aleks Szotek — Full-Stack Developer">
+    <meta property="og:description" content="Explore Aleks Szotek's projects, experience and developer toolkit in Portfolio OS.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://aleksh.xyz/">
+    <title>Aleks Szotek — PortfolioOS</title>
+    <style>html, body { background: #000; }</style>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23000080' width='100' height='100'/><rect fill='%23c0c0c0' x='10' y='10' width='80' height='70'/><rect fill='%23000080' x='15' y='15' width='70' height='15'/><text x='20' y='27' fill='white' font-size='12' font-family='Arial'>PortfolioOS</text><rect fill='white' x='20' y='35' width='60' height='40'/></svg>">
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/main.css?v=15">
     
     <!-- No-JS Fallback Styles -->
     <noscript>
@@ -99,12 +105,12 @@
         </div>
     </noscript>
     <!-- Privacy Settings Modal -->
-    <div id="privacyModal" class="privacy-modal hidden">
+    <div id="privacyModal" class="privacy-modal hidden" role="dialog" aria-modal="true" aria-labelledby="privacyTitle">
         <div class="privacy-overlay"></div>
         <div class="privacy-window">
             <div class="privacy-titlebar">
                 <span class="privacy-titlebar-icon">🔒</span>
-                <span class="privacy-titlebar-text">Privacy Settings</span>
+                <span id="privacyTitle" class="privacy-titlebar-text">Privacy Settings</span>
             </div>
             <div class="privacy-content">
                 <div class="privacy-icon">💾</div>
@@ -122,7 +128,7 @@
     </div>
 
     <!-- Boot Screen -->
-    <div id="bootScreen" class="boot-screen">
+    <div id="bootScreen" class="boot-screen" role="status" aria-live="polite" aria-label="Portfolio OS boot sequence">
         <div class="boot-text">
             <p id="bootLine1"></p>
             <p id="bootLine2"></p>
@@ -149,7 +155,7 @@
     </div>
 
     <!-- Desktop Environment -->
-    <div id="desktop" class="desktop hidden">
+    <div id="desktop" class="desktop hidden" aria-label="Portfolio OS desktop">
         <!-- Desktop Icons Container -->
         <div id="desktopIcons" class="desktop-icons"></div>
 
@@ -167,7 +173,7 @@
 
         <!-- Taskbar -->
         <div id="taskbar" class="taskbar">
-            <button class="start-button">
+            <button class="start-button" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="startMenu">
                 <span class="start-icon" data-icon="startMenu"></span>
                 <span class="start-text">Start</span>
             </button>
@@ -182,81 +188,85 @@
         </div>
 
         <!-- Start Menu -->
-        <div id="startMenu" class="start-menu">
+        <div id="startMenu" class="start-menu" role="menu" aria-label="Applications">
             <div class="start-menu-header">
                 <div class="start-menu-logo">Portfolio OS</div>
             </div>
             <div class="start-menu-items">
-                <div class="start-item" data-app="portfolio">
+                <button class="start-item" type="button" role="menuitem" data-app="portfolio">
                     <span class="menu-icon" data-icon="smFolder"></span>
                     <span>Portfolio</span>
-                </div>
-                <div class="start-item" data-app="contact">
+                </button>
+                <button class="start-item" type="button" role="menuitem" data-app="contact">
                     <span class="menu-icon" data-icon="smEnvelope"></span>
                     <span>Contact Me</span>
-                </div>
+                </button>
+                <button class="start-item" type="button" role="menuitem" data-app="projects">
+                    <span class="menu-icon" data-icon="smProjects"></span>
+                    <span>Projects</span>
+                </button>
                 <div class="start-menu-divider"></div>
-                <div class="start-item" data-app="explorer">
+                <button class="start-item" type="button" role="menuitem" data-app="explorer">
                     <span class="menu-icon" data-icon="fileFolderOpen"></span>
                     <span>File Explorer</span>
-                </div>
-                <div class="start-item" data-app="notepad">
+                </button>
+                <button class="start-item" type="button" role="menuitem" data-app="notepad">
                     <span class="menu-icon" data-icon="smNotepad"></span>
                     <span>Notepad</span>
-                </div>
-                <div class="start-item" data-app="paint">
+                </button>
+                <button class="start-item" type="button" role="menuitem" data-app="paint">
                     <span class="menu-icon" data-icon="smPaint"></span>
                     <span>Paint</span>
-                </div>
-                <div class="start-item" data-app="terminal">
+                </button>
+                <button class="start-item" type="button" role="menuitem" data-app="terminal">
                     <span class="menu-icon" data-icon="smTerminal"></span>
                     <span>Terminal</span>
-                </div>
-                <div class="start-item" data-app="calc">
+                </button>
+                <button class="start-item" type="button" role="menuitem" data-app="calc">
                     <span class="menu-icon" data-icon="smCalc"></span>
                     <span>Calculator</span>
-                </div>
+                </button>
                 <div class="start-menu-divider"></div>
-                <div class="start-item" data-app="browser">
+                <button class="start-item" type="button" role="menuitem" data-app="browser">
                     <span class="menu-icon" data-icon="smBrowser"></span>
-                    <span>Internet Explorer</span>
-                </div>
-                <div class="start-item" data-app="simplemode">
+                    <span>Internet</span>
+                </button>
+                <button class="start-item" type="button" role="menuitem" data-app="simplemode">
                     <span class="menu-icon" data-icon="smSimple"></span>
                     <span>Simple View</span>
-                </div>
+                </button>
                 <div class="start-menu-divider"></div>
-                <div class="start-item" data-app="mines">
+                <button class="start-item" type="button" role="menuitem" data-app="mines">
                     <span class="menu-icon" data-icon="smMines"></span>
                     <span>Minesweeper</span>
-                </div>
-                <div class="start-item" data-app="tunes">
+                </button>
+                <button class="start-item" type="button" role="menuitem" data-app="tunes">
                     <span class="menu-icon" data-icon="smTunes"></span>
                     <span>Tunes</span>
-                </div>
+                </button>
                 <div class="start-menu-divider"></div>
-                <div class="start-item" data-app="sysinfo">
+                <button class="start-item" type="button" role="menuitem" data-app="sysinfo">
                     <span class="menu-icon" data-icon="smInfo"></span>
                     <span>System Info</span>
-                </div>
-                <div class="start-item" data-app="taskmgr">
+                </button>
+                <button class="start-item" type="button" role="menuitem" data-app="taskmgr">
                     <span class="menu-icon" data-icon="smTaskmgr"></span>
                     <span>Task Manager</span>
-                </div>
-                <div class="start-item" data-app="control">
+                </button>
+                <button class="start-item" type="button" role="menuitem" data-app="control">
                     <span class="menu-icon" data-icon="smSettings"></span>
                     <span>Settings</span>
-                </div>
+                </button>
                 <div class="start-menu-divider"></div>
-                <div class="start-item" data-app="readme">
+                <button class="start-item" type="button" role="menuitem" data-app="readme">
                     <span class="menu-icon" data-icon="smHelp"></span>
                     <span>Help</span>
-                </div>
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Main Script (ES6 Module) -->
-    <script type="module" src="js/main.js?v=2"></script>
+    <script type="module" src="js/main.js?v=15"></script>
 </body>
 </html>

@@ -2,8 +2,8 @@
  * Minesweeper App - Classic game
  */
 
-import { Icons } from '../icons.js';
-import { SoundManager } from '../managers/SoundManager.js';
+import { Icons } from '../icons.js?v=15';
+import { SoundManager } from '../managers/SoundManager.js?v=15';
 
 export const MinesApp = {
     id: 'mines',
@@ -111,7 +111,7 @@ export const MinesApp = {
 
     showBestTimes() {
         const times = JSON.parse(localStorage.getItem('minesweeperBestTimes') || '{}');
-        import('../managers/DialogManager.js').then(({ DialogManager }) => {
+        import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
             DialogManager.info({
                 'Beginner': times.beginner ? `${times.beginner} seconds` : 'Not yet played',
                 'Intermediate': times.intermediate ? `${times.intermediate} seconds` : 'Not yet played',
@@ -121,7 +121,7 @@ export const MinesApp = {
     },
 
     showHowToPlay() {
-        import('../managers/DialogManager.js').then(({ DialogManager }) => {
+        import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
             DialogManager.alert(
                 'How to Play:\n\n' +
                 '• Left-click to reveal a cell\n' +

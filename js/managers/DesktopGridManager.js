@@ -2,8 +2,8 @@
  * Desktop Grid Manager - Handles icon grid layout like modern Windows
  */
 
-import { SoundManager } from './SoundManager.js';
-import { Icons } from '../icons.js';
+import { SoundManager } from './SoundManager.js?v=15';
+import { Icons } from '../icons.js?v=15';
 
 class DesktopGridManagerClass {
     constructor() {
@@ -39,11 +39,17 @@ class DesktopGridManagerClass {
         if (!desktop) return;
 
         const taskbarHeight = 40;
+        const compact = window.innerWidth <= 600;
+        this.cellWidth = compact ? 82 : 90;
+        this.cellHeight = compact ? 96 : 90;
+        this.padding = compact ? 6 : 10;
         const availableWidth = window.innerWidth - this.padding * 2;
         const availableHeight = window.innerHeight - taskbarHeight - this.padding * 2;
 
-        this.cols = Math.floor(availableWidth / this.cellWidth);
-        this.rows = Math.floor(availableHeight / this.cellHeight);
+        this.cols = Math.max(1, Math.floor(availableWidth / this.cellWidth));
+        const visibleRows = Math.max(1, Math.floor(availableHeight / this.cellHeight));
+        const requiredRows = Math.ceil(Math.max(this.icons.size, 1) / this.cols);
+        this.rows = Math.max(visibleRows, requiredRows);
 
         // Initialize empty grid
         this.grid = Array(this.rows).fill(null).map(() => Array(this.cols).fill(null));
@@ -61,6 +67,8 @@ class DesktopGridManagerClass {
      * Place all registered icons in grid
      */
     placeAllIcons() {
+        this.calculateGrid();
+
         // First try to load saved positions
         const saved = localStorage.getItem('desktopIconPositions');
         let savedPositions = {};
@@ -87,7 +95,8 @@ class DesktopGridManagerClass {
 
         // Place remaining icons in free cells
         this.icons.forEach((icon, id) => {
-            if (icon.gridRow === 0 && icon.gridCol === 0 && this.grid[0]?.[0] !== id) {
+            const isPlaced = this.grid.some(row => row.includes(id));
+            if (!isPlaced) {
                 const cell = this.findFreeCell();
                 this.grid[cell.row][cell.col] = id;
                 const pos = this.getPositionFromCell(cell.row, cell.col);
@@ -301,12 +310,13 @@ class DesktopGridManagerClass {
     handleResize() {
         const oldCols = this.cols;
         const oldRows = this.rows;
-        const oldGrid = this.grid.map(row => [...row]); // Deep copy
+        const oldCellWidth = this.cellWidth;
+        const oldCellHeight = this.cellHeight;
         
         this.calculateGrid();
 
         // If grid size changed significantly, need to reorganize
-        if (oldCols !== this.cols || oldRows !== this.rows) {
+        if (oldCols !== this.cols || oldRows !== this.rows || oldCellWidth !== this.cellWidth || oldCellHeight !== this.cellHeight) {
             // Create new empty grid
             this.grid = Array(this.rows).fill(null).map(() => Array(this.cols).fill(null));
 
@@ -346,8 +356,13 @@ class DesktopGridManagerClass {
         // Remove existing menu
         document.querySelector('.desktop-context-menu')?.remove();
 
+        const previousFocus = document.activeElement instanceof HTMLElement
+            ? document.activeElement
+            : null;
         const menu = document.createElement('div');
         menu.className = 'desktop-context-menu';
+        menu.setAttribute('role', 'menu');
+        menu.setAttribute('aria-label', 'Desktop actions');
         menu.style.cssText = `
             position: fixed;
             left: ${x}px;
@@ -363,30 +378,25 @@ class DesktopGridManagerClass {
             { label: 'Sort by Name', icon: Icons.ctxSort, action: () => this.sortByName() },
             { type: 'separator' },
             { label: 'Settings', icon: Icons.smSettings, action: () => {
-                import('../managers/WindowManager.js').then(m => m.WindowManager.createWindow('control'));
+                import('../managers/WindowManager.js?v=15').then(m => m.WindowManager.createWindow('control'));
             }},
             { label: 'System Info', icon: Icons.smInfo, action: () => {
-                import('../managers/WindowManager.js').then(m => m.WindowManager.createWindow('sysinfo'));
+                import('../managers/WindowManager.js?v=15').then(m => m.WindowManager.createWindow('sysinfo'));
             }}
         ];
 
         items.forEach(item => {
             if (item.type === 'separator') {
                 const sep = document.createElement('div');
-                sep.style.cssText = 'height: 1px; background: var(--win-dark-gray); margin: 4px 2px;';
+                sep.className = 'menu-divider';
+                sep.setAttribute('role', 'separator');
                 menu.appendChild(sep);
             } else {
-                const menuItem = document.createElement('div');
+                const menuItem = document.createElement('button');
+                menuItem.type = 'button';
                 menuItem.className = 'menu-item';
-                menuItem.innerHTML = (item.icon || '') + ' ' + item.label;
-                menuItem.addEventListener('mouseenter', () => {
-                    menuItem.style.background = 'var(--win-blue)';
-                    menuItem.style.color = 'var(--win-text-white)';
-                });
-                menuItem.addEventListener('mouseleave', () => {
-                    menuItem.style.background = '';
-                    menuItem.style.color = '';
-                });
+                menuItem.setAttribute('role', 'menuitem');
+                menuItem.innerHTML = `<span class="context-menu-icon" aria-hidden="true">${item.icon || ''}</span><span>${item.label}</span>`;
                 menuItem.addEventListener('click', () => {
                     item.action();
                     menu.remove();
@@ -395,7 +405,26 @@ class DesktopGridManagerClass {
             }
         });
 
+        menu.addEventListener('keydown', (event) => {
+            const menuItems = [...menu.querySelectorAll('.menu-item:not([disabled])')];
+            const currentIndex = menuItems.indexOf(document.activeElement);
+
+            if (event.key === 'Tab') {
+                event.preventDefault();
+                const direction = event.shiftKey ? -1 : 1;
+                const nextIndex = currentIndex < 0
+                    ? 0
+                    : (currentIndex + direction + menuItems.length) % menuItems.length;
+                menuItems[nextIndex]?.focus({ preventScroll: true });
+            } else if (event.key === 'Escape') {
+                event.preventDefault();
+                menu.remove();
+                previousFocus?.focus?.({ preventScroll: true });
+            }
+        });
+
         document.body.appendChild(menu);
+        menu.querySelector('.menu-item')?.focus({ preventScroll: true });
 
         // Adjust if off-screen
         const rect = menu.getBoundingClientRect();

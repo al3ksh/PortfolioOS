@@ -2,15 +2,17 @@
  * Calculator App - Classic Win 3.1 Calculator
  */
 
-import { Icons } from '../icons.js';
-import { SoundManager } from '../managers/SoundManager.js';
+import { Icons } from '../icons.js?v=15';
+import { SoundManager } from '../managers/SoundManager.js?v=15';
 
 export const CalcApp = {
     id: 'calc',
     title: 'Calculator',
     icon: Icons.calc,
-    width: 260,
-    height: 320,
+    width: 300,
+    height: 400,
+    minWidth: 300,
+    minHeight: 400,
     hasMenu: false,
     resizable: false,
 

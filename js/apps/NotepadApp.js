@@ -2,8 +2,8 @@
  * Notepad App - Simple text editor
  */
 
-import { Icons } from '../icons.js';
-import { SoundManager } from '../managers/SoundManager.js';
+import { Icons } from '../icons.js?v=15';
+import { SoundManager } from '../managers/SoundManager.js?v=15';
 
 export const NotepadApp = {
     id: 'notepad',
@@ -53,7 +53,7 @@ export const NotepadApp = {
         switch(action) {
             case 'new':
                 if (textarea.value) {
-                    import('../managers/DialogManager.js').then(async ({ DialogManager }) => {
+                    import('../managers/DialogManager.js?v=15').then(async ({ DialogManager }) => {
                         const confirmed = await DialogManager.confirm('Current content will be lost. Continue?', 'New File');
                         if (confirmed) {
                             textarea.value = '';

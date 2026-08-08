@@ -82,3 +82,10 @@
 .bsod-content .cursor {
     animation: blink 0.5s step-end infinite;
 }
+
+@media (prefers-reduced-motion: reduce) {
+    .boot-text .cursor,
+    .bsod-content .cursor {
+        animation: none;
+    }
+}

@@ -2,23 +2,24 @@
  * Apps Index - Export all apps
  */
 
-import { PortfolioApp } from './PortfolioApp.js';
-import { ReadmeApp } from './ReadmeApp.js';
-import { NotepadApp } from './NotepadApp.js';
-import { TunesApp } from './TunesApp.js';
-import { MinesApp } from './MinesApp.js';
-import { ControlApp } from './ControlApp.js';
-import { TerminalApp } from './TerminalApp.js';
-import { CalcApp } from './CalcApp.js';
-import { TaskMgrApp } from './TaskMgrApp.js';
-import { ContactApp } from './ContactApp.js';
-import { SysInfoApp } from './SysInfoApp.js';
-import { FileExplorerApp } from './FileExplorerApp.js';
-import { PaintApp } from './PaintApp.js';
-import { SnakeApp } from './SnakeApp.js';
-import { TetrisApp } from './TetrisApp.js';
-import { BrowserApp } from './BrowserApp.js';
-import { SimpleModeApp } from './SimpleModeApp.js';
+import { PortfolioApp } from './PortfolioApp.js?v=15';
+import { ReadmeApp } from './ReadmeApp.js?v=15';
+import { NotepadApp } from './NotepadApp.js?v=15';
+import { TunesApp } from './TunesApp.js?v=15';
+import { MinesApp } from './MinesApp.js?v=15';
+import { ControlApp } from './ControlApp.js?v=15';
+import { TerminalApp } from './TerminalApp.js?v=15';
+import { CalcApp } from './CalcApp.js?v=15';
+import { TaskMgrApp } from './TaskMgrApp.js?v=15';
+import { ContactApp } from './ContactApp.js?v=15';
+import { SysInfoApp } from './SysInfoApp.js?v=15';
+import { FileExplorerApp } from './FileExplorerApp.js?v=15';
+import { PaintApp } from './PaintApp.js?v=15';
+import { SnakeApp } from './SnakeApp.js?v=15';
+import { TetrisApp } from './TetrisApp.js?v=15';
+import { BrowserApp } from './BrowserApp.js?v=15';
+import { SimpleModeApp } from './SimpleModeApp.js?v=15';
+import { ProjectsApp } from './ProjectsApp.js?v=15';
 
 export const Apps = {
     portfolio: PortfolioApp,
@@ -37,7 +38,8 @@ export const Apps = {
     snake: SnakeApp,
     tetris: TetrisApp,
     browser: BrowserApp,
-    simplemode: SimpleModeApp
+    simplemode: SimpleModeApp,
+    projects: ProjectsApp
 };
 
 export default Apps;

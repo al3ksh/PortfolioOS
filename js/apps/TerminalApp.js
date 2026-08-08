@@ -2,9 +2,9 @@
  * Terminal App - Fake DOS prompt with commands
  */
 
-import { Icons } from '../icons.js';
-import { WindowManager } from '../managers/WindowManager.js';
-import { SoundManager } from '../managers/SoundManager.js';
+import { Icons } from '../icons.js?v=15';
+import { WindowManager } from '../managers/WindowManager.js?v=15';
+import { SoundManager } from '../managers/SoundManager.js?v=15';
 
 export const TerminalApp = {
     id: 'terminal',
@@ -22,9 +22,18 @@ export const TerminalApp = {
     commands: {
         help: () => `Available commands:
   help      - Show this help
+  neofetch  - Display PortfolioOS system summary
   dir       - List directory contents
   cls       - Clear screen
+  clear     - Clear screen
+  history   - Show command history
   echo      - Print text
+  open      - Open a project or application
+  github    - Open the GitHub profile
+  breadmusic - Open BreadMusic
+  medium    - Open Medium
+  tools     - Open Tools
+  lights    - Open LightsOut
   whoami    - Display current user
   date      - Show current date
   time      - Show current time
@@ -33,6 +42,11 @@ export const TerminalApp = {
   type      - Display file contents
   color     - Change text color
   matrix    - ???
+  sudo      - Request administrator powers
+  format c: - Pretend to format the drive
+  ping girlfriend - Test your luck
+  sl        - Steam locomotive
+  fortune   - Print a random fortune
   exit      - Close terminal`,
 
         dir: (app) => `
@@ -49,7 +63,41 @@ SECRET.DAT            ???    ??-??-??  ??:??a
         3 file(s)         43,406 bytes
         3 dir(s)     640,000 bytes free`,
 
+        neofetch: () => {
+            const cores = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} cores` : 'cores not reported';
+            const scheme = window.matchMedia?.('(prefers-color-scheme: dark)')?.matches ? 'dark' : 'light';
+            return `
+        .--.       PortfolioOS 98 SE
+       |o_o |      -----------------
+       |:_/ |      Host: ${location.hostname || 'localhost'}
+      //   \\\\      Browser: ${navigator.appName || 'browser'}
+     (|     | )    Platform: ${navigator.platform || 'unknown'}
+     /'\\_   _/\\     Resolution: ${window.screen.width}x${window.screen.height}
+     \\___)=(___/     Viewport: ${window.innerWidth}x${window.innerHeight}
+                    CPU: Human Brain @ variable MHz
+                    ${cores}
+                    Theme: ${scheme}
+                    Uptime: ${TerminalApp.getUptime()}`;
+        },
+
         cls: () => '__CLEAR__',
+        clear: () => '__CLEAR__',
+        history: (app) => app.history.length
+            ? app.history.map((command, index) => ` ${String(index + 1).padStart(2, ' ')}  ${command}`).join('\n')
+            : 'No commands in history.',
+
+        open: (app, args) => app.openTarget(args.join(' ')),
+        github: () => {
+            window.open('https://github.com/al3ksh', '_blank', 'noopener,noreferrer');
+            return 'Opening github.com/al3ksh...';
+        },
+        breadmusic: () => {
+            window.open('https://breadmusic.aleksh.xyz', '_blank', 'noopener,noreferrer');
+            return 'Opening breadmusic.aleksh.xyz...';
+        },
+        medium: () => TerminalApp.openTarget('medium'),
+        tools: () => TerminalApp.openTarget('tools'),
+        lights: () => TerminalApp.openTarget('lights'),
         
         echo: (app, args) => args.join(' ') || '',
         
@@ -121,11 +169,18 @@ amazing web experiences. Check out my projects!`;
         },
 
         // Easter eggs
-        sudo: () => 'Nice try, but this is Windows! 😄',
+        sudo: (app, args) => args.join(' ').toLowerCase().includes('rm -rf')
+            ? 'Permission denied: PortfolioOS protects the root directory.'
+            : 'Nice try, but this is Windows!',
         rm: () => 'This is not Linux! Use DEL instead... just kidding, don\'t delete anything!',
-        hack: () => 'HACKING THE MAINFRAME... just kidding, that\'s not how it works! 😂',
-        hello: () => 'Hello there! 👋',
-        coffee: () => '☕ Brewing coffee... Error: Coffee machine not found!',
+        hack: (app, args) => args.join(' ').toLowerCase() === 'nasa'
+            ? 'Connecting to NASA... ACCESS DENIED. Try building something first.'
+            : 'HACKING THE MAINFRAME... just kidding, that\'s not how it works!',
+        format: (app, args) => args.join(' ').toLowerCase() === 'c:'
+            ? 'FORMAT C: aborted. PortfolioOS needs its files.'
+            : 'Specify a drive, for example: format c:',
+        hello: () => 'Hello there!',
+        coffee: () => 'Brewing coffee... Error: Coffee machine not found!',
         konami: () => '↑↑↓↓←→←→BA - Try it on the desktop!',
         
         // More Easter eggs
@@ -136,13 +191,25 @@ amazing web experiences. Check out my projects!`;
         
         answer: () => '42 - The answer to life, the universe, and everything.',
         
-        ping: () => `Pinging localhost [127.0.0.1] with 32 bytes of data:
+        ping: (app, args) => {
+            if (args.join(' ').toLowerCase() === 'girlfriend') {
+                return 'Pinging girlfriend...\nRequest timed out. She is probably busy being awesome.';
+            }
+            return `Pinging localhost [127.0.0.1] with 32 bytes of data:
 Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
 Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
 Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
 
-Ping statistics for 127.0.0.1:
-    Packets: Sent = 3, Received = 3, Lost = 0 (0% loss)`,
+ Ping statistics for 127.0.0.1:
+    Packets: Sent = 3, Received = 3, Lost = 0 (0% loss)`;
+        },
+
+        sl: () => `      ====        ________
+     _|  |__     /        \\
+    /        \\___|  SL    |
+   /  O  O          \\_____/
+  /__________________________\\
+      Choo choo!`,
         
         fortune: () => {
             const fortunes = [
@@ -262,8 +329,51 @@ Ping statistics for 127.0.0.1:
         });
     },
 
+    getUptime() {
+        const bootTime = sessionStorage.getItem('bootTime');
+        if (!bootTime) return '00:00:00';
+
+        const elapsed = Math.max(0, Date.now() - new Date(bootTime).getTime());
+        const hours = Math.floor(elapsed / 3600000);
+        const minutes = Math.floor((elapsed % 3600000) / 60000);
+        const seconds = Math.floor((elapsed % 60000) / 1000);
+        return [hours, minutes, seconds].map(value => String(value).padStart(2, '0')).join(':');
+    },
+
+    openTarget(target) {
+        const normalized = target.trim().toLowerCase();
+        const links = {
+            github: 'https://github.com/al3ksh',
+            breadmusic: 'https://breadmusic.aleksh.xyz',
+            medium: 'https://medium.aleksh.xyz',
+            tools: 'https://tools.aleksh.xyz',
+            lights: 'https://lights.aleksh.xyz',
+            lightsout: 'https://lights.aleksh.xyz',
+            portfolio: 'https://github.com/al3ksh/PortfolioOS'
+        };
+        const apps = {
+            projects: 'projects',
+            paint: 'paint',
+            terminal: 'terminal',
+            sysinfo: 'sysinfo',
+            'system info': 'sysinfo',
+            internet: 'browser',
+            browser: 'browser'
+        };
+
+        if (links[normalized]) {
+            window.open(links[normalized], '_blank', 'noopener,noreferrer');
+            return `Opening ${links[normalized]}...`;
+        }
+        if (apps[normalized]) {
+            WindowManager.createWindow(apps[normalized]);
+            return `Opening ${normalized}...`;
+        }
+        return normalized ? `Cannot open '${target}'. Try: open breadmusic, open medium, open tools, open lights, or open projects.` : 'Open what?';
+    },
+
     executeCommand(cmdLine, output, input) {
-        const parts = cmdLine.split(' ');
+        const parts = cmdLine.trim().split(/\s+/);
         const cmd = parts[0].toLowerCase();
         const args = parts.slice(1);
 

@@ -2,8 +2,14 @@
  * Contact App - Contact form with email simulation
  */
 
-import { Icons } from '../icons.js';
-import { SoundManager } from '../managers/SoundManager.js';
+import { Icons } from '../icons.js?v=15';
+import { SoundManager } from '../managers/SoundManager.js?v=15';
+
+const escapeHtml = (value) => {
+    const div = document.createElement('div');
+    div.textContent = String(value ?? '');
+    return div.innerHTML;
+};
 
 export const ContactApp = {
     id: 'contact',
@@ -74,10 +80,10 @@ export const ContactApp = {
                 </form>
 
                 <div class="contact-links">
-                    <a href="https://github.com/al3ksh" target="_blank" class="contact-link">
+                    <a href="https://github.com/al3ksh" target="_blank" rel="noopener noreferrer" class="contact-link">
                         <span>${Icons.socialGithub}</span> GitHub
                     </a>
-                    <a href="https://discord.com/users/aleksh8" target="_blank" class="contact-link">
+                    <a href="https://discord.com/users/aleksh8" target="_blank" rel="noopener noreferrer" class="contact-link">
                         <span>${Icons.socialDiscord}</span> Discord: aleksh8
                     </a>
                     <a href="mailto:alex.szotek@gmail.com" class="contact-link">
@@ -126,26 +132,31 @@ export const ContactApp = {
         SoundManager.play('click');
 
         // Send to backend API
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
         fetch('/api/contact', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ name, email, subject, message })
+            body: JSON.stringify({ name, email, subject, message }),
+            signal: controller.signal
         })
         .then(response => response.json())
         .then(data => {
+            clearTimeout(timeoutId);
             if (data.success) {
                 SoundManager.play('chord');
                 formEl.innerHTML = `
                     <div class="contact-success">
                         <div class="success-icon">${Icons.statusSuccess}</div>
                         <h3>Message Sent!</h3>
-                        <p>Thanks <strong>${name}</strong>!</p>
-                        <p>I'll respond to <strong>${email}</strong> as soon as possible.</p>
+                        <p>Thanks <strong>${escapeHtml(name)}</strong>!</p>
+                        <p>I'll respond to <strong>${escapeHtml(email)}</strong> as soon as possible.</p>
                         <div class="message-preview">
                             <div class="preview-label">Your message:</div>
-                            <div class="preview-content">"${message.substring(0, 100)}${message.length > 100 ? '...' : ''}"</div>
+                            <div class="preview-content">"${escapeHtml(message.substring(0, 100))}${message.length > 100 ? '...' : ''}"</div>
                         </div>
                         <button class="win-btn" onclick="location.reload()">
                             📝 Send Another
@@ -157,13 +168,14 @@ export const ContactApp = {
             }
         })
         .catch(error => {
+            clearTimeout(timeoutId);
             console.error('Contact form error:', error);
             SoundManager.play('error');
             formEl.innerHTML = `
                 <div class="contact-success">
                     <div class="success-icon">${Icons.statusError}</div>
                     <h3>Failed to Send</h3>
-                    <p>${error.message || 'Something went wrong. Please try again.'}</p>
+                    <p>${escapeHtml(error.name === 'AbortError' ? 'The request timed out. Please try again.' : error.message || 'Something went wrong. Please try again.')}</p>
                         <button class="win-btn" onclick="location.reload()">
                             ${Icons.ctxRefresh} Try Again
                     </button>

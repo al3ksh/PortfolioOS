@@ -3,12 +3,12 @@
  * Windows 3.1 Style Interactive Desktop Environment
  */
 
-import { WindowManager } from './managers/WindowManager.js';
-import { SoundManager } from './managers/SoundManager.js';
-import { DesktopGridManager } from './managers/DesktopGridManager.js';
-import { StorageManager } from './managers/StorageManager.js';
-import { DesktopIcon } from './components/DesktopIcon.js';
-import { Icons } from './icons.js';
+import { WindowManager } from './managers/WindowManager.js?v=15';
+import { SoundManager } from './managers/SoundManager.js?v=15';
+import { DesktopGridManager } from './managers/DesktopGridManager.js?v=15';
+import { StorageManager } from './managers/StorageManager.js?v=15';
+import { DesktopIcon } from './components/DesktopIcon.js?v=15';
+import { Icons } from './icons.js?v=15';
 
 function replaceDataIcons() {
     document.querySelectorAll('[data-icon]').forEach(el => {
@@ -19,8 +19,8 @@ function replaceDataIcons() {
         }
     });
 }
-import { Apps } from './apps/index.js';
-import { ControlApp } from './apps/ControlApp.js';
+import { Apps } from './apps/index.js?v=15';
+import { ControlApp } from './apps/ControlApp.js?v=15';
 
 // ===========================================
 // TASKBAR & START MENU MANAGER
@@ -39,6 +39,14 @@ class TaskbarManager {
             TaskbarManager.toggleStartMenu();
         });
 
+        startBtn?.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                if (!TaskbarManager.startMenuOpen) TaskbarManager.toggleStartMenu();
+                document.querySelector('.start-item')?.focus();
+            }
+        });
+
         // Close start menu when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.start-menu') && !e.target.closest('.start-button')) {
@@ -54,6 +62,21 @@ class TaskbarManager {
                     WindowManager.createWindow(appId);
                     TaskbarManager.closeStartMenu();
                     SoundManager.play('open');
+                }
+            });
+            item.addEventListener('keydown', (event) => {
+                const items = [...document.querySelectorAll('.start-item')];
+                const currentIndex = items.indexOf(item);
+                if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    const nextIndex = event.key === 'ArrowDown'
+                        ? (currentIndex + 1) % items.length
+                        : (currentIndex - 1 + items.length) % items.length;
+                    items[nextIndex]?.focus();
+                } else if (event.key === 'Escape') {
+                    event.preventDefault();
+                    TaskbarManager.closeStartMenu();
+                    startBtn?.focus();
                 }
             });
         });
@@ -135,6 +158,7 @@ class TaskbarManager {
         
         TaskbarManager.startMenuOpen = !TaskbarManager.startMenuOpen;
         menu.classList.toggle('open', TaskbarManager.startMenuOpen);
+        document.querySelector('.start-button')?.setAttribute('aria-expanded', String(TaskbarManager.startMenuOpen));
         SoundManager.play('click');
     }
 
@@ -143,6 +167,7 @@ class TaskbarManager {
         if (menu && TaskbarManager.startMenuOpen) {
             menu.classList.remove('open');
             TaskbarManager.startMenuOpen = false;
+            document.querySelector('.start-button')?.setAttribute('aria-expanded', 'false');
         }
     }
 
@@ -411,6 +436,8 @@ class BootSequence {
         this.bootScreen = document.getElementById('bootScreen');
         this.desktop = document.getElementById('desktop');
         this.bootText = this.bootScreen?.querySelector('.boot-text');
+        this.skipRequested = false;
+        this.finished = false;
         this.lines = [
             { el: document.getElementById('bootLine1'), text: 'Checking Memory... 640K OK', delay: 300 },
             { el: document.getElementById('bootLine2'), text: 'Loading Portfolio OS v1.0...', delay: 600 },
@@ -419,6 +446,31 @@ class BootSequence {
         
         // Set up global error handler
         this.setupErrorHandler();
+        this.setupSkipHandler();
+    }
+
+    setupSkipHandler() {
+        document.addEventListener('keydown', (event) => {
+            const privacyModal = document.getElementById('privacyModal');
+            const activeTag = document.activeElement?.tagName;
+            const isTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag);
+
+            if (!this.bootScreen || this.bootScreen.classList.contains('hidden') ||
+                privacyModal && !privacyModal.classList.contains('hidden') || isTyping) {
+                return;
+            }
+
+            if (event.code === 'Space' || event.key === 'Enter') {
+                event.preventDefault();
+                this.requestSkip();
+            }
+        });
+    }
+
+    requestSkip() {
+        if (this.finished || this.skipRequested) return;
+        this.skipRequested = true;
+        this.finishBoot();
     }
 
     setupErrorHandler() {
@@ -526,14 +578,9 @@ class BootSequence {
             }
 
             await this.typeLines();
+            if (this.skipRequested || this.finished) return;
             await this.sleep(500);
-            
-            // Flash effect
-            this.bootScreen.style.background = '#FFF';
-            await this.sleep(100);
-            this.bootScreen.style.background = '#000';
-            await this.sleep(100);
-            
+            if (this.skipRequested || this.finished) return;
             this.finishBoot();
         } catch (error) {
             this.showBootError(error.message, error.stack, null);
@@ -542,6 +589,7 @@ class BootSequence {
 
     async typeLines() {
         for (const line of this.lines) {
+            if (this.skipRequested) return;
             await this.typeLine(line.el, line.text);
             await this.sleep(line.delay);
         }
@@ -551,6 +599,7 @@ class BootSequence {
         if (!element) return;
         
         for (let i = 0; i <= text.length; i++) {
+            if (this.skipRequested) return;
             element.textContent = text.slice(0, i);
             await this.sleep(20);
         }
@@ -571,6 +620,8 @@ class BootSequence {
 
     finishBoot() {
         try {
+            if (this.finished) return;
+            this.finished = true;
             sessionStorage.setItem('hasBooted', 'true');
             
             if (this.bootScreen) this.bootScreen.classList.add('hidden');
@@ -666,12 +717,13 @@ function createDesktopIcons() {
 
     const iconConfigs = [
         { appId: 'portfolio', title: 'Portfolio.exe', icon: Icons.portfolio },
+        { appId: 'projects', title: 'Projects.exe', icon: Icons.projects },
         { appId: 'readme', title: 'README.TXT', icon: Icons.readme },
         { appId: 'contact', title: 'Contact.exe', icon: Icons.contact },
         { appId: 'notepad', title: 'Notepad.exe', icon: Icons.notepad },
         { appId: 'terminal', title: 'Terminal.exe', icon: Icons.terminal },
         { appId: 'explorer', title: 'Explorer.exe', icon: Icons.explorer },
-        { appId: 'browser', title: 'Internet Explorer', icon: Icons.browser },
+        { appId: 'browser', title: 'Internet.exe', icon: Icons.browser },
         { appId: 'simplemode', title: 'Simple View', icon: Icons.simplemode },
         { appId: 'paint', title: 'Paint.exe', icon: Icons.paint },
         { appId: 'calc', title: 'Calc.exe', icon: Icons.calc },

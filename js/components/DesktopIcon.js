@@ -2,10 +2,10 @@
  * Desktop Icon Component - Grid-based with drag & drop
  */
 
-import { WindowManager } from '../managers/WindowManager.js';
-import { SoundManager } from '../managers/SoundManager.js';
-import { DesktopGridManager } from '../managers/DesktopGridManager.js';
-import { Icons } from '../icons.js';
+import { WindowManager } from '../managers/WindowManager.js?v=15';
+import { SoundManager } from '../managers/SoundManager.js?v=15';
+import { DesktopGridManager } from '../managers/DesktopGridManager.js?v=15';
+import { Icons } from '../icons.js?v=15';
 
 export class DesktopIcon {
     constructor(config) {
@@ -27,6 +27,8 @@ export class DesktopIcon {
         const icon = document.createElement('div');
         icon.className = 'desktop-icon';
         icon.tabIndex = 0;
+        icon.setAttribute('role', 'button');
+        icon.setAttribute('aria-label', this.title);
         icon.dataset.appId = this.appId;
         icon.dataset.iconId = this.id;
         
@@ -81,7 +83,8 @@ export class DesktopIcon {
 
         // Keyboard support
         this.element.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
                 this.open();
             }
         });
@@ -192,8 +195,13 @@ export class DesktopIcon {
         // Remove existing menu
         document.querySelector('.icon-context-menu')?.remove();
 
+        const previousFocus = document.activeElement instanceof HTMLElement
+            ? document.activeElement
+            : null;
         const menu = document.createElement('div');
         menu.className = 'icon-context-menu';
+        menu.setAttribute('role', 'menu');
+        menu.setAttribute('aria-label', `${this.title} actions`);
         menu.style.cssText = `
             position: fixed;
             left: ${x}px;
@@ -211,20 +219,15 @@ export class DesktopIcon {
         items.forEach(item => {
             if (item.type === 'separator') {
                 const sep = document.createElement('div');
-                sep.style.cssText = 'height: 1px; background: var(--win-dark-gray); margin: 4px 2px;';
+                sep.className = 'menu-divider';
+                sep.setAttribute('role', 'separator');
                 menu.appendChild(sep);
             } else {
-                const menuItem = document.createElement('div');
+                const menuItem = document.createElement('button');
+                menuItem.type = 'button';
                 menuItem.className = 'menu-item';
-                menuItem.innerHTML = (item.icon || '') + ' ' + item.label;
-                menuItem.addEventListener('mouseenter', () => {
-                    menuItem.style.background = 'var(--win-blue)';
-                    menuItem.style.color = 'var(--win-text-white)';
-                });
-                menuItem.addEventListener('mouseleave', () => {
-                    menuItem.style.background = '';
-                    menuItem.style.color = '';
-                });
+                menuItem.setAttribute('role', 'menuitem');
+                menuItem.innerHTML = `<span class="context-menu-icon" aria-hidden="true">${item.icon || ''}</span><span>${item.label}</span>`;
                 menuItem.addEventListener('click', () => {
                     item.action();
                     menu.remove();
@@ -233,7 +236,26 @@ export class DesktopIcon {
             }
         });
 
+        menu.addEventListener('keydown', (event) => {
+            const menuItems = [...menu.querySelectorAll('.menu-item:not([disabled])')];
+            const currentIndex = menuItems.indexOf(document.activeElement);
+
+            if (event.key === 'Tab') {
+                event.preventDefault();
+                const direction = event.shiftKey ? -1 : 1;
+                const nextIndex = currentIndex < 0
+                    ? 0
+                    : (currentIndex + direction + menuItems.length) % menuItems.length;
+                menuItems[nextIndex]?.focus({ preventScroll: true });
+            } else if (event.key === 'Escape') {
+                event.preventDefault();
+                menu.remove();
+                previousFocus?.focus?.({ preventScroll: true });
+            }
+        });
+
         document.body.appendChild(menu);
+        menu.querySelector('.menu-item')?.focus({ preventScroll: true });
 
         // Close on click outside
         setTimeout(() => {
@@ -245,9 +267,9 @@ export class DesktopIcon {
     }
 
     showProperties() {
-        import('../apps/index.js').then(module => {
+        import('../apps/index.js?v=15').then(module => {
             const app = module.Apps[this.appId];
-            import('../managers/DialogManager.js').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
                 DialogManager.info({
                     'Name': this.title,
                     'Type': 'Application',

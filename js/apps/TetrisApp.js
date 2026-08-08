@@ -2,8 +2,8 @@
  * Tetris Game App - Classic falling blocks
  */
 
-import { Icons } from '../icons.js';
-import { SoundManager } from '../managers/SoundManager.js';
+import { Icons } from '../icons.js?v=15';
+import { SoundManager } from '../managers/SoundManager.js?v=15';
 
 const getThemeColor = (varName) => getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || '';
 
@@ -72,7 +72,7 @@ export const TetrisApp = {
                 TetrisApp.togglePause();
                 break;
             case 'howToPlay':
-                import('../managers/DialogManager.js').then(({ DialogManager }) => {
+                import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
                     DialogManager.alert(
                         'How to Play Tetris:\n\n' +
                         '• ← → to move piece\n' +

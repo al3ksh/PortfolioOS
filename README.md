@@ -28,7 +28,7 @@ Portfolio OS is a fully functional desktop environment simulation built with van
 - **Paint** - Drawing application
 - **Calculator** - Functional calculator
 - **Terminal** - Command-line interface with custom commands
-- **Internet Explorer** - Web browser with iframe
+- **Internet** - Web browser with iframe
 - **Control Panel** - System settings and themes
 - **System Information** - "Hardware" and performance info
 - **Task Manager** - Running processes view

@@ -2,9 +2,9 @@
  * Window Component - Draggable, resizable window
  */
 
-import { Icons } from '../icons.js';
-import { WindowManager } from '../managers/WindowManager.js';
-import { SoundManager } from '../managers/SoundManager.js';
+import { Icons } from '../icons.js?v=15';
+import { WindowManager } from '../managers/WindowManager.js?v=15';
+import { SoundManager } from '../managers/SoundManager.js?v=15';
 
 export class Window {
     constructor(config) {
@@ -78,6 +78,9 @@ export class Window {
         const win = document.createElement('div');
         win.className = 'window active opening';
         win.id = `window-${this.id}`;
+        const titleId = `window-title-${this.id}`;
+        win.setAttribute('role', 'region');
+        win.setAttribute('aria-labelledby', titleId);
         win.style.cssText = `
             left: ${this.x}px;
             top: ${this.y}px;
@@ -95,15 +98,15 @@ export class Window {
             <!-- Title Bar -->
             <div class="title-bar">
                 <div class="title-bar-icon">${this.icon}</div>
-                <span class="title-bar-text">${this.title}</span>
+                    <span id="${titleId}" class="title-bar-text">${this.title}</span>
                 <div class="title-bar-controls">
-                    <button class="control-btn" data-action="minimize" title="Minimize">
+                    <button class="control-btn" type="button" data-action="minimize" title="Minimize" aria-label="Minimize window">
                         ${Icons.minimize}
                     </button>
-                    <button class="control-btn" data-action="maximize" title="Maximize">
+                    <button class="control-btn" type="button" data-action="maximize" title="Maximize" aria-label="Maximize window">
                         ${Icons.maximize}
                     </button>
-                    <button class="control-btn" data-action="close" title="Close">
+                    <button class="control-btn" type="button" data-action="close" title="Close" aria-label="Close window">
                         ${Icons.close}
                     </button>
                 </div>
@@ -114,10 +117,10 @@ export class Window {
             <div class="menu-bar">
                 ${this.menuItems.map(item => `
                     <div class="menu-item-wrapper" data-menu="${item.toLowerCase()}">
-                        <span class="menu-item">
+                        <button class="menu-item" type="button" aria-haspopup="true" aria-expanded="false">
                             <u>${item[0]}</u>${item.slice(1)}
-                        </span>
-                        <div class="menu-dropdown">
+                        </button>
+                        <div class="menu-dropdown" role="menu">
                             ${this.renderMenuDropdown(item)}
                         </div>
                     </div>
@@ -180,16 +183,20 @@ export class Window {
         const items = this.menuConfig[menuName] || [];
         return items.map(item => {
             if (item.divider) {
-                return '<div class="menu-dropdown-divider"></div>';
+                return '<div class="menu-dropdown-divider" role="separator"></div>';
             }
-            const checkMark = item.checked ? '✓ ' : '';
+            const isCheckable = Object.prototype.hasOwnProperty.call(item, 'checked');
+            const checkMark = item.checked ? Icons.checkmark : '';
             const shortcut = item.shortcut ? `<span class="menu-shortcut">${item.shortcut}</span>` : '';
             const disabled = item.disabled ? 'disabled' : '';
+            const role = isCheckable ? 'menuitemcheckbox' : 'menuitem';
+            const checkedState = isCheckable ? `aria-checked="${Boolean(item.checked)}"` : '';
             return `
-                <div class="menu-dropdown-item ${disabled}" data-action="${item.action}">
-                    <span class="menu-dropdown-label">${checkMark}${item.label}</span>
+                <button class="menu-dropdown-item ${disabled}" type="button" role="${role}" ${checkedState} data-action="${item.action}" ${item.disabled ? 'disabled' : ''}>
+                    <span class="menu-check" aria-hidden="true">${checkMark}</span>
+                    <span class="menu-dropdown-label">${item.label}</span>
                     ${shortcut}
-                </div>
+                </button>
             `;
         }).join('');
     }
@@ -206,7 +213,10 @@ export class Window {
 
         // Close all menus
         const closeAllMenus = () => {
-            menuWrappers.forEach(w => w.classList.remove('active'));
+            menuWrappers.forEach(w => {
+                w.classList.remove('active');
+                w.querySelector('.menu-item')?.setAttribute('aria-expanded', 'false');
+            });
             menuOpen = false;
         };
 
@@ -225,6 +235,7 @@ export class Window {
                     wrapper.classList.add('active');
                     menuOpen = true;
                 }
+                menuItem.setAttribute('aria-expanded', String(!wasActive));
             });
 
             // Hover to switch menus when one is open
@@ -233,6 +244,18 @@ export class Window {
                     closeAllMenus();
                     wrapper.classList.add('active');
                     menuOpen = true;
+                }
+            });
+
+            menuItem.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeAllMenus();
+                    menuItem.focus();
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    wrapper.classList.add('active');
+                    menuOpen = true;
+                    wrapper.querySelector('.menu-dropdown-item:not([disabled])')?.focus();
                 }
             });
 
@@ -299,11 +322,13 @@ export class Window {
         if (!menuConfig) return;
 
         const actionsArray = Array.isArray(actionsToCheck) ? actionsToCheck : [actionsToCheck];
+        const selectedGroup = menuConfig.find(item => actionsArray.includes(item.action))?.checkGroup;
 
         // Update the config
         menuConfig.forEach(item => {
             if (item.divider) return;
             if (exclusive) {
+                if (selectedGroup && item.checkGroup !== selectedGroup) return;
                 item.checked = actionsArray.includes(item.action);
             } else if (actionsArray.includes(item.action)) {
                 item.checked = !item.checked;
@@ -326,6 +351,7 @@ export class Window {
                         SoundManager.play('click');
                         const action = item.dataset.action;
                         wrapper.classList.remove('active');
+                        wrapper.querySelector('.menu-item')?.setAttribute('aria-expanded', 'false');
                         this.handleMenuAction(action, menuName);
                     });
                 });

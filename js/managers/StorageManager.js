@@ -9,6 +9,7 @@ export const StorageManager = {
     // Original localStorage methods
     _originalSetItem: null,
     _originalGetItem: null,
+    _privacyPreviousFocus: null,
     
     /**
      * Check if user has made a consent decision
@@ -110,7 +111,9 @@ export const StorageManager = {
     showModal() {
         const modal = document.getElementById('privacyModal');
         if (modal) {
+            this._privacyPreviousFocus = document.activeElement;
             modal.classList.remove('hidden');
+            setTimeout(() => modal.querySelector('button')?.focus(), 0);
         }
     },
     
@@ -121,6 +124,9 @@ export const StorageManager = {
         const modal = document.getElementById('privacyModal');
         if (modal) {
             modal.classList.add('hidden');
+        }
+        if (this._privacyPreviousFocus?.isConnected) {
+            this._privacyPreviousFocus.focus();
         }
     },
     
@@ -146,6 +152,13 @@ export const StorageManager = {
                 if (onComplete) onComplete(false);
             });
         }
+
+        document.getElementById('privacyModal')?.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                declineBtn?.click();
+            }
+        });
     }
 };
 

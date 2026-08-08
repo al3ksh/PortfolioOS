@@ -1,12 +1,18 @@
 /**
- * Internet Explorer App - Web Browser with iframe
+ * Internet App - Web Browser with iframe
  */
 
-import { Icons } from '../icons.js';
+import { Icons } from '../icons.js?v=15';
+
+const escapeHtml = (value) => {
+    const div = document.createElement('div');
+    div.textContent = String(value ?? '');
+    return div.innerHTML;
+};
 
 export const BrowserApp = {
     id: 'browser',
-    title: 'Internet Explorer',
+    title: 'Internet.exe',
     icon: Icons.browser,
     width: 900,
     height: 700,
@@ -42,7 +48,7 @@ export const BrowserApp = {
             { label: ' GitHub', action: 'goGitHub' }
         ],
         'Help': [
-            { label: 'About Internet Explorer', action: 'about' }
+            { label: 'About Internet', action: 'about' }
         ]
     },
 
@@ -93,7 +99,7 @@ export const BrowserApp = {
                     <div class="ie-logo">
                         <span style="color: #0078D4; font-size: 64px; font-family: 'Times New Roman', serif; font-style: italic; font-weight: bold;">e</span>
                     </div>
-                    <h1>Internet Explorer</h1>
+                    <h1>Internet</h1>
                     <p class="ie-version">Version 3.1 for Portfolio OS</p>
                 </div>
                 
@@ -107,42 +113,42 @@ export const BrowserApp = {
                     <h3>Quick Links</h3>
                     <div class="quicklinks-grid">
                         <a href="#" class="quicklink" data-url="https://en.wikipedia.org">
-                            <span class="quicklink-icon">📚</span>
+                            <span class="quicklink-icon">${Icons.navGlobe}</span>
                             <span>Wikipedia</span>
                         </a>
                         <a href="#" class="quicklink" data-url="https://www.google.com">
-                            <span class="quicklink-icon">🔍</span>
+                            <span class="quicklink-icon">${Icons.navSearch}</span>
                             <span>Google</span>
                         </a>
                         <a href="#" class="quicklink" data-url="https://github.com">
-                            <span class="quicklink-icon">🐙</span>
+                            <span class="quicklink-icon">${Icons.socialGithub}</span>
                             <span>GitHub</span>
                         </a>
                         <a href="#" class="quicklink" data-url="https://www.youtube.com">
-                            <span class="quicklink-icon">📺</span>
+                            <span class="quicklink-icon">${Icons.navGlobe}</span>
                             <span>YouTube</span>
                         </a>
                         <a href="#" class="quicklink" data-url="https://stackoverflow.com">
-                            <span class="quicklink-icon">📋</span>
+                            <span class="quicklink-icon">${Icons.fileText}</span>
                             <span>Stack Overflow</span>
                         </a>
                         <a href="#" class="quicklink" data-url="https://linkedin.com">
-                            <span class="quicklink-icon">💼</span>
+                            <span class="quicklink-icon">${Icons.secBriefcase}</span>
                             <span>LinkedIn</span>
                         </a>
                         <a href="#" class="quicklink" data-url="https://twitter.com">
-                            <span class="quicklink-icon">🐦</span>
+                            <span class="quicklink-icon">${Icons.secUser}</span>
                             <span>Twitter/X</span>
                         </a>
                         <a href="#" class="quicklink" data-url="https://reddit.com">
-                            <span class="quicklink-icon">🤖</span>
+                            <span class="quicklink-icon">${Icons.smInfo}</span>
                             <span>Reddit</span>
                         </a>
                     </div>
                 </div>
                 
                 <div class="browser-info-box">
-                    <p>ℹ️ <strong>Note:</strong> Due to security restrictions, some websites may not load in iframe. 
+                    <p>${Icons.smInfo} <strong>Note:</strong> Due to security restrictions, some websites may not load in iframe.
                     They will open in a new browser tab instead.</p>
                 </div>
             </div>
@@ -268,13 +274,22 @@ export const BrowserApp = {
             return;
         }
 
-        // Add protocol if missing
+        // Add protocol if missing and reject unsafe schemes/attribute payloads.
         if (!url.startsWith('http://') && !url.startsWith('https://')) {
             url = 'https://' + url;
         }
+        try {
+            const parsedUrl = new URL(url);
+            if (!['http:', 'https:'].includes(parsedUrl.protocol)) throw new Error('Unsupported protocol');
+            url = parsedUrl.href;
+        } catch {
+            BrowserApp.showError('Invalid URL');
+            return;
+        }
 
         // Check if site is known to block iframes
-        const isBlocked = BrowserApp.blockedSites.some(site => url.includes(site));
+        const hostname = new URL(url).hostname.toLowerCase();
+        const isBlocked = BrowserApp.blockedSites.some(site => hostname === site || hostname.endsWith(`.${site}`));
         if (isBlocked) {
             BrowserApp.currentUrl = url;
             if (urlInput) urlInput.value = url;
@@ -290,17 +305,18 @@ export const BrowserApp = {
         if (status) status.textContent = 'Loading ' + url + '...';
 
         if (content) {
-            content.innerHTML = `
-                <div class="browser-loading" id="browserLoading">
-                    <div class="loading-spinner"></div>
-                    <p style="margin-top: 15px;">Loading...</p>
-                </div>
-                <iframe class="browser-frame" id="browserFrame" src="${url}" 
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>
-            `;
-
-            const iframe = content.querySelector('#browserFrame');
-            const loading = content.querySelector('#browserLoading');
+            content.replaceChildren();
+            const loading = document.createElement('div');
+            loading.className = 'browser-loading';
+            loading.id = 'browserLoading';
+            loading.innerHTML = '<div class="loading-spinner"></div><p>Loading…</p>';
+            const iframe = document.createElement('iframe');
+            iframe.className = 'browser-frame';
+            iframe.id = 'browserFrame';
+            iframe.src = url;
+            iframe.title = `Embedded page: ${hostname}`;
+            iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation-by-user-activation');
+            content.append(loading, iframe);
 
             // Handle iframe load
             iframe?.addEventListener('load', () => {
@@ -343,7 +359,7 @@ export const BrowserApp = {
                 <div class="browser-error">
                     <div class="error-icon">${Icons.navLock}</div>
                     <h2>This page blocks embedding</h2>
-                    <p>The page <strong>${url}</strong> blocks iframe display for security reasons.</p>
+                    <p>The page <strong>${escapeHtml(url)}</strong> blocks iframe display for security reasons.</p>
                     <p class="error-note">Most large sites (Google, YouTube, GitHub, LinkedIn) use this protection.</p>
                     <button class="win-btn" id="openInNewTab">${Icons.navGlobe} Open in New Tab</button>
                     <button class="win-btn" id="goHomeBtn" style="margin-left: 10px;">${Icons.navHome} Back to Home</button>
@@ -351,7 +367,7 @@ export const BrowserApp = {
             `;
             
             content.querySelector('#openInNewTab')?.addEventListener('click', () => {
-                window.open(url, '_blank');
+                window.open(url, '_blank', 'noopener,noreferrer');
             });
             content.querySelector('#goHomeBtn')?.addEventListener('click', () => {
                 BrowserApp.goHome();
@@ -369,14 +385,14 @@ export const BrowserApp = {
                 <div class="browser-error">
                     <div class="error-icon">${Icons.statusWarning}</div>
                     <h2>Cannot display this page</h2>
-                    <p>The page at <strong>${url}</strong> refused to connect.</p>
+            <p>The page at <strong>${escapeHtml(url)}</strong> refused to connect.</p>
                     <p class="error-note">Many websites block iframe embedding for security reasons.</p>
                     <button class="win-btn" id="openInNewTab">Open in New Tab</button>
                 </div>
             `;
             
             content.querySelector('#openInNewTab')?.addEventListener('click', () => {
-                window.open(url, '_blank');
+                window.open(url, '_blank', 'noopener,noreferrer');
             });
         }
         if (status) status.textContent = 'Error loading page';

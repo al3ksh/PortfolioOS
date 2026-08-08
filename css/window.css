@@ -164,8 +164,8 @@
 
 /* Control Buttons */
 .control-btn {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     padding: 0;
     background: var(--win-gray);
     border: var(--border-normal) solid var(--win-dark-gray);
@@ -210,6 +210,10 @@
     padding: 2px 8px;
     display: block;
     color: var(--content-text);
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    text-align: left;
 }
 
 .menu-item:hover,
@@ -248,6 +252,11 @@
     font-size: var(--font-size-sm);
     white-space: nowrap;
     color: var(--content-text);
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    text-align: left;
 }
 
 .menu-dropdown-item:hover {
@@ -258,6 +267,7 @@
 .menu-dropdown-item.disabled {
     color: var(--win-dark-gray);
     cursor: default;
+    pointer-events: none;
 }
 
 .menu-dropdown-item.disabled:hover {
@@ -267,6 +277,25 @@
 
 .menu-dropdown-label {
     flex: 1;
+}
+
+.menu-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 2px;
+}
+
+.menu-check svg {
+    width: 13px;
+    height: 13px;
+}
+
+.menu-check svg path {
+    stroke: currentColor;
 }
 
 .menu-shortcut {

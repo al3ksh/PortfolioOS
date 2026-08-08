@@ -91,8 +91,41 @@ body {
     outline: none;
 }
 
+:focus-visible {
+    outline: 2px dotted var(--win-blue);
+    outline-offset: 2px;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+svg[aria-hidden="true"] {
+    display: block;
+    overflow: visible;
+    shape-rendering: geometricPrecision;
+}
+
 /* Rainbow animation for easter eggs */
 @keyframes rainbow {
     0% { filter: hue-rotate(0deg); }
     100% { filter: hue-rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.001ms !important;
+    }
+
+    svg animate {
+        display: none;
+    }
 }

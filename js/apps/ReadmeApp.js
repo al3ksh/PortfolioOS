@@ -2,7 +2,7 @@
  * README App - Welcome/Onboarding text
  */
 
-import { Icons } from '../icons.js';
+import { Icons } from '../icons.js?v=15';
 
 export const ReadmeApp = {
     id: 'readme',
@@ -71,7 +71,12 @@ export const ReadmeApp = {
                         <br>
                         <p>🎮 Hidden Terminal commands:</p>
                         <p>   → "matrix" - Matrix effect</p>
+                        <p>   → "neofetch" - System summary</p>
+                        <p>   → "open breadmusic" - Open a project</p>
+                        <p>   → "github" - Open GitHub profile</p>
+                        <p>   → "clear" / "history" - Terminal basics</p>
                         <p>   → "hack" - Hacker simulation</p>
+                        <p>   → "sudo", "format c:", "ping girlfriend" - Safe fake commands</p>
                         <p>   → "fortune" - Fortune cookie</p>
                         <p>   → "cowsay" - Talking cow</p>
                         <p>   → "sl" - Train goes choo</p>

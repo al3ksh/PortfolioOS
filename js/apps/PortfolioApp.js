@@ -2,8 +2,8 @@
  * Portfolio App - Main Bento Grid portfolio
  */
 
-import { Icons } from '../icons.js';
-import { WindowManager } from '../managers/WindowManager.js';
+import { Icons } from '../icons.js?v=15';
+import { WindowManager } from '../managers/WindowManager.js?v=15';
 
 export const PortfolioApp = {
     id: 'portfolio',
@@ -160,29 +160,29 @@ export const PortfolioApp = {
                 </div>
 
                 <!-- Projects Card -->
-                <div class="bento-card" data-span="2x1">
+                <div class="bento-card projects-card" data-span="2x1">
                     <div class="card-header">
                         <div class="card-icon">${Icons.portfolio}</div>
-                        <span class="card-title">Projects</span>
+                        <button class="card-title project-launch" type="button" aria-label="Open Projects application">Projects</button>
                     </div>
                     <div class="card-content projects-content">
                         <div class="project-item">
-                            <strong><a href="https://github.com/al3ksh/BreadMusic" target="_blank">BreadMusic</a></strong>
+                            <strong><a href="https://github.com/al3ksh/BreadMusic" target="_blank" rel="noopener noreferrer">BreadMusic</a></strong>
                             <span class="project-tech">JavaScript</span>
                             <p>Discord music bot packed with features.</p>
                         </div>
                         <div class="project-item">
-                            <strong><a href="https://github.com/al3ksh/Shapey-Tower" target="_blank">Shapey-Tower</a></strong>
+                            <strong><a href="https://github.com/al3ksh/Shapey-Tower" target="_blank" rel="noopener noreferrer">Shapey-Tower</a></strong>
                             <span class="project-tech">C++</span>
                             <p>A tiny vertical arcade platformer.</p>
                         </div>
                         <div class="project-item">
-                            <strong><a href="https://github.com/al3ksh/PortfolioOS" target="_blank">PortfolioOS</a></strong>
+                            <strong><a href="https://github.com/al3ksh/PortfolioOS" target="_blank" rel="noopener noreferrer">PortfolioOS</a></strong>
                             <span class="project-tech">JavaScript</span>
                             <p>Interactive Windows 3.1 style portfolio.</p>
                         </div>
                         <div class="project-item">
-                            <strong><a href="https://github.com/al3ksh/Tools" target="_blank">Tools</a></strong>
+                            <strong><a href="https://github.com/al3ksh/Tools" target="_blank" rel="noopener noreferrer">Tools</a></strong>
                             <span class="project-tech">JavaScript</span>
                             <p>Various utility scripts and tools.</p>
                         </div>
@@ -255,6 +255,11 @@ export const PortfolioApp = {
                 WindowManager.createWindow('contact');
             });
         }
+
+        const projectsBtn = document.querySelector('.project-launch');
+        projectsBtn?.addEventListener('click', () => {
+            WindowManager.createWindow('projects');
+        });
 
         // Start clock in portfolio
         this.clockInterval = setInterval(() => {
@@ -468,19 +473,19 @@ export const PortfolioApp = {
             <section>
                 <h2>Projects</h2>
                 <div class="project-item">
-                    <strong><a href="https://github.com/al3ksh/BreadMusic" target="_blank">BreadMusic</a></strong><span class="project-tech">JavaScript</span>
+                    <strong><a href="https://github.com/al3ksh/BreadMusic" target="_blank" rel="noopener noreferrer">BreadMusic</a></strong><span class="project-tech">JavaScript</span>
                     <p class="project-desc">Discord music bot packed with features.</p>
                 </div>
                 <div class="project-item">
-                    <strong><a href="https://github.com/al3ksh/Shapey-Tower" target="_blank">Shapey Tower</a></strong><span class="project-tech">C++</span>
+                    <strong><a href="https://github.com/al3ksh/Shapey-Tower" target="_blank" rel="noopener noreferrer">Shapey Tower</a></strong><span class="project-tech">C++</span>
                     <p class="project-desc">A tiny vertical arcade platformer.</p>
                 </div>
                 <div class="project-item">
-                    <strong><a href="https://github.com/al3ksh/PortfolioOS" target="_blank">Portfolio OS</a></strong><span class="project-tech">JavaScript, CSS, HTML</span>
+                    <strong><a href="https://github.com/al3ksh/PortfolioOS" target="_blank" rel="noopener noreferrer">Portfolio OS</a></strong><span class="project-tech">JavaScript, CSS, HTML</span>
                     <p class="project-desc">Interactive Windows 3.1 style portfolio with apps and games.</p>
                 </div>
                 <div class="project-item">
-                    <strong><a href="https://github.com/al3ksh/Tools" target="_blank">Tools</a></strong><span class="project-tech">JavaScript</span>
+                    <strong><a href="https://github.com/al3ksh/Tools" target="_blank" rel="noopener noreferrer">Tools</a></strong><span class="project-tech">JavaScript</span>
                     <p class="project-desc">Various utility scripts and tools.</p>
                 </div>
             </section>

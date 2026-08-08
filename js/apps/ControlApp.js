@@ -2,9 +2,9 @@
  * Control Panel App - Settings / Theme switcher
  */
 
-import { Icons } from '../icons.js';
-import { SoundManager } from '../managers/SoundManager.js';
-import { WindowManager } from '../managers/WindowManager.js';
+import { Icons } from '../icons.js?v=15';
+import { SoundManager } from '../managers/SoundManager.js?v=15';
+import { WindowManager } from '../managers/WindowManager.js?v=15';
 
 export const ControlApp = {
     id: 'control',
@@ -34,39 +34,39 @@ export const ControlApp = {
                         Auto theme (Dark 19:00-7:00, Light otherwise)
                     </label>
                     <div class="theme-options expanded">
-                        <div class="theme-option ${ControlApp.currentTheme === 'default' ? 'selected' : ''}" data-theme="default">
+                        <div class="theme-option ${ControlApp.currentTheme === 'default' ? 'selected' : ''}" data-theme-option="default">
                             <div class="theme-preview teal"></div>
                             <span class="theme-name">Teal</span>
                         </div>
-                        <div class="theme-option ${ControlApp.currentTheme === 'dark' ? 'selected' : ''}" data-theme="dark">
+                        <div class="theme-option ${ControlApp.currentTheme === 'dark' ? 'selected' : ''}" data-theme-option="dark">
                             <div class="theme-preview dark"></div>
                             <span class="theme-name">Dark</span>
                         </div>
-                        <div class="theme-option ${ControlApp.currentTheme === 'hotdog' ? 'selected' : ''}" data-theme="hotdog">
+                        <div class="theme-option ${ControlApp.currentTheme === 'hotdog' ? 'selected' : ''}" data-theme-option="hotdog">
                             <div class="theme-preview hotdog"></div>
                             <span class="theme-name">Hot Dog</span>
                         </div>
-                        <div class="theme-option ${ControlApp.currentTheme === 'matrix' ? 'selected' : ''}" data-theme="matrix">
+                        <div class="theme-option ${ControlApp.currentTheme === 'matrix' ? 'selected' : ''}" data-theme-option="matrix">
                             <div class="theme-preview matrix"></div>
                             <span class="theme-name">Matrix</span>
                         </div>
-                        <div class="theme-option ${ControlApp.currentTheme === 'clouds' ? 'selected' : ''}" data-theme="clouds">
+                        <div class="theme-option ${ControlApp.currentTheme === 'clouds' ? 'selected' : ''}" data-theme-option="clouds">
                             <div class="theme-preview clouds"></div>
                             <span class="theme-name">Clouds</span>
                         </div>
-                        <div class="theme-option ${ControlApp.currentTheme === 'win95' ? 'selected' : ''}" data-theme="win95">
+                        <div class="theme-option ${ControlApp.currentTheme === 'win95' ? 'selected' : ''}" data-theme-option="win95">
                             <div class="theme-preview win95"></div>
                             <span class="theme-name">Win 95</span>
                         </div>
-                        <div class="theme-option ${ControlApp.currentTheme === 'win98' ? 'selected' : ''}" data-theme="win98">
+                        <div class="theme-option ${ControlApp.currentTheme === 'win98' ? 'selected' : ''}" data-theme-option="win98">
                             <div class="theme-preview win98"></div>
                             <span class="theme-name">Win 98</span>
                         </div>
-                        <div class="theme-option ${ControlApp.currentTheme === 'macos' ? 'selected' : ''}" data-theme="macos">
+                        <div class="theme-option ${ControlApp.currentTheme === 'macos' ? 'selected' : ''}" data-theme-option="macos">
                             <div class="theme-preview macos"></div>
                             <span class="theme-name">Classic Mac</span>
                         </div>
-                        <div class="theme-option ${ControlApp.currentTheme === 'ubuntu' ? 'selected' : ''}" data-theme="ubuntu">
+                        <div class="theme-option ${ControlApp.currentTheme === 'ubuntu' ? 'selected' : ''}" data-theme-option="ubuntu">
                             <div class="theme-preview ubuntu"></div>
                             <span class="theme-name">Ubuntu</span>
                         </div>
@@ -125,7 +125,7 @@ export const ControlApp = {
         // Theme selection
         window.querySelectorAll('.theme-option').forEach(option => {
             option.addEventListener('click', () => {
-                const theme = option.dataset.theme;
+                const theme = option.dataset.themeOption;
                 ControlApp.setTheme(theme);
                 
                 // Disable auto theme when manually selecting
@@ -187,7 +187,7 @@ export const ControlApp = {
         // Clear session button
         const clearBtn = window.querySelector('#clearSessionBtn');
         clearBtn?.addEventListener('click', async () => {
-            const { DialogManager } = await import('../managers/DialogManager.js');
+            const { DialogManager } = await import('../managers/DialogManager.js?v=15');
             const confirmed = await DialogManager.confirm(
                 'Clear all saved window positions and session data?\n\nThis will reset to default on next refresh.',
                 'Clear Session Data'
@@ -221,7 +221,7 @@ export const ControlApp = {
         
         window.querySelectorAll('.theme-option').forEach(option => {
             option.classList.remove('selected');
-            if (option.dataset.theme === ControlApp.currentTheme) {
+            if (option.dataset.themeOption === ControlApp.currentTheme) {
                 option.classList.add('selected');
             }
         });

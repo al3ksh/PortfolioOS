@@ -2,8 +2,8 @@
  * Simple Mode App - Plain HTML view of Portfolio
  */
 
-import { Icons } from '../icons.js';
-import { PortfolioApp } from './PortfolioApp.js';
+import { Icons } from '../icons.js?v=15';
+import { PortfolioApp } from './PortfolioApp.js?v=15';
 
 export const SimpleModeApp = {
     id: 'simplemode',
@@ -119,22 +119,22 @@ export const SimpleModeApp = {
                 <section class="simple-section">
                     <h2>${Icons.smFolder} Projects</h2>
                     <div class="simple-item">
-                        <strong><a href="https://github.com/al3ksh/BreadMusic" target="_blank">BreadMusic</a></strong>
+                        <strong><a href="https://github.com/al3ksh/BreadMusic" target="_blank" rel="noopener noreferrer">BreadMusic</a></strong>
                         <p>Discord music bot packed with features.</p>
                         <small>JavaScript</small>
                     </div>
                     <div class="simple-item">
-                        <strong><a href="https://github.com/al3ksh/Shapey-Tower" target="_blank">Shapey-Tower</a></strong>
+                        <strong><a href="https://github.com/al3ksh/Shapey-Tower" target="_blank" rel="noopener noreferrer">Shapey-Tower</a></strong>
                         <p>A tiny vertical arcade platformer.</p>
                         <small>C++</small>
                     </div>
                     <div class="simple-item">
-                        <strong><a href="https://github.com/al3ksh/PortfolioOS" target="_blank">PortfolioOS</a></strong>
+                        <strong><a href="https://github.com/al3ksh/PortfolioOS" target="_blank" rel="noopener noreferrer">PortfolioOS</a></strong>
                         <p>Interactive Windows 3.1 style portfolio.</p>
                         <small>JavaScript, CSS, HTML</small>
                     </div>
                     <div class="simple-item">
-                        <strong><a href="https://github.com/al3ksh/Tools" target="_blank">Tools</a></strong>
+                        <strong><a href="https://github.com/al3ksh/Tools" target="_blank" rel="noopener noreferrer">Tools</a></strong>
                         <p>Various utility scripts and tools.</p>
                         <small>JavaScript</small>
                     </div>
@@ -158,7 +158,7 @@ export const SimpleModeApp = {
                     <h2>${Icons.secMail} Contact</h2>
                     <ul class="simple-contact">
                         <li>${Icons.secMail} Email: <a href="mailto:alex.szotek@gmail.com">alex.szotek@gmail.com</a></li>
-                        <li>${Icons.socialGithub} GitHub: <a href="https://github.com/al3ksh" target="_blank">@al3ksh</a></li>
+                        <li>${Icons.socialGithub} GitHub: <a href="https://github.com/al3ksh" target="_blank" rel="noopener noreferrer">@al3ksh</a></li>
                         <li>${Icons.socialDiscord} Discord: aleksh8</li>
                     </ul>
                 </section>

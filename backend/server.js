@@ -9,10 +9,11 @@ const PORT = process.env.PORT || 3000;
 
 // Security middleware
 app.use(helmet());
+app.set('trust proxy', 1);
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || '*'
+    origin: process.env.CORS_ORIGIN || 'http://localhost'
 }));
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
 
 // Rate limiting - max 5 contact requests per 15 minutes per IP
 const contactLimiter = rateLimit({
@@ -40,11 +41,26 @@ app.get('/health', (req, res) => {
 // Contact form endpoint
 app.post('/contact', contactLimiter, async (req, res) => {
     try {
-        const { name, email, subject, message } = req.body;
+        const input = req.body || {};
+        const name = typeof input.name === 'string' ? input.name.trim() : '';
+        const email = typeof input.email === 'string' ? input.email.trim().toLowerCase() : '';
+        const subject = typeof input.subject === 'string' ? input.subject.trim() : '';
+        const message = typeof input.message === 'string' ? input.message.trim() : '';
+
+        const escapeHtml = (value) => String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
 
         // Validation
         if (!name || !email || !message) {
             return res.status(400).json({ error: 'Name, email, and message are required.' });
+        }
+
+        if (name.length > 120 || email.length > 254 || message.length > 5000) {
+            return res.status(400).json({ error: 'Name, email, or message is too long.' });
         }
 
         // Email validation
@@ -62,7 +78,11 @@ app.post('/contact', contactLimiter, async (req, res) => {
             'bug': 'Bug Report'
         };
 
-        const subjectText = subjectMap[subject] || subject || 'Contact Form';
+        const subjectText = subjectMap[subject] || 'Contact Form';
+        const safeName = escapeHtml(name);
+        const safeEmail = escapeHtml(email);
+        const safeSubject = escapeHtml(subjectText);
+        const safeMessage = escapeHtml(message);
 
         // Send email
         const mailOptions = {
@@ -80,20 +100,20 @@ app.post('/contact', contactLimiter, async (req, res) => {
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
                                 <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; width: 100px;">From:</td>
-                                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${name}</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${safeName}</td>
                             </tr>
                             <tr>
                                 <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Email:</td>
-                                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><a href="mailto:${email}">${email}</a></td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><a href="mailto:${safeEmail}">${safeEmail}</a></td>
                             </tr>
                             <tr>
                                 <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Subject:</td>
-                                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${subjectText}</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${safeSubject}</td>
                             </tr>
                         </table>
                         <div style="margin-top: 20px; padding: 15px; background: white; border-left: 4px solid #000080;">
                             <h3 style="margin: 0 0 10px 0; color: #000080;">Message:</h3>
-                            <p style="margin: 0; white-space: pre-wrap;">${message}</p>
+                            <p style="margin: 0; white-space: pre-wrap;">${safeMessage}</p>
                         </div>
                     </div>
                     <div style="background: #c0c0c0; padding: 10px; text-align: center; font-size: 12px; color: #666;">

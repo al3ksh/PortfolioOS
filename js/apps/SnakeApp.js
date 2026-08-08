@@ -2,8 +2,8 @@
  * Snake Game App - Classic snake game
  */
 
-import { Icons } from '../icons.js';
-import { SoundManager } from '../managers/SoundManager.js';
+import { Icons } from '../icons.js?v=15';
+import { SoundManager } from '../managers/SoundManager.js?v=15';
 
 const getThemeColor = (varName) => getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || '';
 
@@ -55,7 +55,7 @@ export const SnakeApp = {
                 SnakeApp.togglePause();
                 break;
             case 'howToPlay':
-                import('../managers/DialogManager.js').then(({ DialogManager }) => {
+                import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
                     DialogManager.alert(
                         'How to Play Snake:\n\n' +
                         '• Arrow Keys / WASD to move\n' +

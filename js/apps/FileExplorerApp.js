@@ -2,9 +2,9 @@
  * File Explorer App - Virtual file browser
  */
 
-import { Icons } from '../icons.js';
-import { SoundManager } from '../managers/SoundManager.js';
-import { WindowManager } from '../managers/WindowManager.js';
+import { Icons } from '../icons.js?v=15';
+import { SoundManager } from '../managers/SoundManager.js?v=15';
+import { WindowManager } from '../managers/WindowManager.js?v=15';
 
 export const FileExplorerApp = {
     id: 'explorer',
@@ -37,14 +37,14 @@ export const FileExplorerApp = {
             { label: 'Invert Selection', action: 'invertSelection' }
         ],
         'View': [
-            { label: 'Large Icons', action: 'viewLarge' },
-            { label: 'Small Icons', action: 'viewSmall' },
-            { label: 'List', action: 'viewList' },
-            { label: 'Details', action: 'viewDetails', checked: true },
+            { label: 'Large Icons', action: 'viewLarge', checked: false, checkGroup: 'viewMode' },
+            { label: 'Small Icons', action: 'viewSmall', checked: false, checkGroup: 'viewMode' },
+            { label: 'List', action: 'viewList', checked: false, checkGroup: 'viewMode' },
+            { label: 'Details', action: 'viewDetails', checked: true, checkGroup: 'viewMode' },
             { divider: true },
             { label: 'Refresh', action: 'refresh', shortcut: 'F5' },
             { divider: true },
-            { label: 'Show Hidden Files', action: 'showHidden' }
+            { label: 'Show Hidden Files', action: 'showHidden', checked: false }
         ],
         'Help': [
             { label: 'Help Topics', action: 'helpTopics', shortcut: 'F1' },
@@ -111,7 +111,7 @@ export const FileExplorerApp = {
     },
 
     async createNewFolder(container) {
-        const { DialogManager } = await import('../managers/DialogManager.js');
+        const { DialogManager } = await import('../managers/DialogManager.js?v=15');
         const name = await DialogManager.prompt('Enter folder name:', '', 'New Folder');
         if (!name) return;
         
@@ -137,7 +137,7 @@ export const FileExplorerApp = {
     },
 
     async showProperties(container) {
-        const { DialogManager } = await import('../managers/DialogManager.js');
+        const { DialogManager } = await import('../managers/DialogManager.js?v=15');
         const selected = FileExplorerApp.selectedItem;
         
         if (!selected) {
@@ -251,7 +251,7 @@ export const FileExplorerApp = {
                         'Internet': {
                             type: 'folder',
                             children: {
-                                'iexplore.exe': { type: 'file', size: '1.2 MB', icon: Icons.smBrowser, action: 'browser' }
+                                'internet.exe': { type: 'file', size: '1.2 MB', icon: Icons.smBrowser, action: 'browser' }
                             }
                         },
                         'Games': {
@@ -727,22 +727,22 @@ v1.0.2026`
             SoundManager.play('open');
         } else if (ext === 'wav') {
             SoundManager.play('chord');
-            import('../managers/DialogManager.js').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
                 DialogManager.alert('♪ Playing sound... ♪\n(Not really, but imagine it!)', 'Media Player');
             });
         } else if (ext === 'zip') {
             SoundManager.play('error');
-            import('../managers/DialogManager.js').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
                 DialogManager.alert('Cannot extract archive.\nWinZIP not installed.', 'Error');
             });
         } else if (ext === 'dll') {
             SoundManager.play('error');
-            import('../managers/DialogManager.js').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
                 DialogManager.alert('This is a system file.\nIt cannot be opened directly.', 'Error');
             });
         } else {
             SoundManager.play('error');
-            import('../managers/DialogManager.js').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
                 DialogManager.alert(
                     `Cannot open "${name}"\n\nNo application associated with this file type.`,
                     'Error'
@@ -752,7 +752,7 @@ v1.0.2026`
     },
 
     async showFileContent(filename, content) {
-        const { DialogManager } = await import('../managers/DialogManager.js');
+        const { DialogManager } = await import('../managers/DialogManager.js?v=15');
         
         // Create a custom modal for file content
         const modal = document.createElement('div');

@@ -2,7 +2,7 @@
  * Dialog Manager - Custom modal dialogs instead of native JS alerts/confirms/prompts
  */
 
-import { SoundManager } from './SoundManager.js';
+import { SoundManager } from './SoundManager.js?v=15';
 
 class DialogManagerClass {
     constructor() {
@@ -59,7 +59,7 @@ class DialogManagerClass {
                 title,
                 content: `
                     <div class="dialog-message">${this.formatMessage(message)}</div>
-                    <input type="text" id="${inputId}" class="dialog-input win-input" value="${defaultValue}">
+                    <input type="text" id="${inputId}" class="dialog-input win-input" value="${this.escapeHtml(defaultValue)}">
                 `,
                 buttons: [
                     { label: 'OK', action: 'ok', primary: true },
@@ -145,7 +145,13 @@ class DialogManagerClass {
      * Format message - convert \n to <br>
      */
     formatMessage(message) {
-        return String(message).replace(/\n/g, '<br>');
+        return this.escapeHtml(message).replace(/\n/g, '<br>');
+    }
+
+    escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = String(value ?? '');
+        return div.innerHTML;
     }
 
     /**
@@ -154,11 +160,15 @@ class DialogManagerClass {
     createDialog(options) {
         const overlay = document.createElement('div');
         overlay.className = 'dialog-overlay';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        const titleId = `dialog-title-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        overlay.setAttribute('aria-labelledby', titleId);
         
         overlay.innerHTML = `
             <div class="dialog-box">
                 <div class="dialog-title-bar">
-                    <span class="dialog-title-text">${options.title || 'Dialog'}</span>
+                    <span id="${titleId}" class="dialog-title-text">${this.escapeHtml(options.title || 'Dialog')}</span>
                     <button class="dialog-close-btn" data-action="close">×</button>
                 </div>
                 <div class="dialog-content">
@@ -205,6 +215,18 @@ class DialogManagerClass {
                 SoundManager.play('click');
                 this.close(overlay);
                 options.onClose?.('cancel');
+            } else if (e.key === 'Tab') {
+                const focusable = [...overlay.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href]')];
+                if (!focusable.length) return;
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
             }
         });
 
@@ -217,6 +239,7 @@ class DialogManagerClass {
      */
     show(dialog) {
         this.activeDialog = dialog;
+        dialog._previousActiveElement = document.activeElement;
         document.body.appendChild(dialog);
         SoundManager.play('chord');
         
@@ -237,6 +260,9 @@ class DialogManagerClass {
      */
     close(dialog) {
         dialog?.remove();
+        if (dialog?._previousActiveElement?.isConnected) {
+            dialog._previousActiveElement.focus();
+        }
         if (this.activeDialog === dialog) {
             this.activeDialog = null;
         }
