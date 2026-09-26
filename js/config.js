@@ -64,8 +64,12 @@ export const Profile = {
         'Next.js', 'PostgreSQL', 'MongoDB', 'Tailwind', 'Docker', 'Git'
     ],
 
-    // Full list shown in Projects.exe; `featured` ones also appear in
-    // Portfolio.exe, Simple View and the generated CV.
+    // Projects.exe loads your public repositories live from the GitHub API
+    // (stars, descriptions, licenses, dates). Set to false to only use the list below.
+    githubSync: true,
+
+    // Offline fallback for Projects.exe and the source of `featured` flags:
+    // featured projects also appear in Portfolio.exe, Simple View and the CV.
     projects: [
         { name: 'PortfolioOS', language: 'JavaScript', tech: 'JavaScript, CSS, HTML', description: 'Interactive Windows 3.1 style portfolio with apps and games.', license: 'MIT', updated: 'Jan 1, 2026', url: 'https://github.com/your-github-username/PortfolioOS', featured: true },
         { name: 'Project-One', language: 'JavaScript', tech: 'Node.js, Express', description: 'Short description of your first project.', stars: 1, updated: 'Jan 1, 2026', url: 'https://github.com/your-github-username/project-one', featured: true },

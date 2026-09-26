@@ -2,7 +2,7 @@
 
 A Windows 3.1 inspired desktop environment that works as an interactive developer portfolio. Built with vanilla HTML, CSS and JavaScript: no frameworks, no build step.
 
-![Version](https://img.shields.io/badge/version-1.1.0-blue)
+![Version](https://img.shields.io/badge/version-1.1.1-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Vanilla JS](https://img.shields.io/badge/vanilla-JavaScript-f7df1e)
 
@@ -33,7 +33,7 @@ A Windows 3.1 inspired desktop environment that works as an interactive develope
 | App | Description |
 | --- | --- |
 | **Portfolio.exe** | Main portfolio in a bento grid layout |
-| **Projects.exe** | Searchable, filterable list of your repositories |
+| **Projects.exe** | Searchable, filterable list of your repositories, synced live from GitHub |
 | **Simple View** | Plain HTML version of the portfolio |
 | **Contact.exe** | Contact form (backed by a small Node.js API) and social links |
 | **README.txt** | Welcome screen and usage guide |
@@ -81,7 +81,8 @@ All personal data lives in a single file: [`js/config.js`](js/config.js). Edit i
 | `bio`, `about` | Portfolio hero card and About section |
 | `contact.email`, `contact.github`, `contact.discord` | Contact app, Portfolio, CV, Terminal `github` command |
 | `experience`, `education`, `skills` | Portfolio, Simple View, CV, `cv.txt` in File Explorer |
-| `projects` | Projects.exe; entries with `featured: true` also appear in Portfolio, Simple View and CV |
+| `githubSync` | When `true` (default), Projects.exe loads your public repositories live from the GitHub API, so stars, descriptions and new repos stay up to date |
+| `projects` | Offline fallback for Projects.exe; entries with `featured: true` also appear in Portfolio, Simple View and CV |
 | `links` | Extra targets for the Terminal `open <name>` command |
 
 A few files are static and cannot read `config.js`, so update them by hand:
