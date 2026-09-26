@@ -3,6 +3,7 @@
  */
 
 import { Icons } from '../icons.js?v=15';
+import { Profile, githubUrl } from '../config.js?v=15';
 import { SoundManager } from '../managers/SoundManager.js?v=15';
 import { WindowManager } from '../managers/WindowManager.js?v=15';
 
@@ -266,7 +267,7 @@ export const FileExplorerApp = {
                 'Users': {
                     type: 'folder',
                     children: {
-                        'Aleks': {
+                        [Profile.firstName]: {
                             type: 'folder',
                             children: {
                                 'Desktop': {
@@ -346,7 +347,7 @@ STACKS=9,256
 
 [SYSTEM]
 VERSION=1.0.2026
-AUTHOR=Aleks Szotek
+AUTHOR=${Profile.name}
 MODE=PRODUCTION
 
 ; Hint: Konami code works here`,
@@ -359,7 +360,7 @@ ECHO.
 
 SET PATH=C:\\WINDOWS;C:\\WINDOWS\\SYSTEM32
 SET PROMPT=$P$G
-SET DEVELOPER=Aleks Szotek
+SET DEVELOPER=${Profile.name}
 
 ECHO System ready.
 ECHO.
@@ -388,42 +389,34 @@ mid=sequencer
 avi=AVIVideo
 
 [Portfolio]
-Developer=Aleks Szotek
+Developer=${Profile.name}
 Theme=teal
 Sound=ON`,
 
-        'cv': `CURRICULUM VITAE
+        get cv() {
+            return `CURRICULUM VITAE
 ================
 
-Aleks Szotek
-Full-Stack Developer
+${Profile.name}
+${Profile.title}
 
 CONTACT:
-- Email: alex.szotek@gmail.com
-- GitHub: github.com/al3ksh
-- Discord: aleksh8
-- Location: Silesia, Poland
+- Email: ${Profile.contact.email}
+- GitHub: github.com/${Profile.contact.github}
+- Discord: ${Profile.contact.discord}
+- Location: ${Profile.location}
 
 EDUCATION:
-- Silesian University of Technology (2025-present)
-  Computer Science
-- Technical School (2025)
-  INF.03 & INF.04 Certifications
+${Profile.education.map(edu => `- ${edu.school} (${edu.date})\n  ${edu.degree}`).join('\n')}
 
 EXPERIENCE:
-- RecodeIT (2024) - Junior Developer
-  Full-time contract position
-- RecodeIT (2024) - Intern
-  Backend development
-- RecodeIT (2023) - Intern
-  First industry experience
+${Profile.experience.map(job => `- ${job.company} (${job.date}) - ${job.role}`).join('\n')}
 
 SKILLS:
-JavaScript, TypeScript, Python, C++
-React, Node.js, Express, SQL
-Git, Docker, Linux
+${Profile.skills.join(', ')}
 
-[Use File > Print Portfolio in Portfolio.exe for full CV]`,
+[Use File > Print Portfolio in Portfolio.exe for full CV]`;
+        },
 
         'projects': `MY PROJECTS
 ===========
@@ -442,7 +435,7 @@ Git, Docker, Linux
    Tech: Python, Express, Docker
 
 4. Open Source Contributions
-   GitHub: github.com/al3ksh
+   GitHub: github.com/${Profile.contact.github}
 
 Check out Portfolio.exe for more details!`,
 
@@ -472,7 +465,7 @@ of them.
 Try the Konami code or explore
 the terminal for more.
 
-- A.S.`,
+- ${Profile.initials}`,
 
         'project_readme': `Portfolio OS
 ============
@@ -488,7 +481,7 @@ Features:
 Built with HTML, CSS, JavaScript.
 No frameworks.
 
-by Aleks Szotek
+by ${Profile.name}
 v1.0.2026`
     },
 

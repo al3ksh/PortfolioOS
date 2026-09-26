@@ -1,114 +1,184 @@
 # Portfolio OS
 
-A Windows 3.1 inspired interactive portfolio website.
+A Windows 3.1 inspired desktop environment that works as an interactive developer portfolio. Built with vanilla HTML, CSS and JavaScript: no frameworks, no build step.
 
-![Portfolio OS](https://img.shields.io/badge/version-1.0-blue)
+![Version](https://img.shields.io/badge/version-1.1.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
+![Vanilla JS](https://img.shields.io/badge/vanilla-JavaScript-f7df1e)
 
-## Overview
+![Portfolio OS desktop with Portfolio.exe open](docs/screenshots/desktop.png)
 
-Portfolio OS is a fully functional desktop environment simulation built with vanilla HTML, CSS, and JavaScript. It recreates the nostalgic Windows 3.1 experience while serving as a creative developer portfolio.
+<table>
+  <tr>
+    <td width="72%"><img src="docs/screenshots/apps.png" alt="Projects, Minesweeper and Terminal running in the dark theme"></td>
+    <td width="28%"><img src="docs/screenshots/mobile.png" alt="Portfolio OS on a phone"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Projects, Minesweeper and Terminal in the Dark theme</sub></td>
+    <td align="center"><sub>Mobile layout</sub></td>
+  </tr>
+</table>
 
 ## Features
 
-### Desktop Environment
-- Draggable, resizable windows with authentic Win 3.1 styling
-- Start menu with application launcher
-- Taskbar with running applications
+### Desktop environment
+- Draggable, resizable windows with authentic retro styling
+- Start menu, taskbar, system tray and clock with calendar popup
 - Desktop icons with grid snapping
-- Multiple themes (Teal, Dark, Matrix, Windows 95/98, macOS, Ubuntu)
-- System clock with calendar popup
+- Themes: Teal, Dark, Hotdog Stand, Matrix, Clouds, Windows 95/98, macOS, Ubuntu, plus auto dark mode
+- CRT effect, Matrix screensaver and optional system sounds
+- Session persistence (window positions and open apps, opt-in via local storage)
 
 ### Applications
-- **Portfolio.exe** - Main portfolio with bento grid layout
-- **Contact.exe** - Contact information and social links
-- **README.txt** - About this project
-- **File Explorer** - Virtual file system browser
-- **Notepad** - Text editor
-- **Paint** - Drawing application
-- **Calculator** - Functional calculator
-- **Terminal** - Command-line interface with custom commands
-- **Internet** - Web browser with iframe
-- **Control Panel** - System settings and themes
-- **System Information** - "Hardware" and performance info
-- **Task Manager** - Running processes view
+| App | Description |
+| --- | --- |
+| **Portfolio.exe** | Main portfolio in a bento grid layout |
+| **Projects.exe** | Searchable, filterable list of your repositories |
+| **Simple View** | Plain HTML version of the portfolio |
+| **Contact.exe** | Contact form (backed by a small Node.js API) and social links |
+| **README.txt** | Welcome screen and usage guide |
+| **File Explorer** | Virtual file system with hidden files |
+| **Notepad**, **Paint**, **Calculator** | Classic utilities |
+| **Terminal** | Fake DOS prompt with custom commands |
+| **Internet** | Iframe based web browser |
+| **Tunes** | Embedded Spotify player |
+| **Control Panel** | Themes, sounds, screensaver and session settings |
+| **System Information**, **Task Manager** | "Hardware" info and running windows |
 
 ### Games
-- **Minesweeper** - Classic minesweeper game
-- **Snake** - Snake game with mobile controls
-- **Tetris** - Tetris with touch support
+- **Minesweeper**
+- **Snake** (with touch controls)
+- **Tetris** (with swipe and hold to drop)
 
-### Special Features
-- CV/Resume generator (File > Print Portfolio)
-- Mobile-responsive touch controls for games
-- Easter eggs (Konami code, terminal commands, hidden files)
-- Sound effects (disabled by default)
-- Screen saver (Matrix rain)
-- Session persistence (window positions saved)
+### Extras
+- CV generator (File > Print Portfolio) with print / save as PDF
+- Static `cv.html` fallback for visitors without JavaScript
+- Easter eggs: Konami code, hidden files, secret terminal commands
 
-## Tech Stack
+## Quick start
 
-- **HTML5** - Semantic markup
-- **CSS3** - Custom properties, Grid, Flexbox
-- **Vanilla JavaScript** - ES6 modules, no frameworks
-- **No build tools** - Pure browser-native code
-
-## Project Structure
-
-```
-Portfolio/
-├── index.html          # Main HTML file
-├── css/
-│   ├── main.css        # CSS imports
-│   ├── variables.css   # Theme variables
-│   ├── base.css        # Reset and base styles
-│   ├── desktop.css     # Desktop, taskbar, start menu
-│   ├── window.css      # Window component styles
-│   ├── components.css  # Reusable components
-│   ├── apps.css        # Application-specific styles
-│   └── boot.css        # Boot screen styles
-├── js/
-│   ├── main.js         # Entry point, boot sequence
-│   ├── icons.js        # Icon definitions
-│   ├── apps/           # Application modules
-│   ├── components/     # UI components
-│   └── managers/       # System managers
-└── README.md
-```
-
-## Running Locally
-
-Simply open `index.html` in a modern browser, or use a local server:
+No build tools are required. Serve the project root with any static server:
 
 ```bash
-# Using Python
+git clone https://github.com/your-github-username/PortfolioOS.git
+cd PortfolioOS
 python -m http.server 8000
-
-# Using Node.js
-npx serve
-
-# Using VS Code Live Server
-# Install "Live Server" extension and click "Go Live"
 ```
 
-## Browser Support
+Then open <http://localhost:8000>. Alternatives: `npx serve`, or the VS Code "Live Server" extension.
 
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
+> Opening `index.html` directly from disk (`file://`) does not work, because browsers block ES module imports there.
 
-## Author
+The contact form needs the backend (see [Docker deployment](#docker-deployment)). Everything else works as a plain static site.
 
-**Aleks Szotek**
-- GitHub: [@al3ksh](https://github.com/al3ksh)
-- Email: alex.szotek@gmail.com
-- Discord: aleksh8
+## Personalization
+
+All personal data lives in a single file: [`js/config.js`](js/config.js). Edit it to make the portfolio yours:
+
+| Field | Used for |
+| --- | --- |
+| `name`, `firstName`, `initials`, `title`, `location` | Portfolio header, CV, System Info, File Explorer, footers |
+| `bio`, `about` | Portfolio hero card and About section |
+| `contact.email`, `contact.github`, `contact.discord` | Contact app, Portfolio, CV, Terminal `github` command |
+| `experience`, `education`, `skills` | Portfolio, Simple View, CV, `cv.txt` in File Explorer |
+| `projects` | Projects.exe; entries with `featured: true` also appear in Portfolio, Simple View and CV |
+| `links` | Extra targets for the Terminal `open <name>` command |
+
+A few files are static and cannot read `config.js`, so update them by hand:
+
+- **`index.html`**: `<title>`, `description` and Open Graph meta tags
+- **`cv.html`**: the no-JavaScript CV fallback
+- **`js/apps/TunesApp.js`**: the Spotify track in `TRACK`
+
+### Keeping your data out of the repository
+
+If you publish your fork but do not want your personal data in it, keep `config.js` with placeholders and store the real files in a `private/` folder (ignored by git). A `docker-compose.override.yml` in the repo root (also ignored, and loaded automatically by Docker Compose) mounts them over the placeholders:
+
+```yaml
+services:
+  frontend:
+    volumes:
+      - ./private/config.js:/usr/share/nginx/html/js/config.js:ro
+      - ./private/index.html:/usr/share/nginx/html/index.html:ro
+      - ./private/cv.html:/usr/share/nginx/html/cv.html:ro
+```
+
+## Docker deployment
+
+The repository ships with a two-container setup:
+
+- **frontend**: nginx serving the static files, proxying `/api/*` to the backend
+- **backend**: Express + Nodemailer API that sends contact form messages by email
+
+```bash
+cp .env.example .env
+# fill in your SMTP credentials and CONTACT_EMAIL
+docker compose up -d --build
+```
+
+The site is then available on port 80.
+
+### Environment variables
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `FRONTEND_PORT` | Host port for the website | `80` |
+| `SMTP_HOST` | SMTP server | `smtp.gmail.com` |
+| `SMTP_PORT` | SMTP port | `587` |
+| `SMTP_SECURE` | Use TLS from the start (`true` for port 465) | `false` |
+| `SMTP_USER` | SMTP login (also used as the sender address) | none |
+| `SMTP_PASS` | SMTP password; for Gmail use an [App Password](https://support.google.com/accounts/answer/185833) | none |
+| `CONTACT_EMAIL` | Where contact form messages are delivered | `SMTP_USER` |
+| `CORS_ORIGIN` | Allowed origin for the API | `*` |
+
+The backend applies Helmet security headers, input validation, HTML escaping and rate limiting (5 messages per 15 minutes per IP).
+
+### Running the backend without Docker
+
+```bash
+cd backend
+npm install
+SMTP_USER=you@example.com SMTP_PASS=your-app-password npm start
+```
+
+The frontend calls `/api/contact`, so put a reverse proxy in front of it (see [`nginx.conf`](nginx.conf)) when not using Docker.
+
+## Project structure
+
+```
+PortfolioOS/
+├── index.html            # App shell, boot screen, desktop markup
+├── cv.html               # Static CV (no-JS fallback)
+├── css/
+│   ├── main.css          # Entry point, imports the rest
+│   ├── variables.css     # Theme variables
+│   └── ...               # base, desktop, window, components, apps, boot
+├── js/
+│   ├── config.js         # Your personal data (edit this!)
+│   ├── main.js           # Boot sequence and desktop logic
+│   ├── icons.js          # SVG icon set
+│   ├── apps/             # One module per application
+│   ├── components/       # Window and desktop icon components
+│   └── managers/         # Windows, dialogs, sounds, storage, desktop grid
+├── backend/              # Contact form API (Express + Nodemailer)
+├── Dockerfile            # Frontend image (nginx)
+├── docker-compose.yml
+├── nginx.conf
+└── .env.example
+```
+
+### Adding an app
+
+1. Create `js/apps/MyApp.js` exporting an object with `id`, `title`, `icon`, `render()` and optionally `onInit()`, `onClose()`, `menuConfig` and `onMenuAction()`. Existing apps such as `CalcApp.js` are good references.
+2. Register it in [`js/apps/index.js`](js/apps/index.js).
+3. Add styles to `css/apps.css`.
+
+> Imports use a `?v=15` query string for cache busting. Bump it across files when deploying changes behind aggressive caches.
+
+## Browser support
+
+Current versions of Chrome, Firefox, Safari and Edge (ES modules and CSS custom properties are required).
 
 ## License
 
-MIT License - feel free to use this as inspiration for your own portfolio!
-
----
-
-*Made with nostalgia and JavaScript*
+Released under the [MIT License](LICENSE). Feel free to fork it and build your own portfolio on top of it.

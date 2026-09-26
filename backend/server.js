@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL || process.env.SMTP_USER;
 
 // Security middleware
 app.use(helmet());
@@ -87,7 +88,7 @@ app.post('/contact', contactLimiter, async (req, res) => {
         // Send email
         const mailOptions = {
             from: `"Portfolio Contact" <${process.env.SMTP_USER}>`,
-            to: process.env.CONTACT_EMAIL || 'alex.szotek@gmail.com',
+            to: CONTACT_EMAIL,
             replyTo: email,
             subject: `[Portfolio] ${subjectText} from ${name}`,
             html: `
@@ -136,5 +137,9 @@ app.post('/contact', contactLimiter, async (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`🚀 Portfolio Backend running on port ${PORT}`);
-    console.log(`📧 Contact emails will be sent to: ${process.env.CONTACT_EMAIL || 'alex.szotek@gmail.com'}`);
+    if (CONTACT_EMAIL) {
+        console.log(`📧 Contact emails will be sent to: ${CONTACT_EMAIL}`);
+    } else {
+        console.warn('⚠️  CONTACT_EMAIL and SMTP_USER are not set - the contact form will not be able to send emails.');
+    }
 });

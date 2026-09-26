@@ -3,6 +3,7 @@
  */
 
 import { Icons } from '../icons.js?v=15';
+import { Profile, githubUrl } from '../config.js?v=15';
 
 export const ReadmeApp = {
     id: 'readme',
@@ -72,7 +73,7 @@ export const ReadmeApp = {
                         <p>🎮 Hidden Terminal commands:</p>
                         <p>   → "matrix" - Matrix effect</p>
                         <p>   → "neofetch" - System summary</p>
-                        <p>   → "open breadmusic" - Open a project</p>
+                        <p>   → "open website" - Open a link</p>
                         <p>   → "github" - Open GitHub profile</p>
                         <p>   → "clear" / "history" - Terminal basics</p>
                         <p>   → "hack" - Hacker simulation</p>

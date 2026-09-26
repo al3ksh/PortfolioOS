@@ -8,6 +8,13 @@ backend/node_modules/
 .env.*.local
 !.env.example
 
+# Private deployment data (real profile, overrides)
+private/
+docker-compose.override.yml
+
+# Claude Code local config
+.claude/
+
 # IDE
 .vscode/
 .idea/

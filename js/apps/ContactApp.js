@@ -3,6 +3,7 @@
  */
 
 import { Icons } from '../icons.js?v=15';
+import { Profile, githubUrl } from '../config.js?v=15';
 import { SoundManager } from '../managers/SoundManager.js?v=15';
 
 const escapeHtml = (value) => {
@@ -80,13 +81,13 @@ export const ContactApp = {
                 </form>
 
                 <div class="contact-links">
-                    <a href="https://github.com/al3ksh" target="_blank" rel="noopener noreferrer" class="contact-link">
+                    <a href="${githubUrl()}" target="_blank" rel="noopener noreferrer" class="contact-link">
                         <span>${Icons.socialGithub}</span> GitHub
                     </a>
-                    <a href="https://discord.com/users/aleksh8" target="_blank" rel="noopener noreferrer" class="contact-link">
-                        <span>${Icons.socialDiscord}</span> Discord: aleksh8
+                    <a href="https://discord.com/users/${Profile.contact.discord}" target="_blank" rel="noopener noreferrer" class="contact-link">
+                        <span>${Icons.socialDiscord}</span> Discord: ${Profile.contact.discord}
                     </a>
-                    <a href="mailto:alex.szotek@gmail.com" class="contact-link">
+                    <a href="mailto:${Profile.contact.email}" class="contact-link">
                         <span>${Icons.secMail}</span> Email
                     </a>
                 </div>

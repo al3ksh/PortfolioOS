@@ -5,6 +5,7 @@
 import { Icons } from '../icons.js?v=15';
 import { WindowManager } from '../managers/WindowManager.js?v=15';
 import { SoundManager } from '../managers/SoundManager.js?v=15';
+import { Profile, githubUrl } from '../config.js?v=15';
 
 export const TerminalApp = {
     id: 'terminal',
@@ -30,10 +31,6 @@ export const TerminalApp = {
   echo      - Print text
   open      - Open a project or application
   github    - Open the GitHub profile
-  breadmusic - Open BreadMusic
-  medium    - Open Medium
-  tools     - Open Tools
-  lights    - Open LightsOut
   whoami    - Display current user
   date      - Show current date
   time      - Show current time
@@ -88,16 +85,9 @@ SECRET.DAT            ???    ??-??-??  ??:??a
 
         open: (app, args) => app.openTarget(args.join(' ')),
         github: () => {
-            window.open('https://github.com/al3ksh', '_blank', 'noopener,noreferrer');
-            return 'Opening github.com/al3ksh...';
+            window.open(githubUrl(), '_blank', 'noopener,noreferrer');
+            return `Opening github.com/${Profile.contact.github}...`;
         },
-        breadmusic: () => {
-            window.open('https://breadmusic.aleksh.xyz', '_blank', 'noopener,noreferrer');
-            return 'Opening breadmusic.aleksh.xyz...';
-        },
-        medium: () => TerminalApp.openTarget('medium'),
-        tools: () => TerminalApp.openTarget('tools'),
-        lights: () => TerminalApp.openTarget('lights'),
         
         echo: (app, args) => args.join(' ') || '',
         
@@ -343,13 +333,9 @@ Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
     openTarget(target) {
         const normalized = target.trim().toLowerCase();
         const links = {
-            github: 'https://github.com/al3ksh',
-            breadmusic: 'https://breadmusic.aleksh.xyz',
-            medium: 'https://medium.aleksh.xyz',
-            tools: 'https://tools.aleksh.xyz',
-            lights: 'https://lights.aleksh.xyz',
-            lightsout: 'https://lights.aleksh.xyz',
-            portfolio: 'https://github.com/al3ksh/PortfolioOS'
+            github: githubUrl(),
+            ...Object.fromEntries(Profile.projects.map(project => [project.name.toLowerCase(), project.url])),
+            ...Profile.links
         };
         const apps = {
             projects: 'projects',
@@ -369,7 +355,7 @@ Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
             WindowManager.createWindow(apps[normalized]);
             return `Opening ${normalized}...`;
         }
-        return normalized ? `Cannot open '${target}'. Try: open breadmusic, open medium, open tools, open lights, or open projects.` : 'Open what?';
+        return normalized ? `Cannot open '${target}'. Try: ${[...Object.keys(links), 'projects'].map(name => `open ${name}`).join(', ')}.` : 'Open what?';
     },
 
     executeCommand(cmdLine, output, input) {

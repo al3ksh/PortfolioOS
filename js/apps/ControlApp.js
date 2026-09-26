@@ -3,6 +3,7 @@
  */
 
 import { Icons } from '../icons.js?v=15';
+import { Profile, githubUrl } from '../config.js?v=15';
 import { SoundManager } from '../managers/SoundManager.js?v=15';
 import { WindowManager } from '../managers/WindowManager.js?v=15';
 
@@ -110,7 +111,7 @@ export const ControlApp = {
                         <p style="font-size: 11px; color: #808080;">
                             A Windows 3.1 inspired portfolio<br>
                             Built with vanilla JavaScript<br>
-                            © 2026 Aleks Szotek
+                            © ${new Date().getFullYear()} ${Profile.name}
                         </p>
                     </div>
                 </div>

@@ -3,6 +3,7 @@
  */
 
 import { Icons } from '../icons.js?v=15';
+import { Profile, githubUrl } from '../config.js?v=15';
 import { WindowManager } from '../managers/WindowManager.js?v=15';
 import { SoundManager } from '../managers/SoundManager.js?v=15';
 
@@ -48,7 +49,7 @@ export const SysInfoApp = {
                             <h3>${Icons.secUser} User Information</h3>
                             <table class="sysinfo-table">
                                 <tr><td>User Name:</td><td>PORTFOLIO\\Visitor</td></tr>
-                                <tr><td>Registered To:</td><td>Aleks Szotek</td></tr>
+                                <tr><td>Registered To:</td><td>${Profile.name}</td></tr>
                                 <tr><td>Organization:</td><td>Portfolio Industries</td></tr>
                             </table>
                         </div>

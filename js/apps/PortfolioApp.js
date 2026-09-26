@@ -4,6 +4,7 @@
 
 import { Icons } from '../icons.js?v=15';
 import { WindowManager } from '../managers/WindowManager.js?v=15';
+import { Profile, githubUrl, featuredProjects } from '../config.js?v=15';
 
 export const PortfolioApp = {
     id: 'portfolio',
@@ -73,12 +74,10 @@ export const PortfolioApp = {
                             <div class="digital-display">
                                 <span class="profile-time">00:00:00</span>
                             </div>
-                            <h1 class="profile-name">Aleks Szotek</h1>
-                            <p class="profile-title">Full-Stack Developer</p>
+                            <h1 class="profile-name">${Profile.name}</h1>
+                            <p class="profile-title">${Profile.title}</p>
                             <div class="bio-text">
-                                <p>&gt; CS Student @ Silesian Uni of Tech</p>
-                                <p>&gt; Backend & Web Developer</p>
-                                <p>&gt; Silesia, Poland</p>
+                                ${Profile.bio.map(line => `<p>&gt; ${line}</p>`).join('')}
                             </div>
                         </div>
                     </div>
@@ -91,9 +90,7 @@ export const PortfolioApp = {
                         <span class="card-title">About Me</span>
                     </div>
                     <div class="card-content">
-                        <p class="about-text">Computer Science student at Silesian University of Technology. 
-                        Certified in INF.03 (Web Dev & Databases) and INF.04 (App Development). 
-                        Backend & Web Developer — building efficient web applications with focus on clean code and backend architecture.</p>
+                        <p class="about-text">${Profile.about}</p>
                     </div>
                 </div>
 
@@ -104,30 +101,16 @@ export const PortfolioApp = {
                         <span class="card-title">Experience</span>
                     </div>
                     <div class="card-content experience-content">
-                        <div class="exp-item">
-                            <div class="exp-header">
-                                <strong>Full-Stack Developer (Contract)</strong>
-                                <span class="exp-date">2024</span>
+                        ${Profile.experience.map(job => `
+                            <div class="exp-item">
+                                <div class="exp-header">
+                                    <strong>${job.role}</strong>
+                                    <span class="exp-date">${job.date}</span>
+                                </div>
+                                <span class="exp-company">${job.company}</span>
+                                <p class="exp-desc">${job.description}</p>
                             </div>
-                            <span class="exp-company">RecodeIT · D9 Space</span>
-                            <p class="exp-desc">Built reservation system for d9space.com with multi-step booking flow, PHP/WordPress backend and admin interface.</p>
-                        </div>
-                        <div class="exp-item">
-                            <div class="exp-header">
-                                <strong>Full-Stack Intern</strong>
-                                <span class="exp-date">2024</span>
-                            </div>
-                            <span class="exp-company">RecodeIT</span>
-                            <p class="exp-desc">Built features using T3 Stack (Next.js, TypeScript, PostgreSQL, Drizzle ORM). Extended employee management panel.</p>
-                        </div>
-                        <div class="exp-item">
-                            <div class="exp-header">
-                                <strong>Intern</strong>
-                                <span class="exp-date">2023</span>
-                            </div>
-                            <span class="exp-company">RecodeIT</span>
-                            <p class="exp-desc">First professional experience in software development environment.</p>
-                        </div>
+                        `).join('')}
                     </div>
                 </div>
 
@@ -139,22 +122,7 @@ export const PortfolioApp = {
                     </div>
                     <div class="card-content">
                         <div class="skills-grid">
-                            <span class="skill-tag">JavaScript</span>
-                            <span class="skill-tag">TypeScript</span>
-                            <span class="skill-tag">Python</span>
-                            <span class="skill-tag">C++</span>
-                            <span class="skill-tag">C#</span>
-                            <span class="skill-tag">Node.js</span>
-                            <span class="skill-tag">Express</span>
-                            <span class="skill-tag">Next.js</span>
-                            <span class="skill-tag">MongoDB</span>
-                            <span class="skill-tag">MySQL</span>
-                            <span class="skill-tag">PostgreSQL</span>
-                            <span class="skill-tag">PHP</span>
-                            <span class="skill-tag">WordPress</span>
-                            <span class="skill-tag">Tailwind</span>
-                            <span class="skill-tag">Git</span>
-                            <span class="skill-tag">LLMs</span>
+                            ${Profile.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
                         </div>
                     </div>
                 </div>
@@ -166,26 +134,13 @@ export const PortfolioApp = {
                         <button class="card-title project-launch" type="button" aria-label="Open Projects application">Projects</button>
                     </div>
                     <div class="card-content projects-content">
-                        <div class="project-item">
-                            <strong><a href="https://github.com/al3ksh/BreadMusic" target="_blank" rel="noopener noreferrer">BreadMusic</a></strong>
-                            <span class="project-tech">JavaScript</span>
-                            <p>Discord music bot packed with features.</p>
-                        </div>
-                        <div class="project-item">
-                            <strong><a href="https://github.com/al3ksh/Shapey-Tower" target="_blank" rel="noopener noreferrer">Shapey-Tower</a></strong>
-                            <span class="project-tech">C++</span>
-                            <p>A tiny vertical arcade platformer.</p>
-                        </div>
-                        <div class="project-item">
-                            <strong><a href="https://github.com/al3ksh/PortfolioOS" target="_blank" rel="noopener noreferrer">PortfolioOS</a></strong>
-                            <span class="project-tech">JavaScript</span>
-                            <p>Interactive Windows 3.1 style portfolio.</p>
-                        </div>
-                        <div class="project-item">
-                            <strong><a href="https://github.com/al3ksh/Tools" target="_blank" rel="noopener noreferrer">Tools</a></strong>
-                            <span class="project-tech">JavaScript</span>
-                            <p>Various utility scripts and tools.</p>
-                        </div>
+                        ${featuredProjects().map(project => `
+                            <div class="project-item">
+                                <strong><a href="${project.url}" target="_blank" rel="noopener noreferrer">${project.name}</a></strong>
+                                <span class="project-tech">${project.language}</span>
+                                <p>${project.description}</p>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
 
@@ -196,16 +151,13 @@ export const PortfolioApp = {
                         <span class="card-title">Education</span>
                     </div>
                     <div class="card-content">
-                        <div class="edu-item">
-                            <strong>Computer Science</strong>
-                            <span class="edu-date">present</span>
-                            <p>Silesian University of Technology</p>
-                        </div>
-                        <div class="edu-item">
-                            <strong>Technical School</strong>
-                            <span class="edu-date">2025</span>
-                            <p>INF.03 & INF.04 Certified</p>
-                        </div>
+                        ${Profile.education.map(edu => `
+                            <div class="edu-item">
+                                <strong>${edu.degree}</strong>
+                                <span class="edu-date">${edu.date}</span>
+                                <p>${edu.school}</p>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
 
@@ -217,9 +169,9 @@ export const PortfolioApp = {
                     </div>
                     <div class="card-content">
                         <ul class="win-list contact-list">
-                            <li><a href="mailto:alex.szotek@gmail.com">${Icons.secMail} alex.szotek@gmail.com</a></li>
-                            <li><a href="https://github.com/al3ksh" target="_blank">${Icons.socialGithub} github.com/al3ksh</a></li>
-                            <li>${Icons.socialDiscord} Discord: aleksh8</li>
+                            <li><a href="mailto:${Profile.contact.email}">${Icons.secMail} ${Profile.contact.email}</a></li>
+                            <li><a href="${githubUrl()}" target="_blank" rel="noopener noreferrer">${Icons.socialGithub} github.com/${Profile.contact.github}</a></li>
+                            <li>${Icons.socialDiscord} Discord: ${Profile.contact.discord}</li>
                         </ul>
                     </div>
                 </div>
@@ -285,7 +237,7 @@ export const PortfolioApp = {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aleks Szotek - CV</title>
+    <title>${Profile.name} - CV</title>
     <style>
         @page {
             size: A4;
@@ -383,67 +335,46 @@ export const PortfolioApp = {
 </head>
 <body>
     <header>
-        <h1>Aleks Szotek</h1>
-        <p class="subtitle">Full-Stack Developer</p>
+        <h1>${Profile.name}</h1>
+        <p class="subtitle">${Profile.title}</p>
         <div class="contact-row">
-            <span>Silesia, Poland</span>
-            <a href="mailto:alex.szotek@gmail.com">alex.szotek@gmail.com</a>
-            <a href="https://github.com/al3ksh">github.com/al3ksh</a>
-            <span>Discord: aleksh8</span>
+            <span>${Profile.location}</span>
+            <a href="mailto:${Profile.contact.email}">${Profile.contact.email}</a>
+            <a href="${githubUrl()}">github.com/${Profile.contact.github}</a>
+            <span>Discord: ${Profile.contact.discord}</span>
         </div>
     </header>
 
     <section>
         <h2>About</h2>
-        <p class="about-text">Computer Science student at Silesian University of Technology. Certified in INF.03 (Web Development & Databases) and INF.04 (Application Development). Backend & Web Developer focused on building efficient web applications with clean code and solid backend architecture.</p>
+        <p class="about-text">${Profile.about}</p>
     </section>
 
     <div class="two-columns">
         <div>
             <section>
                 <h2>Experience</h2>
+                ${Profile.experience.map(job => `
                 <div class="exp-item">
                     <div class="exp-header">
-                        <span class="exp-title">Full-Stack Developer</span>
-                        <span class="exp-date">2024</span>
+                        <span class="exp-title">${job.role}</span>
+                        <span class="exp-date">${job.date}</span>
                     </div>
-                    <div class="exp-company">RecodeIT · D9 Space (Contract)</div>
-                    <p class="exp-desc">Built reservation system for d9space.com. Multi-step booking flow with PHP/WordPress, availability logic and admin interface.</p>
-                </div>
-                <div class="exp-item">
-                    <div class="exp-header">
-                        <span class="exp-title">Full-Stack Intern</span>
-                        <span class="exp-date">2024</span>
-                    </div>
-                    <div class="exp-company">RecodeIT</div>
-                    <p class="exp-desc">T3 Stack development (Next.js, TypeScript, Tailwind, PostgreSQL, Drizzle ORM). Built leave/holiday management system for employee panel.</p>
-                </div>
-                <div class="exp-item">
-                    <div class="exp-header">
-                        <span class="exp-title">Intern</span>
-                        <span class="exp-date">2023</span>
-                    </div>
-                    <div class="exp-company">RecodeIT</div>
-                    <p class="exp-desc">First professional software development experience.</p>
-                </div>
+                    <div class="exp-company">${job.company}</div>
+                    <p class="exp-desc">${job.description}</p>
+                </div>`).join('')}
             </section>
 
             <section>
                 <h2>Education</h2>
+                ${Profile.education.map(edu => `
                 <div class="edu-item">
                     <div class="edu-header">
-                        <span class="edu-title">Computer Science</span>
-                        <span class="edu-date">2025 - present</span>
+                        <span class="edu-title">${edu.degree}</span>
+                        <span class="edu-date">${edu.date}</span>
                     </div>
-                    <p class="exp-desc">Silesian University of Technology</p>
-                </div>
-                <div class="edu-item">
-                    <div class="edu-header">
-                        <span class="edu-title">IT Technician</span>
-                        <span class="edu-date">2025</span>
-                    </div>
-                    <p class="exp-desc">Technical School · INF.03 & INF.04 Certifications</p>
-                </div>
+                    <p class="exp-desc">${edu.school}</p>
+                </div>`).join('')}
             </section>
         </div>
 
@@ -451,43 +382,17 @@ export const PortfolioApp = {
             <section>
                 <h2>Skills</h2>
                 <div class="skills-grid">
-                    <span class="skill-tag">JavaScript</span>
-                    <span class="skill-tag">TypeScript</span>
-                    <span class="skill-tag">Python</span>
-                    <span class="skill-tag">C++</span>
-                    <span class="skill-tag">C#</span>
-                    <span class="skill-tag">Node.js</span>
-                    <span class="skill-tag">Express</span>
-                    <span class="skill-tag">Next.js</span>
-                    <span class="skill-tag">MongoDB</span>
-                    <span class="skill-tag">MySQL</span>
-                    <span class="skill-tag">PostgreSQL</span>
-                    <span class="skill-tag">PHP</span>
-                    <span class="skill-tag">WordPress</span>
-                    <span class="skill-tag">Tailwind</span>
-                    <span class="skill-tag">Git</span>
-                    <span class="skill-tag">LLMs</span>
+                    ${Profile.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
                 </div>
             </section>
 
             <section>
                 <h2>Projects</h2>
+                ${featuredProjects().map(project => `
                 <div class="project-item">
-                    <strong><a href="https://github.com/al3ksh/BreadMusic" target="_blank" rel="noopener noreferrer">BreadMusic</a></strong><span class="project-tech">JavaScript</span>
-                    <p class="project-desc">Discord music bot packed with features.</p>
-                </div>
-                <div class="project-item">
-                    <strong><a href="https://github.com/al3ksh/Shapey-Tower" target="_blank" rel="noopener noreferrer">Shapey Tower</a></strong><span class="project-tech">C++</span>
-                    <p class="project-desc">A tiny vertical arcade platformer.</p>
-                </div>
-                <div class="project-item">
-                    <strong><a href="https://github.com/al3ksh/PortfolioOS" target="_blank" rel="noopener noreferrer">Portfolio OS</a></strong><span class="project-tech">JavaScript, CSS, HTML</span>
-                    <p class="project-desc">Interactive Windows 3.1 style portfolio with apps and games.</p>
-                </div>
-                <div class="project-item">
-                    <strong><a href="https://github.com/al3ksh/Tools" target="_blank" rel="noopener noreferrer">Tools</a></strong><span class="project-tech">JavaScript</span>
-                    <p class="project-desc">Various utility scripts and tools.</p>
-                </div>
+                    <strong><a href="${project.url}" target="_blank" rel="noopener noreferrer">${project.name}</a></strong><span class="project-tech">${project.tech || project.language}</span>
+                    <p class="project-desc">${project.description}</p>
+                </div>`).join('')}
             </section>
         </div>
     </div>

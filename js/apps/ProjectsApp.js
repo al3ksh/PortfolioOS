@@ -3,30 +3,24 @@
  */
 
 import { Icons } from '../icons.js?v=15';
+import { Profile, githubUrl } from '../config.js?v=15';
 
-const repositories = [
-    { name: 'BreadMusic', language: 'JavaScript', description: 'Music bot packed with features.', stars: 3, license: 'AGPL-3.0', updated: 'Jun 18, 2026', url: 'https://github.com/al3ksh/BreadMusic', featured: true },
-    { name: 'atmsimulator', language: 'C++', description: 'Objectively written C++ money printer.', updated: 'May 20, 2026', url: 'https://github.com/al3ksh/atmsimulator' },
-    { name: 'Shapey-Tower', language: 'C++', description: 'A tiny vertical arcade platformer.', stars: 1, license: 'MIT', updated: 'May 14, 2026', url: 'https://github.com/al3ksh/Shapey-Tower', featured: true },
-    { name: 'Medium', language: 'JavaScript', description: 'A self-hosted, single-server chat platform with text and voice channels, file sharing and more.', stars: 1, license: 'MIT', updated: 'May 12, 2026', url: 'https://github.com/al3ksh/Medium', featured: true },
-    { name: 'PortfolioOS', language: 'JavaScript', description: 'An interactive Windows 3.1-style portfolio operating system.', stars: 1, updated: 'Apr 24, 2026', url: 'https://github.com/al3ksh/PortfolioOS', featured: true },
-    { name: 'Tools', language: 'JavaScript', description: 'A collection of utility scripts and tools.', stars: 1, updated: 'Apr 15, 2026', url: 'https://github.com/al3ksh/Tools' },
-    { name: 'asmpong', language: 'Assembly', description: 'Classic Pong with a terminal UI and sound, written in x86_64 Assembly (NASM) for Windows.', updated: 'Mar 25, 2026', url: 'https://github.com/al3ksh/asmpong' },
-    { name: 'al3ksh', language: 'JavaScript', description: 'The public profile repository for aleksh.xyz.', updated: 'Mar 18, 2026', url: 'https://github.com/al3ksh/al3ksh' },
-    { name: 'Czytaj24', language: 'EJS', description: 'E-commerce bookstore built with Node.js, Express and MongoDB.', license: 'MIT', updated: 'Jan 21, 2026', url: 'https://github.com/al3ksh/Czytaj24' },
-    { name: 'Spinning-Donut', language: 'C++', description: 'A colorful spinning donut.', license: 'MIT', updated: 'Nov 21, 2025', url: 'https://github.com/al3ksh/Spinning-Donut' },
-    { name: 'LightsOut', language: 'JavaScript', description: 'A web version of the classic Lights Out puzzle.', url: 'https://github.com/al3ksh/LightsOut' },
-];
+const repositories = Profile.projects;
 
 const languageColors = {
     JavaScript: '#f1e05a',
     'C++': '#f34b7d',
     Assembly: '#6e4c13',
-    EJS: '#a91e50'
+    EJS: '#a91e50',
+    Python: '#3572a5',
+    TypeScript: '#3178c6'
 };
 
+const languages = [...new Set(repositories.map(repository => repository.language))];
+const repositoriesUrl = () => githubUrl('?tab=repositories');
+
 function renderRepository(repository) {
-    const starText = repository.stars ? `★ ${repository.stars}` : '—';
+    const starText = repository.stars ? `★ ${repository.stars}` : '-';
     const licenseText = repository.license || 'No license listed';
     const languageColor = languageColors[repository.language] || '#808080';
 
@@ -82,9 +76,9 @@ export const ProjectsApp = {
                     <div class="projects-header-icon" aria-hidden="true">${Icons.projects}</div>
                     <div>
                         <h2>Projects</h2>
-                        <p>Public repositories by Aleks Szotek · 11 repositories</p>
+                        <p>Public repositories by ${Profile.name} · ${repositories.length} repositories</p>
                     </div>
-                    <a class="win-btn projects-github-link" href="https://github.com/al3ksh?tab=repositories" target="_blank" rel="noopener noreferrer">Open GitHub</a>
+                    <a class="win-btn projects-github-link" href="${repositoriesUrl()}" target="_blank" rel="noopener noreferrer">Open GitHub</a>
                 </header>
                 <div class="projects-toolbar" role="search">
                     <label for="projectsSearch">Find a project</label>
@@ -92,17 +86,14 @@ export const ProjectsApp = {
                     <label for="projectsLanguage" class="visually-hidden">Filter by language</label>
                     <select id="projectsLanguage" class="win-select">
                         <option value="all">All languages</option>
-                        <option>JavaScript</option>
-                        <option>C++</option>
-                        <option>Assembly</option>
-                        <option>EJS</option>
+                        ${languages.map(language => `<option>${language}</option>`).join('')}
                     </select>
-                    <span id="projectsResultStatus" class="projects-result-status" role="status" aria-live="polite">11 projects shown</span>
+                    <span id="projectsResultStatus" class="projects-result-status" role="status" aria-live="polite">${repositories.length} projects shown</span>
                 </div>
                 <div id="projectsList" class="projects-list" role="list">
                     ${repositories.map(renderRepository).join('')}
                 </div>
-                <p class="projects-source">Snapshot based on <a href="https://github.com/al3ksh?tab=repositories" target="_blank" rel="noopener noreferrer">github.com/al3ksh</a>. Repository names, descriptions and metadata are linked to their public source.</p>
+                <p class="projects-source">Snapshot based on <a href="${repositoriesUrl()}" target="_blank" rel="noopener noreferrer">github.com/${Profile.contact.github}</a>. Repository names, descriptions and metadata are linked to their public source.</p>
             </div>
         `;
     },
@@ -148,7 +139,7 @@ export const ProjectsApp = {
     },
 
     onMenuAction(action) {
-        if (action === 'github') window.open('https://github.com/al3ksh?tab=repositories', '_blank', 'noopener,noreferrer');
+        if (action === 'github') window.open(repositoriesUrl(), '_blank', 'noopener,noreferrer');
         if (action === 'refresh') {
             const windowEl = document.querySelector('#window-projects');
             const list = windowEl?.querySelector('#projectsList');
