@@ -3,6 +3,9 @@
  */
 
 import { Icons } from '../icons.js?v=15';
+import { t } from '../i18n.js?v=15';
+
+const lines = key => t(key).map(line => `<p>${line}</p>`).join('');
 import { Profile, githubUrl } from '../config.js?v=15';
 
 export const ReadmeApp = {
@@ -21,45 +24,24 @@ export const ReadmeApp = {
                 <p>         <span class="highlight">PORTFOLIO OS v1.0</span></p>
                 <p>═══════════════════════════════════════════</p>
                 <br>
-                <p>Welcome to my digital portfolio!</p>
+                <p>${t('readme.welcome')}</p>
                 <br>
-                <p>This operating system was created</p>
-                <p>to showcase my web development</p>
-                <p>skills in an interactive way.</p>
+                ${lines('readme.intro')}
                 <br>
-                <p>HOW TO USE:</p>
+                <p>${t('readme.howTo')}</p>
                 <p>────────────────────</p>
-                <p>• Double click = open application</p>
-                <p>• Drag window = move it around</p>
-                <p>• Buttons [-][□][×] = window controls</p>
-                <p>• Start Menu = access everything</p>
+                ${lines('readme.howToItems')}
                 <br>
-                <p>AVAILABLE APPLICATIONS:</p>
+                <p>${t('readme.apps')}</p>
                 <p>────────────────────</p>
-                <p>📁 PORTFOLIO.EXE - My projects & bio</p>
-                <p>📝 NOTEPAD.EXE  - Notepad with save</p>
-                <p>🎵 TUNES.EXE    - Background music</p>
-                <p>💣 MINES.EXE    - Classic Minesweeper</p>
-                <p>🐍 SNAKE.EXE    - Classic Snake</p>
-                <p>🧱 TETRIS.EXE   - Classic Tetris</p>
-                <p>🎨 PAINT.EXE    - Draw & paint</p>
-                <p>🖩 CALC.EXE     - Calculator</p>
-                <p>💻 TERMINAL.EXE - Command line</p>
-                <p>📊 TASKMGR.EXE  - Task Manager</p>
-                <p>📂 EXPLORER.EXE - File browser</p>
-                <p>ℹ️ SYSINFO.EXE  - System info</p>
-                <p>📧 CONTACT.EXE  - Contact form</p>
-                <p>⚙️ CONTROL.CPL  - Control Panel</p>
+                ${lines('readme.appItems')}
                 <br>
-                <p>THEMES:</p>
+                <p>${t('readme.themes')}</p>
                 <p>────────────────────</p>
-                <p>Available in Control Panel:</p>
-                <p>Teal, Dark, Hotdog Stand, Matrix,</p>
-                <p>Clouds, Win95, Win98, macOS, Ubuntu</p>
-                <p>+ Auto-theme (dark mode 19:00-7:00)</p>
+                ${lines('readme.themeItems')}
                 <br>
                 <details class="readme-spoiler">
-                    <summary>🔐 HIDDEN SECRETS (SPOILER)</summary>
+                    <summary>${t('readme.secrets')}</summary>
                     <div class="spoiler-content">
                         <br>
                         <p>Easter Eggs to discover:</p>

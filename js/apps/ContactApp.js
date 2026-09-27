@@ -4,6 +4,7 @@
 
 import { Icons } from '../icons.js?v=15';
 import { Profile, githubUrl } from '../config.js?v=15';
+import { t } from '../i18n.js?v=15';
 import { SoundManager } from '../managers/SoundManager.js?v=15';
 
 const escapeHtml = (value) => {
@@ -29,53 +30,53 @@ export const ContactApp = {
                 <div class="contact-header">
                     <div class="contact-icon">${Icons.secMail}</div>
                     <div class="contact-title">
-                        <h2>Get In Touch</h2>
-                        <p>Send me a message and I'll get back to you!</p>
+                        <h2>${t('contact.heading')}</h2>
+                        <p>${t('contact.intro')}</p>
                     </div>
                 </div>
 
                 <form class="contact-form" id="contactForm">
                     <div class="form-group">
                         <label for="contactName">
-                            <span class="label-icon">${Icons.labelName}</span> Your Name:
+                            <span class="label-icon">${Icons.labelName}</span> ${t('contact.name')}
                         </label>
                         <input type="text" id="contactName" class="win-input" placeholder="John Doe" required>
                     </div>
 
                     <div class="form-group">
                         <label for="contactEmail">
-                            <span class="label-icon">${Icons.labelEmail}</span> Email Address:
+                            <span class="label-icon">${Icons.labelEmail}</span> ${t('contact.email')}
                         </label>
                         <input type="email" id="contactEmail" class="win-input" placeholder="john@example.com" required>
                     </div>
 
                     <div class="form-group">
                         <label for="contactSubject">
-                            <span class="label-icon">${Icons.labelSubject}</span> Subject:
+                            <span class="label-icon">${Icons.labelSubject}</span> ${t('contact.subject')}
                         </label>
                         <select id="contactSubject" class="win-select">
-                            <option value="general">General Inquiry</option>
-                            <option value="job">Job Opportunity</option>
-                            <option value="project">Project Collaboration</option>
-                            <option value="feedback">Feedback</option>
-                            <option value="bug">Bug Report</option>
+                            <option value="general">${t('contact.subject.general')}</option>
+                            <option value="job">${t('contact.subject.job')}</option>
+                            <option value="project">${t('contact.subject.project')}</option>
+                            <option value="feedback">${t('contact.subject.feedback')}</option>
+                            <option value="bug">${t('contact.subject.bug')}</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label for="contactMessage">
-                            <span class="label-icon">${Icons.labelMessage}</span> Message:
+                            <span class="label-icon">${Icons.labelMessage}</span> ${t('contact.message')}
                         </label>
                         <textarea id="contactMessage" class="win-textarea" rows="4" 
-                            placeholder="Type your message here..." required></textarea>
+                            placeholder="${t('contact.messagePlaceholder')}" required></textarea>
                     </div>
 
                     <div class="form-actions">
                         <button type="submit" class="win-btn win-btn-primary">
-                            ${Icons.actSend} Send Message
+                            ${Icons.actSend} ${t('contact.send')}
                         </button>
                         <button type="reset" class="win-btn">
-                            ${Icons.actTrash} Clear
+                            ${Icons.actTrash} ${t('contact.clear')}
                         </button>
                     </div>
                 </form>
@@ -126,7 +127,7 @@ export const ContactApp = {
                         <span>.</span><span>.</span><span>.</span>
                     </div>
                 </div>
-                <p>Sending message...</p>
+                <p>${t('contact.sending')}</p>
             </div>
         `;
 
@@ -152,15 +153,15 @@ export const ContactApp = {
                 formEl.innerHTML = `
                     <div class="contact-success">
                         <div class="success-icon">${Icons.statusSuccess}</div>
-                        <h3>Message Sent!</h3>
-                        <p>Thanks <strong>${escapeHtml(name)}</strong>!</p>
-                        <p>I'll respond to <strong>${escapeHtml(email)}</strong> as soon as possible.</p>
+                        <h3>${t('contact.sent')}</h3>
+                        <p>${t('contact.thanks')} <strong>${escapeHtml(name)}</strong>!</p>
+                        <p>${t('contact.willRespond', { email: `<strong>${escapeHtml(email)}</strong>` })}</p>
                         <div class="message-preview">
-                            <div class="preview-label">Your message:</div>
+                            <div class="preview-label">${t('contact.yourMessage')}</div>
                             <div class="preview-content">"${escapeHtml(message.substring(0, 100))}${message.length > 100 ? '...' : ''}"</div>
                         </div>
                         <button class="win-btn" onclick="location.reload()">
-                            📝 Send Another
+                            📝 ${t('contact.sendAnother')}
                         </button>
                     </div>
                 `;
@@ -175,10 +176,10 @@ export const ContactApp = {
             formEl.innerHTML = `
                 <div class="contact-success">
                     <div class="success-icon">${Icons.statusError}</div>
-                    <h3>Failed to Send</h3>
-                    <p>${escapeHtml(error.name === 'AbortError' ? 'The request timed out. Please try again.' : error.message || 'Something went wrong. Please try again.')}</p>
+                    <h3>${t('contact.failed')}</h3>
+                    <p>${escapeHtml(error.name === 'AbortError' ? t('contact.timeout') : error.message || t('contact.genericError'))}</p>
                         <button class="win-btn" onclick="location.reload()">
-                            ${Icons.ctxRefresh} Try Again
+                            ${Icons.ctxRefresh} ${t('contact.tryAgain')}
                     </button>
                 </div>
             `;

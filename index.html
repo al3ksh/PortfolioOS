@@ -11,6 +11,11 @@
     <meta property="og:description" content="Explore Your Name's projects, experience and developer toolkit in Portfolio OS.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://example.com/">
+    <meta property="og:image" content="https://example.com/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://example.com/og-image.png">
     <title>Your Name | PortfolioOS</title>
     <style>html, body { background: #000; }</style>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23000080' width='100' height='100'/><rect fill='%23c0c0c0' x='10' y='10' width='80' height='70'/><rect fill='%23000080' x='15' y='15' width='70' height='15'/><text x='20' y='27' fill='white' font-size='12' font-family='Arial'>PortfolioOS</text><rect fill='white' x='20' y='35' width='60' height='40'/></svg>">
@@ -110,18 +115,18 @@
         <div class="privacy-window">
             <div class="privacy-titlebar">
                 <span class="privacy-titlebar-icon">🔒</span>
-                <span id="privacyTitle" class="privacy-titlebar-text">Privacy Settings</span>
+                <span id="privacyTitle" class="privacy-titlebar-text" data-i18n="privacy.title">Privacy Settings</span>
             </div>
             <div class="privacy-content">
                 <div class="privacy-icon">💾</div>
                 <p class="privacy-message">
-                    <strong>This website uses local storage</strong><br><br>
-                    We save your preferences, window positions, and session data locally to improve your experience. No data is sent to external servers.<br><br>
-                    You can decline if you prefer not to have your session saved.
+                    <strong data-i18n="privacy.heading">This website uses local storage</strong><br><br>
+                    <span data-i18n="privacy.body">We save your preferences, window positions, and session data locally to improve your experience. No data is sent to external servers.</span><br><br>
+                    <span data-i18n="privacy.decline">You can decline if you prefer not to have your session saved.</span>
                 </p>
                 <div class="privacy-buttons">
-                    <button id="privacyAccept" class="privacy-btn privacy-btn-primary">✓ Accept</button>
-                    <button id="privacyDecline" class="privacy-btn">✗ Decline</button>
+                    <button id="privacyAccept" class="privacy-btn privacy-btn-primary" data-i18n="privacy.accept">✓ Accept</button>
+                    <button id="privacyDecline" class="privacy-btn" data-i18n="privacy.declineBtn">✗ Decline</button>
                 </div>
             </div>
         </div>
@@ -179,6 +184,7 @@
             </button>
             <div class="taskbar-windows"></div>
             <div class="taskbar-tray">
+                <button class="tray-lang" id="langToggle" type="button" data-i18n-title="lang.switch" data-i18n-aria="lang.switch">EN</button>
                 <button class="tray-icon" title="Sound: OFF" aria-label="Toggle sound">🔇</button>
                 <div class="taskbar-clock-wrapper" id="clockWrapper">
                     <div class="taskbar-clock" id="clockTime" aria-label="Current time">00:00</div>
@@ -195,72 +201,76 @@
             <div class="start-menu-items">
                 <button class="start-item" type="button" role="menuitem" data-app="portfolio">
                     <span class="menu-icon" data-icon="smFolder"></span>
-                    <span>Portfolio</span>
+                    <span data-i18n="start.portfolio">Portfolio</span>
                 </button>
                 <button class="start-item" type="button" role="menuitem" data-app="contact">
                     <span class="menu-icon" data-icon="smEnvelope"></span>
-                    <span>Contact Me</span>
+                    <span data-i18n="start.contact">Contact Me</span>
                 </button>
                 <button class="start-item" type="button" role="menuitem" data-app="projects">
                     <span class="menu-icon" data-icon="smProjects"></span>
-                    <span>Projects</span>
+                    <span data-i18n="start.projects">Projects</span>
+                </button>
+                <button class="start-item" type="button" role="menuitem" data-app="network">
+                    <span class="menu-icon" data-icon="smNetwork"></span>
+                    <span data-i18n="start.network">Network</span>
                 </button>
                 <div class="start-menu-divider"></div>
                 <button class="start-item" type="button" role="menuitem" data-app="explorer">
                     <span class="menu-icon" data-icon="fileFolderOpen"></span>
-                    <span>File Explorer</span>
+                    <span data-i18n="start.explorer">File Explorer</span>
                 </button>
                 <button class="start-item" type="button" role="menuitem" data-app="notepad">
                     <span class="menu-icon" data-icon="smNotepad"></span>
-                    <span>Notepad</span>
+                    <span data-i18n="start.notepad">Notepad</span>
                 </button>
                 <button class="start-item" type="button" role="menuitem" data-app="paint">
                     <span class="menu-icon" data-icon="smPaint"></span>
-                    <span>Paint</span>
+                    <span data-i18n="start.paint">Paint</span>
                 </button>
                 <button class="start-item" type="button" role="menuitem" data-app="terminal">
                     <span class="menu-icon" data-icon="smTerminal"></span>
-                    <span>Terminal</span>
+                    <span data-i18n="start.terminal">Terminal</span>
                 </button>
                 <button class="start-item" type="button" role="menuitem" data-app="calc">
                     <span class="menu-icon" data-icon="smCalc"></span>
-                    <span>Calculator</span>
+                    <span data-i18n="start.calc">Calculator</span>
                 </button>
                 <div class="start-menu-divider"></div>
                 <button class="start-item" type="button" role="menuitem" data-app="browser">
                     <span class="menu-icon" data-icon="smBrowser"></span>
-                    <span>Internet</span>
+                    <span data-i18n="start.internet">Internet</span>
                 </button>
                 <button class="start-item" type="button" role="menuitem" data-app="simplemode">
                     <span class="menu-icon" data-icon="smSimple"></span>
-                    <span>Simple View</span>
+                    <span data-i18n="start.simple">Simple View</span>
                 </button>
                 <div class="start-menu-divider"></div>
                 <button class="start-item" type="button" role="menuitem" data-app="mines">
                     <span class="menu-icon" data-icon="smMines"></span>
-                    <span>Minesweeper</span>
+                    <span data-i18n="start.mines">Minesweeper</span>
                 </button>
                 <button class="start-item" type="button" role="menuitem" data-app="tunes">
                     <span class="menu-icon" data-icon="smTunes"></span>
-                    <span>Tunes</span>
+                    <span data-i18n="start.tunes">Tunes</span>
                 </button>
                 <div class="start-menu-divider"></div>
                 <button class="start-item" type="button" role="menuitem" data-app="sysinfo">
                     <span class="menu-icon" data-icon="smInfo"></span>
-                    <span>System Info</span>
+                    <span data-i18n="start.sysinfo">System Info</span>
                 </button>
                 <button class="start-item" type="button" role="menuitem" data-app="taskmgr">
                     <span class="menu-icon" data-icon="smTaskmgr"></span>
-                    <span>Task Manager</span>
+                    <span data-i18n="start.taskmgr">Task Manager</span>
                 </button>
                 <button class="start-item" type="button" role="menuitem" data-app="control">
                     <span class="menu-icon" data-icon="smSettings"></span>
-                    <span>Settings</span>
+                    <span data-i18n="start.settings">Settings</span>
                 </button>
                 <div class="start-menu-divider"></div>
                 <button class="start-item" type="button" role="menuitem" data-app="readme">
                     <span class="menu-icon" data-icon="smHelp"></span>
-                    <span>Help</span>
+                    <span data-i18n="start.help">Help</span>
                 </button>
             </div>
         </div>

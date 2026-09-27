@@ -9,6 +9,7 @@ import { DesktopGridManager } from './managers/DesktopGridManager.js?v=15';
 import { StorageManager } from './managers/StorageManager.js?v=15';
 import { DesktopIcon } from './components/DesktopIcon.js?v=15';
 import { Icons } from './icons.js?v=15';
+import { lang, setLanguage, applyStaticTranslations } from './i18n.js?v=15';
 
 function replaceDataIcons() {
     document.querySelectorAll('[data-icon]').forEach(el => {
@@ -90,6 +91,13 @@ class TaskbarManager {
                 TaskbarManager.showSecretCredits();
             }
         });
+
+        // Language toggle (EN/PL indicator, like the Windows language bar)
+        const langBtn = document.getElementById('langToggle');
+        if (langBtn) {
+            langBtn.textContent = lang.toUpperCase();
+            langBtn.addEventListener('click', () => setLanguage(lang === 'en' ? 'pl' : 'en'));
+        }
 
         // Sound toggle button
         const soundBtn = document.querySelector('.taskbar-tray .tray-icon');
@@ -718,6 +726,7 @@ function createDesktopIcons() {
     const iconConfigs = [
         { appId: 'portfolio', title: 'Portfolio.exe', icon: Icons.portfolio },
         { appId: 'projects', title: 'Projects.exe', icon: Icons.projects },
+        { appId: 'network', title: 'Network.exe', icon: Icons.network },
         { appId: 'readme', title: 'README.TXT', icon: Icons.readme },
         { appId: 'contact', title: 'Contact.exe', icon: Icons.contact },
         { appId: 'notepad', title: 'Notepad.exe', icon: Icons.notepad },
@@ -847,6 +856,7 @@ function initKeyboardShortcuts() {
 // ===========================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    applyStaticTranslations();
     const boot = new BootSequence();
     boot.start();
     initKeyboardShortcuts();

@@ -27,6 +27,8 @@ services:
       - SMTP_PASS=${SMTP_PASS}
       - CONTACT_EMAIL=${CONTACT_EMAIL}
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      - STATUS_SERVICES=${STATUS_SERVICES:-}
+      - STATUS_HOST_LABEL=${STATUS_HOST_LABEL:-}
     networks:
       - portfolio-network
     # Uncomment to expose backend directly for debugging

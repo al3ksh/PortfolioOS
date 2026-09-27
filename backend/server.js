@@ -3,6 +3,7 @@ const nodemailer = require('nodemailer');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const os = require('os');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -37,6 +38,67 @@ const transporter = nodemailer.createTransport({
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Service status for the Network app.
+// STATUS_SERVICES="Name|https://service.example.com,Other|https://other.example.com"
+// The list comes only from the environment, never from the request.
+const STATUS_SERVICES = (process.env.STATUS_SERVICES || '')
+    .split(',')
+    .map(entry => entry.trim())
+    .filter(Boolean)
+    .map((entry) => {
+        const [name, url] = entry.includes('|') ? entry.split('|') : [entry, entry];
+        return { name: name.trim(), url: url.trim() };
+    })
+    .filter(service => /^https?:\/\//.test(service.url));
+const STATUS_TTL = 60 * 1000;
+let statusCache = null;
+
+async function checkService(service) {
+    const started = Date.now();
+    try {
+        const response = await fetch(service.url, {
+            method: 'GET',
+            redirect: 'manual',
+            signal: AbortSignal.timeout(5000),
+            headers: { 'User-Agent': 'PortfolioOS-Status/1.0' }
+        });
+        response.body?.cancel().catch(() => {});
+        return { ...service, up: response.status < 500, code: response.status, ms: Date.now() - started };
+    } catch (error) {
+        return { ...service, up: false, code: null, ms: null };
+    }
+}
+
+async function buildStatus() {
+    const services = await Promise.all(STATUS_SERVICES.map(checkService));
+    return {
+        host: {
+            label: process.env.STATUS_HOST_LABEL || os.hostname(),
+            platform: `${os.type()} ${os.arch()}`,
+            uptime: Math.round(os.uptime()),
+            load: os.loadavg().map(value => Math.round(value * 100) / 100),
+            cpus: os.cpus().length,
+            memory: { total: os.totalmem(), free: os.freemem() }
+        },
+        services,
+        checkedAt: new Date().toISOString()
+    };
+}
+
+app.get('/status', async (req, res) => {
+    try {
+        if (!STATUS_SERVICES.length) return res.status(404).json({ error: 'Status is not configured.' });
+        if (!statusCache || Date.now() - statusCache.time > STATUS_TTL) {
+            statusCache = { time: Date.now(), promise: buildStatus() };
+        }
+        res.set('Cache-Control', 'public, max-age=30');
+        res.json(await statusCache.promise);
+    } catch (error) {
+        statusCache = null;
+        res.status(500).json({ error: 'Status check failed.' });
+    }
 });
 
 // Contact form endpoint

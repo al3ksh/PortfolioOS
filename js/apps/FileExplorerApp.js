@@ -4,6 +4,7 @@
 
 import { Icons } from '../icons.js?v=15';
 import { Profile, githubUrl } from '../config.js?v=15';
+import { loc } from '../i18n.js?v=15';
 import { SoundManager } from '../managers/SoundManager.js?v=15';
 import { WindowManager } from '../managers/WindowManager.js?v=15';
 
@@ -398,19 +399,19 @@ Sound=ON`,
 ================
 
 ${Profile.name}
-${Profile.title}
+${loc(Profile.title)}
 
 CONTACT:
 - Email: ${Profile.contact.email}
 - GitHub: github.com/${Profile.contact.github}
 - Discord: ${Profile.contact.discord}
-- Location: ${Profile.location}
+- Location: ${loc(Profile.location)}
 
 EDUCATION:
-${Profile.education.map(edu => `- ${edu.school} (${edu.date})\n  ${edu.degree}`).join('\n')}
+${Profile.education.map(edu => `- ${loc(edu.school)} (${loc(edu.date)})\n  ${loc(edu.degree)}`).join('\n')}
 
 EXPERIENCE:
-${Profile.experience.map(job => `- ${job.company} (${job.date}) - ${job.role}`).join('\n')}
+${Profile.experience.map(job => `- ${loc(job.company)} (${loc(job.date)}) - ${loc(job.role)}`).join('\n')}
 
 SKILLS:
 ${Profile.skills.join(', ')}

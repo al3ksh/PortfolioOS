@@ -2,7 +2,7 @@
 
 A Windows 3.1 inspired desktop environment that works as an interactive developer portfolio. Built with vanilla HTML, CSS and JavaScript: no frameworks, no build step.
 
-![Version](https://img.shields.io/badge/version-1.1.2-blue)
+![Version](https://img.shields.io/badge/version-1.2.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Vanilla JS](https://img.shields.io/badge/vanilla-JavaScript-f7df1e)
 
@@ -28,12 +28,14 @@ A Windows 3.1 inspired desktop environment that works as an interactive develope
 - Themes: Teal, Dark, Hotdog Stand, Matrix, Clouds, Windows 95/98, macOS, Ubuntu, plus auto dark mode
 - CRT effect, Matrix screensaver and optional system sounds
 - Session persistence (window positions and open apps, opt-in via local storage)
+- English and Polish, switched with the EN/PL button in the taskbar (defaults to the browser language)
 
 ### Applications
 | App | Description |
 | --- | --- |
 | **Portfolio.exe** | Main portfolio in a bento grid layout |
-| **Projects.exe** | Searchable, filterable list of your repositories, synced live from GitHub |
+| **Projects.exe** | Searchable, filterable list of your repositories, synced live from GitHub; click one to read its README |
+| **Network.exe** | Live status of the services you host, plus uptime, load and memory of the server |
 | **Simple View** | Plain HTML version of the portfolio |
 | **Contact.exe** | Contact form (backed by a small Node.js API) and social links |
 | **README.txt** | Welcome screen and usage guide |
@@ -53,6 +55,7 @@ A Windows 3.1 inspired desktop environment that works as an interactive develope
 ### Extras
 - CV generator (File > Print Portfolio) with print / save as PDF
 - Static `cv.html` fallback for visitors without JavaScript
+- Link previews (Open Graph / Twitter card) with `og-image.png`
 - Easter eggs: Konami code, hidden files, secret terminal commands
 
 ## Quick start
@@ -85,9 +88,12 @@ All personal data lives in a single file: [`js/config.js`](js/config.js). Edit i
 | `projects` | Offline fallback for Projects.exe; entries with `featured: true` also appear in Portfolio, Simple View and CV |
 | `links` | Extra targets for the Terminal `open <name>` command |
 
+Any text value can be a plain string or an `{ en: '...', pl: '...' }` object. Visitors switch language with the EN/PL button in the taskbar; UI strings live in [`js/i18n.js`](js/i18n.js).
+
 A few files are static and cannot read `config.js`, so update them by hand:
 
-- **`index.html`**: `<title>`, `description` and Open Graph meta tags
+- **`index.html`**: `<title>`, `description` and Open Graph meta tags (including the absolute `og:image` URL)
+- **`og-image.png`**: the 1200x630 image shown in link previews
 - **`cv.html`**: the no-JavaScript CV fallback
 - **`js/apps/TunesApp.js`**: the Spotify track in `TRACK`
 
@@ -102,6 +108,7 @@ services:
       - ./private/config.js:/usr/share/nginx/html/js/config.js:ro
       - ./private/index.html:/usr/share/nginx/html/index.html:ro
       - ./private/cv.html:/usr/share/nginx/html/cv.html:ro
+      - ./private/og-image.png:/usr/share/nginx/html/og-image.png:ro
 ```
 
 ## Docker deployment
@@ -130,6 +137,8 @@ The site is then available on port 80.
 | `SMTP_USER` | SMTP login (also used as the sender address) | none |
 | `SMTP_PASS` | SMTP password; for Gmail use an [App Password](https://support.google.com/accounts/answer/185833) | none |
 | `CONTACT_EMAIL` | Where contact form messages are delivered | `SMTP_USER` |
+| `STATUS_SERVICES` | Services shown in Network.exe, as `Name\|https://url` pairs separated by commas. Without it the app shows that status is unavailable | none |
+| `STATUS_HOST_LABEL` | Name shown for the server running the backend | hostname |
 | `CORS_ORIGIN` | Allowed origin for the API | `*` |
 
 The backend applies Helmet security headers, input validation, HTML escaping and rate limiting (5 messages per 15 minutes per IP).

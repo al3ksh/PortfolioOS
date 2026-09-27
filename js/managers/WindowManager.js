@@ -330,6 +330,8 @@ class WindowManagerClass {
             openWindows.sort((a, b) => a.zIndex - b.zIndex);
             
             openWindows.forEach(winData => {
+                // The project viewer needs a selected repository, so it is not restored.
+                if (winData.id === 'projectviewer') return;
                 const win = this.createWindow(winData.id);
                 if (win) {
                     if (winData.minimized) {

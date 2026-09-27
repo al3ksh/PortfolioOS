@@ -5,6 +5,7 @@
 import { Icons } from '../icons.js?v=15';
 import { WindowManager } from '../managers/WindowManager.js?v=15';
 import { Profile, githubUrl, featuredProjects } from '../config.js?v=15';
+import { t, loc, lang } from '../i18n.js?v=15';
 
 export const PortfolioApp = {
     id: 'portfolio',
@@ -75,9 +76,9 @@ export const PortfolioApp = {
                                 <span class="profile-time">00:00:00</span>
                             </div>
                             <h1 class="profile-name">${Profile.name}</h1>
-                            <p class="profile-title">${Profile.title}</p>
+                            <p class="profile-title">${loc(Profile.title)}</p>
                             <div class="bio-text">
-                                ${Profile.bio.map(line => `<p>&gt; ${line}</p>`).join('')}
+                                ${Profile.bio.map(line => `<p>&gt; ${loc(line)}</p>`).join('')}
                             </div>
                         </div>
                     </div>
@@ -87,10 +88,10 @@ export const PortfolioApp = {
                 <div class="bento-card" data-span="2x1">
                     <div class="card-header">
                         <div class="card-icon">${Icons.secUser}</div>
-                        <span class="card-title">About Me</span>
+                        <span class="card-title">${t('section.about')}</span>
                     </div>
                     <div class="card-content">
-                        <p class="about-text">${Profile.about}</p>
+                        <p class="about-text">${loc(Profile.about)}</p>
                     </div>
                 </div>
 
@@ -98,17 +99,17 @@ export const PortfolioApp = {
                 <div class="bento-card" data-span="2x1">
                     <div class="card-header">
                         <div class="card-icon">${Icons.secBriefcase}</div>
-                        <span class="card-title">Experience</span>
+                        <span class="card-title">${t('section.experience')}</span>
                     </div>
                     <div class="card-content experience-content">
                         ${Profile.experience.map(job => `
                             <div class="exp-item">
                                 <div class="exp-header">
-                                    <strong>${job.role}</strong>
-                                    <span class="exp-date">${job.date}</span>
+                                    <strong>${loc(job.role)}</strong>
+                                    <span class="exp-date">${loc(job.date)}</span>
                                 </div>
-                                <span class="exp-company">${job.company}</span>
-                                <p class="exp-desc">${job.description}</p>
+                                <span class="exp-company">${loc(job.company)}</span>
+                                <p class="exp-desc">${loc(job.description)}</p>
                             </div>
                         `).join('')}
                     </div>
@@ -118,7 +119,7 @@ export const PortfolioApp = {
                 <div class="bento-card">
                     <div class="card-header">
                         <div class="card-icon">${Icons.secLightbulb}</div>
-                        <span class="card-title">Skills</span>
+                        <span class="card-title">${t('section.skills')}</span>
                     </div>
                     <div class="card-content">
                         <div class="skills-grid">
@@ -131,14 +132,14 @@ export const PortfolioApp = {
                 <div class="bento-card projects-card" data-span="2x1">
                     <div class="card-header">
                         <div class="card-icon">${Icons.portfolio}</div>
-                        <button class="card-title project-launch" type="button" aria-label="Open Projects application">Projects</button>
+                        <button class="card-title project-launch" type="button" aria-label="${t('portfolio.openProjects')}">${t('section.projects')}</button>
                     </div>
                     <div class="card-content projects-content">
                         ${featuredProjects().map(project => `
                             <div class="project-item">
                                 <strong><a href="${project.url}" target="_blank" rel="noopener noreferrer">${project.name}</a></strong>
                                 <span class="project-tech">${project.language}</span>
-                                <p>${project.description}</p>
+                                <p>${loc(project.description)}</p>
                             </div>
                         `).join('')}
                     </div>
@@ -148,14 +149,14 @@ export const PortfolioApp = {
                 <div class="bento-card">
                     <div class="card-header">
                         <div class="card-icon">${Icons.secGraduation}</div>
-                        <span class="card-title">Education</span>
+                        <span class="card-title">${t('section.education')}</span>
                     </div>
                     <div class="card-content">
                         ${Profile.education.map(edu => `
                             <div class="edu-item">
-                                <strong>${edu.degree}</strong>
-                                <span class="edu-date">${edu.date}</span>
-                                <p>${edu.school}</p>
+                                <strong>${loc(edu.degree)}</strong>
+                                <span class="edu-date">${loc(edu.date)}</span>
+                                <p>${loc(edu.school)}</p>
                             </div>
                         `).join('')}
                     </div>
@@ -165,7 +166,7 @@ export const PortfolioApp = {
                 <div class="bento-card">
                     <div class="card-header">
                         <div class="card-icon">${Icons.secMail}</div>
-                        <span class="card-title">Contact</span>
+                        <span class="card-title">${t('section.contact')}</span>
                     </div>
                     <div class="card-content">
                         <ul class="win-list contact-list">
@@ -180,10 +181,10 @@ export const PortfolioApp = {
                 <div class="bento-card action-card" data-span="2x1">
                     <div class="action-buttons">
                         <button class="win-btn" id="downloadCvBtn">
-                            ${Icons.actDownload} Download CV
+                            ${Icons.actDownload} ${t('portfolio.downloadCv')}
                         </button>
                         <button class="win-btn primary" id="sendMessageBtn">
-                            ${Icons.actSend} Send Message
+                            ${Icons.actSend} ${t('portfolio.sendMessage')}
                         </button>
                     </div>
                 </div>
@@ -233,7 +234,7 @@ export const PortfolioApp = {
     downloadCV() {
         const cvHTML = `
 <!DOCTYPE html>
-<html lang="en">
+<html lang="${lang}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -336,9 +337,9 @@ export const PortfolioApp = {
 <body>
     <header>
         <h1>${Profile.name}</h1>
-        <p class="subtitle">${Profile.title}</p>
+        <p class="subtitle">${loc(Profile.title)}</p>
         <div class="contact-row">
-            <span>${Profile.location}</span>
+            <span>${loc(Profile.location)}</span>
             <a href="mailto:${Profile.contact.email}">${Profile.contact.email}</a>
             <a href="${githubUrl()}">github.com/${Profile.contact.github}</a>
             <span>Discord: ${Profile.contact.discord}</span>
@@ -346,58 +347,58 @@ export const PortfolioApp = {
     </header>
 
     <section>
-        <h2>About</h2>
-        <p class="about-text">${Profile.about}</p>
+        <h2>${t('cv.about')}</h2>
+        <p class="about-text">${loc(Profile.about)}</p>
     </section>
 
     <div class="two-columns">
         <div>
             <section>
-                <h2>Experience</h2>
+                <h2>${t('section.experience')}</h2>
                 ${Profile.experience.map(job => `
                 <div class="exp-item">
                     <div class="exp-header">
-                        <span class="exp-title">${job.role}</span>
-                        <span class="exp-date">${job.date}</span>
+                        <span class="exp-title">${loc(job.role)}</span>
+                        <span class="exp-date">${loc(job.date)}</span>
                     </div>
-                    <div class="exp-company">${job.company}</div>
-                    <p class="exp-desc">${job.description}</p>
+                    <div class="exp-company">${loc(job.company)}</div>
+                    <p class="exp-desc">${loc(job.description)}</p>
                 </div>`).join('')}
             </section>
 
             <section>
-                <h2>Education</h2>
+                <h2>${t('section.education')}</h2>
                 ${Profile.education.map(edu => `
                 <div class="edu-item">
                     <div class="edu-header">
-                        <span class="edu-title">${edu.degree}</span>
-                        <span class="edu-date">${edu.date}</span>
+                        <span class="edu-title">${loc(edu.degree)}</span>
+                        <span class="edu-date">${loc(edu.date)}</span>
                     </div>
-                    <p class="exp-desc">${edu.school}</p>
+                    <p class="exp-desc">${loc(edu.school)}</p>
                 </div>`).join('')}
             </section>
         </div>
 
         <div>
             <section>
-                <h2>Skills</h2>
+                <h2>${t('section.skills')}</h2>
                 <div class="skills-grid">
                     ${Profile.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
                 </div>
             </section>
 
             <section>
-                <h2>Projects</h2>
+                <h2>${t('section.projects')}</h2>
                 ${featuredProjects().map(project => `
                 <div class="project-item">
                     <strong><a href="${project.url}" target="_blank" rel="noopener noreferrer">${project.name}</a></strong><span class="project-tech">${project.tech || project.language}</span>
-                    <p class="project-desc">${project.description}</p>
+                    <p class="project-desc">${loc(project.description)}</p>
                 </div>`).join('')}
             </section>
         </div>
     </div>
 
-    <button class="print-btn no-print" onclick="window.print()">Save as PDF</button>
+    <button class="print-btn no-print" onclick="window.print()">${t('cv.save')}</button>
 </body>
 </html>`;
 

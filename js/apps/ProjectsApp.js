@@ -8,6 +8,8 @@
 
 import { Icons } from '../icons.js?v=15';
 import { Profile, githubUrl } from '../config.js?v=15';
+import { t, loc, lang } from '../i18n.js?v=15';
+import { ProjectViewerApp } from './ProjectViewerApp.js?v=15';
 
 let repositories = Profile.projects;
 let liveRequest = null;
@@ -38,7 +40,7 @@ const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
 })[char]);
 
-const formatDate = iso => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const formatDate = iso => new Date(iso).toLocaleDateString(lang === 'pl' ? 'pl-PL' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 async function fetchGithubRepositories() {
     const response = await fetch(`https://api.github.com/users/${encodeURIComponent(Profile.contact.github)}/repos?per_page=100&sort=pushed`, {
@@ -89,14 +91,14 @@ function loadRepositories(force = false) {
 
 function sourceText() {
     const profileLink = `<a href="${repositoriesUrl()}" target="_blank" rel="noopener noreferrer">github.com/${escapeHtml(Profile.contact.github)}</a>`;
-    if (sourceState === 'live') return `Live data from ${profileLink}.`;
-    if (sourceState === 'offline') return `Could not load live data from GitHub - showing a saved snapshot of ${profileLink}.`;
-    return `Snapshot based on ${profileLink}.`;
+    if (sourceState === 'live') return t('projects.sourceLive', { link: profileLink });
+    if (sourceState === 'offline') return t('projects.sourceOffline', { link: profileLink });
+    return t('projects.sourceSnapshot', { link: profileLink });
 }
 
 function renderRepository(repository) {
     const starText = repository.stars ? `★ ${repository.stars}` : '-';
-    const licenseText = escapeHtml(repository.license || 'No license listed');
+    const licenseText = escapeHtml(repository.license || t('projects.noLicense'));
     const languageColor = languageColors[repository.language] || '#808080';
 
     return `
@@ -104,16 +106,16 @@ function renderRepository(repository) {
             <div class="project-repository-main">
                 <div class="project-repository-heading">
                     <span class="project-folder-icon" aria-hidden="true">${Icons.projects}</span>
-                    <h3><a href="${escapeHtml(repository.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(repository.name)}</a></h3>
-                    ${repository.featured ? '<span class="project-featured">Featured</span>' : ''}
+                    <h3><a href="${escapeHtml(repository.url)}" target="_blank" rel="noopener noreferrer" data-project="${escapeHtml(repository.name)}">${escapeHtml(repository.name)}</a></h3>
+                    ${repository.featured ? `<span class="project-featured">${t('projects.featured')}</span>` : ''}
                 </div>
-                <p>${escapeHtml(repository.description)}</p>
+                <p>${escapeHtml(loc(repository.description))}</p>
             </div>
             <div class="project-repository-meta">
                 <span><i class="language-dot" style="background:${languageColor}" aria-hidden="true"></i>${escapeHtml(repository.language)}</span>
                 <span>${starText}</span>
                 <span>${licenseText}</span>
-                ${repository.updated ? `<time>Updated ${escapeHtml(repository.updated)}</time>` : ''}
+                ${repository.updated ? `<time>${t('projects.updated')} ${escapeHtml(repository.updated)}</time>` : ''}
             </div>
         </article>
     `;
@@ -150,20 +152,20 @@ export const ProjectsApp = {
                 <header class="projects-header">
                     <div class="projects-header-icon" aria-hidden="true">${Icons.projects}</div>
                     <div>
-                        <h2>Projects</h2>
-                        <p>Public repositories by ${Profile.name} · <span id="projectsCount">${repositories.length}</span> repositories</p>
+                        <h2>${t('projects.heading')}</h2>
+                        <p>${t('projects.by')} ${Profile.name} · <span id="projectsCount">${repositories.length}</span> ${t('projects.repositories')}</p>
                     </div>
-                    <a class="win-btn projects-github-link" href="${repositoriesUrl()}" target="_blank" rel="noopener noreferrer">Open GitHub</a>
+                    <a class="win-btn projects-github-link" href="${repositoriesUrl()}" target="_blank" rel="noopener noreferrer">${t('projects.openGithub')}</a>
                 </header>
                 <div class="projects-toolbar" role="search">
-                    <label for="projectsSearch">Find a project</label>
-                    <input id="projectsSearch" class="win-input" type="search" placeholder="Name or description…" autocomplete="off">
+                    <label for="projectsSearch">${t('projects.find')}</label>
+                    <input id="projectsSearch" class="win-input" type="search" placeholder="${t('projects.placeholder')}" autocomplete="off">
                     <label for="projectsLanguage" class="visually-hidden">Filter by language</label>
                     <select id="projectsLanguage" class="win-select">
-                        <option value="all">All languages</option>
+                        <option value="all">${t('projects.allLanguages')}</option>
                         ${languagesOf(repositories).map(language => `<option>${escapeHtml(language)}</option>`).join('')}
                     </select>
-                    <span id="projectsResultStatus" class="projects-result-status" role="status" aria-live="polite">${repositories.length} projects shown</span>
+                    <span id="projectsResultStatus" class="projects-result-status" role="status" aria-live="polite">${t('projects.count', { count: repositories.length })}</span>
                 </div>
                 <div id="projectsList" class="projects-list" role="list">
                     ${repositories.map(renderRepository).join('')}
@@ -200,10 +202,10 @@ export const ProjectsApp = {
             const empty = list?.querySelector('.projects-empty');
             if (empty) empty.remove();
             if (!visible && list) {
-                list.insertAdjacentHTML('beforeend', '<p class="projects-empty" role="status">No projects match this filter.</p>');
+                list.insertAdjacentHTML('beforeend', `<p class="projects-empty" role="status">${t('projects.empty')}</p>`);
             }
             const resultStatus = windowEl.querySelector('#projectsResultStatus');
-            if (resultStatus) resultStatus.textContent = `${visible} project${visible === 1 ? '' : 's'} shown`;
+            if (resultStatus) resultStatus.textContent = t('projects.count', { count: visible });
         };
 
         search?.addEventListener('input', () => applyFilter());
@@ -211,6 +213,16 @@ export const ProjectsApp = {
         language?.addEventListener('change', () => applyFilter());
         windowEl.querySelector('.projects-github-link')?.addEventListener('click', () => windowEl.querySelector('.projects-github-link')?.blur());
         windowEl._projectsApplyFilter = applyFilter;
+
+        // Plain click opens the README viewer; ctrl/middle click still goes to GitHub.
+        list?.addEventListener('click', (event) => {
+            const link = event.target.closest('a[data-project]');
+            if (!link || event.ctrlKey || event.metaKey || event.shiftKey || event.button !== 0) return;
+            const repository = repositories.find(item => item.name === link.dataset.project);
+            if (!repository) return;
+            event.preventDefault();
+            ProjectViewerApp.open(repository);
+        });
 
         // Every value from GitHub goes through escapeHtml() in renderRepository/sourceText.
         const renderList = () => {
@@ -220,7 +232,7 @@ export const ProjectsApp = {
             if (language) {
                 const selected = language.value;
                 const available = languagesOf(repositories);
-                language.replaceChildren(new Option('All languages', 'all'), ...available.map(name => new Option(name, name)));
+                language.replaceChildren(new Option(t('projects.allLanguages'), 'all'), ...available.map(name => new Option(name, name)));
                 language.value = available.includes(selected) ? selected : 'all';
             }
             const count = windowEl.querySelector('#projectsCount');

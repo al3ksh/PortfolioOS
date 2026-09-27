@@ -20,6 +20,8 @@ import { TetrisApp } from './TetrisApp.js?v=15';
 import { BrowserApp } from './BrowserApp.js?v=15';
 import { SimpleModeApp } from './SimpleModeApp.js?v=15';
 import { ProjectsApp } from './ProjectsApp.js?v=15';
+import { ProjectViewerApp } from './ProjectViewerApp.js?v=15';
+import { NetworkApp } from './NetworkApp.js?v=15';
 
 export const Apps = {
     portfolio: PortfolioApp,
@@ -39,7 +41,9 @@ export const Apps = {
     tetris: TetrisApp,
     browser: BrowserApp,
     simplemode: SimpleModeApp,
-    projects: ProjectsApp
+    projects: ProjectsApp,
+    projectviewer: ProjectViewerApp,
+    network: NetworkApp
 };
 
 export default Apps;
