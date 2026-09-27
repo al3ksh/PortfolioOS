@@ -182,42 +182,8 @@
     height: 16px;
 }
 
-:is(.icon-context-menu, .desktop-context-menu) .menu-item:is(:hover, :focus-visible) .context-menu-icon svg[fill]:not([fill="none"]),
-:is(.icon-context-menu, .desktop-context-menu) .menu-item:is(:hover, :focus-visible) .context-menu-icon svg [fill]:not([fill="none"]),
-:is(.start-menu-item, .start-item):is(:hover, :focus-visible) .menu-icon svg[fill]:not([fill="none"]),
-:is(.start-menu-item, .start-item):is(:hover, :focus-visible) .menu-icon svg [fill]:not([fill="none"]) {
-    fill: currentColor !important;
-}
-
-:is(.icon-context-menu, .desktop-context-menu) .menu-item:is(:hover, :focus-visible) .context-menu-icon svg[stroke]:not([stroke="none"]),
-:is(.icon-context-menu, .desktop-context-menu) .menu-item:is(:hover, :focus-visible) .context-menu-icon svg [stroke]:not([stroke="none"]),
-:is(.start-menu-item, .start-item):is(:hover, :focus-visible) .menu-icon svg[stroke]:not([stroke="none"]),
-:is(.start-menu-item, .start-item):is(:hover, :focus-visible) .menu-icon svg [stroke]:not([stroke="none"]) {
-    stroke: currentColor !important;
-}
-
-:is(.icon-context-menu, .desktop-context-menu) .menu-item:is(:hover, :focus-visible) .context-menu-icon svg path:not([fill]):not([stroke]),
-:is(.start-menu-item, .start-item):is(:hover, :focus-visible) .menu-icon svg path:not([fill]):not([stroke]) {
-    fill: currentColor !important;
-}
-
-/* Preserve the two-tone badges for the Settings and System Info rows after
-   the generic hover recolor has run. */
-:is(.icon-context-menu, .desktop-context-menu) .menu-item:is(:hover, :focus-visible) .context-menu-icon svg.context-settings-icon circle[fill]:first-of-type {
-    fill: var(--win-gray) !important;
-}
-
-:is(.icon-context-menu, .desktop-context-menu) .menu-item:is(:hover, :focus-visible) .context-menu-icon svg.context-settings-icon circle[fill]:last-of-type {
-    fill: var(--content-bg) !important;
-}
-
-:is(.icon-context-menu, .desktop-context-menu) .menu-item:is(:hover, :focus-visible) .context-menu-icon svg.context-system-info-icon circle[fill] {
-    fill: var(--win-gray) !important;
-}
-
-:is(.icon-context-menu, .desktop-context-menu) .menu-item:is(:hover, :focus-visible) .context-menu-icon svg.context-system-info-icon text[fill] {
-    fill: var(--win-blue) !important;
-}
+/* Full-colour icons keep their colours on the highlight, like Windows 9x.
+   Single-colour glyphs use currentColor, so they follow the text colour. */
 
 .icon-context-menu .menu-divider,
 .desktop-context-menu .menu-divider {
