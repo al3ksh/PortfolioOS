@@ -13,6 +13,9 @@
  */
 
 export const Profile = {
+    // Public address of the site (used for link previews and the static pages)
+    siteUrl: 'https://example.com',
+
     name: 'Your Name',
     firstName: 'User',
     initials: 'Y.N.',
@@ -69,6 +72,16 @@ export const Profile = {
         'JavaScript', 'TypeScript', 'Python', 'C++', 'Node.js', 'Express',
         'Next.js', 'PostgreSQL', 'MongoDB', 'Tailwind', 'Docker', 'Git'
     ],
+
+    // Shown on the CV and the static page
+    interests: [
+        { en: 'Figuring out how things work and why', pl: 'Dociekanie, jak coś działa i dlaczego' },
+        { en: 'A hobby you enjoy', pl: 'Hobby, które lubisz' }
+    ],
+
+    // Cloudflare Turnstile site key (public) for the contact form. Leave empty to
+    // disable it. Needs TURNSTILE_SECRET in the backend .env; see README.
+    turnstileSiteKey: '',
 
     // Projects.exe loads your public repositories live from the GitHub API
     // (stars, descriptions, licenses, dates). Set to false to only use the list below.

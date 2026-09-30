@@ -6,6 +6,7 @@ import { Icons } from '../icons.js?v=15';
 import { WindowManager } from '../managers/WindowManager.js?v=15';
 import { Profile, githubUrl, featuredProjects } from '../config.js?v=15';
 import { t, loc, lang } from '../i18n.js?v=15';
+import { openCv } from './PrinterApp.js?v=15';
 
 export const PortfolioApp = {
     id: 'portfolio',
@@ -231,181 +232,18 @@ export const PortfolioApp = {
         }
     },
 
+    // Opens cv.html / cv.pl.html (generated from config.js by scripts/build-static.mjs)
+    // right away, inside the click so it isn't blocked as a popup, and lets the
+    // Printer app print it on the desktop meanwhile.
     downloadCV() {
-        const cvHTML = `
-<!DOCTYPE html>
-<html lang="${lang}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${Profile.name} - CV</title>
-    <style>
-        @page {
-            size: A4;
-            margin: 10mm 12mm;
+        openCv();
+        if (!WindowManager.windows.has('printer')) {
+            WindowManager.createWindow('printer');
+            return;
         }
-        @media print {
-            html, body { 
-                width: 210mm;
-                height: 297mm;
-                -webkit-print-color-adjust: exact; 
-                print-color-adjust: exact;
-            }
-            .no-print { display: none !important; }
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 11px;
-            line-height: 1.35;
-            color: #333;
-            max-width: 210mm;
-            margin: 0 auto;
-            padding: 20px 25px;
-            background: #fff;
-        }
-        header {
-            text-align: center;
-            margin-bottom: 12px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #2563eb;
-        }
-        h1 { font-size: 22px; color: #1e40af; margin-bottom: 2px; }
-        .subtitle { font-size: 13px; color: #64748b; margin-bottom: 6px; }
-        .contact-row {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            font-size: 10px;
-        }
-        .contact-row a { color: #2563eb; text-decoration: none; }
-        .two-columns {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        section { margin-bottom: 10px; }
-        h2 {
-            font-size: 11px;
-            color: #1e40af;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 3px;
-            margin-bottom: 8px;
-        }
-        .about-text { font-size: 10px; color: #475569; }
-        .exp-item, .edu-item { margin-bottom: 8px; }
-        .exp-header, .edu-header { display: flex; justify-content: space-between; align-items: baseline; }
-        .exp-title, .edu-title { font-weight: 600; font-size: 11px; color: #1e293b; }
-        .exp-date, .edu-date { font-size: 10px; color: #64748b; }
-        .exp-company { font-size: 10px; color: #2563eb; }
-        .exp-desc { font-size: 10px; color: #475569; margin-top: 2px; }
-        .skills-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-        .skill-tag {
-            background: #e0e7ff;
-            color: #3730a3;
-            padding: 2px 8px;
-            border-radius: 3px;
-            font-size: 10px;
-        }
-        .project-item { margin-bottom: 6px; }
-        .project-item strong { font-size: 10px; }
-        .project-tech { font-size: 9px; color: #64748b; margin-left: 6px; }
-        .project-desc { font-size: 10px; color: #475569; }
-        .print-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        .print-btn:hover { background: #1d4ed8; }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>${Profile.name}</h1>
-        <p class="subtitle">${loc(Profile.title)}</p>
-        <div class="contact-row">
-            <span>${loc(Profile.location)}</span>
-            <a href="mailto:${Profile.contact.email}">${Profile.contact.email}</a>
-            <a href="${githubUrl()}">github.com/${Profile.contact.github}</a>
-            <span>Discord: ${Profile.contact.discord}</span>
-        </div>
-    </header>
-
-    <section>
-        <h2>${t('cv.about')}</h2>
-        <p class="about-text">${loc(Profile.about)}</p>
-    </section>
-
-    <div class="two-columns">
-        <div>
-            <section>
-                <h2>${t('section.experience')}</h2>
-                ${Profile.experience.map(job => `
-                <div class="exp-item">
-                    <div class="exp-header">
-                        <span class="exp-title">${loc(job.role)}</span>
-                        <span class="exp-date">${loc(job.date)}</span>
-                    </div>
-                    <div class="exp-company">${loc(job.company)}</div>
-                    <p class="exp-desc">${loc(job.description)}</p>
-                </div>`).join('')}
-            </section>
-
-            <section>
-                <h2>${t('section.education')}</h2>
-                ${Profile.education.map(edu => `
-                <div class="edu-item">
-                    <div class="edu-header">
-                        <span class="edu-title">${loc(edu.degree)}</span>
-                        <span class="edu-date">${loc(edu.date)}</span>
-                    </div>
-                    <p class="exp-desc">${loc(edu.school)}</p>
-                </div>`).join('')}
-            </section>
-        </div>
-
-        <div>
-            <section>
-                <h2>${t('section.skills')}</h2>
-                <div class="skills-grid">
-                    ${Profile.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
-                </div>
-            </section>
-
-            <section>
-                <h2>${t('section.projects')}</h2>
-                ${featuredProjects().map(project => `
-                <div class="project-item">
-                    <strong><a href="${project.url}" target="_blank" rel="noopener noreferrer">${project.name}</a></strong><span class="project-tech">${project.tech || project.language}</span>
-                    <p class="project-desc">${loc(project.description)}</p>
-                </div>`).join('')}
-            </section>
-        </div>
-    </div>
-
-    <button class="print-btn no-print" onclick="window.print()">${t('cv.save')}</button>
-</body>
-</html>`;
-
-        // Open CV in new window
-        const cvWindow = window.open('', '_blank');
-        cvWindow.document.write(cvHTML);
-        cvWindow.document.close();
+        // Restart: wait for the old window's close animation to remove it first.
+        WindowManager.closeWindow('printer');
+        setTimeout(() => WindowManager.createWindow('printer'), 200);
     }
 };
 

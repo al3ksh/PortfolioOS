@@ -16,12 +16,47 @@ app.use(cors({
     origin: process.env.CORS_ORIGIN || 'http://localhost'
 }));
 app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: false, limit: '10kb' }));
+
+// The no-JavaScript contact form posts a regular HTML form; answer it with a
+// redirect to a static page instead of JSON.
+const isFormPost = req => req.is('application/x-www-form-urlencoded');
+const replyPage = (req, kind) => `/contact-${kind}${req.body?.lang === 'pl' ? '.pl' : ''}.html`;
+
+function reply(req, res, status, body) {
+    if (isFormPost(req)) return res.redirect(303, replyPage(req, status < 400 ? 'sent' : 'error'));
+    return res.status(status).json(body);
+}
+
+// Visitor address: behind the Cloudflare tunnel and nginx, req.ip is the proxy,
+// so prefer the header Cloudflare sets.
+const clientIp = req => req.get('cf-connecting-ip') || req.ip;
+
+// Cloudflare Turnstile: when TURNSTILE_SECRET is set, every message needs a token
+// that the widget produced in the visitor's browser.
+const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET || '';
+
+async function verifyTurnstile(token, ip) {
+    if (typeof token !== 'string' || !token || token.length > 2048) return false;
+    try {
+        const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+            method: 'POST',
+            body: new URLSearchParams({ secret: TURNSTILE_SECRET, response: token, remoteip: ip || '' }),
+            signal: AbortSignal.timeout(5000)
+        });
+        return (await response.json()).success === true;
+    } catch (error) {
+        console.error('Turnstile verification failed:', error.message);
+        return false;
+    }
+}
 
 // Rate limiting - max 5 contact requests per 15 minutes per IP
 const contactLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 5,
-    message: { error: 'Too many requests, please try again later.' }
+    keyGenerator: clientIp,
+    handler: (req, res) => reply(req, res, 429, { error: 'Too many requests, please try again later.' })
 });
 
 // Email transporter configuration
@@ -110,6 +145,15 @@ app.post('/contact', contactLimiter, async (req, res) => {
         const subject = typeof input.subject === 'string' ? input.subject.trim() : '';
         const message = typeof input.message === 'string' ? input.message.trim() : '';
 
+        // Honeypot field of the no-JS form: bots fill it, people never see it.
+        if (typeof input.website === 'string' && input.website.trim()) {
+            return reply(req, res, 200, { success: true, message: 'Message sent successfully!' });
+        }
+
+        if (TURNSTILE_SECRET && !(await verifyTurnstile(input.turnstileToken || input['cf-turnstile-response'], clientIp(req)))) {
+            return reply(req, res, 400, { error: 'Verification failed. Please reload the page and try again.' });
+        }
+
         const escapeHtml = (value) => String(value)
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
@@ -119,17 +163,17 @@ app.post('/contact', contactLimiter, async (req, res) => {
 
         // Validation
         if (!name || !email || !message) {
-            return res.status(400).json({ error: 'Name, email, and message are required.' });
+            return reply(req, res, 400, { error: 'Name, email, and message are required.' });
         }
 
         if (name.length > 120 || email.length > 254 || message.length > 5000) {
-            return res.status(400).json({ error: 'Name, email, or message is too long.' });
+            return reply(req, res, 400, { error: 'Name, email, or message is too long.' });
         }
 
         // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            return res.status(400).json({ error: 'Invalid email address.' });
+            return reply(req, res, 400, { error: 'Invalid email address.' });
         }
 
         // Subject mapping
@@ -189,11 +233,11 @@ app.post('/contact', contactLimiter, async (req, res) => {
         await transporter.sendMail(mailOptions);
 
         console.log(`✅ Contact email sent from ${name} <${email}>`);
-        res.json({ success: true, message: 'Message sent successfully!' });
+        reply(req, res, 200, { success: true, message: 'Message sent successfully!' });
 
     } catch (error) {
         console.error('❌ Email error:', error);
-        res.status(500).json({ error: 'Failed to send message. Please try again later.' });
+        reply(req, res, 500, { error: 'Failed to send message. Please try again later.' });
     }
 });
 

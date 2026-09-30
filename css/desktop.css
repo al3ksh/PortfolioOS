@@ -393,6 +393,7 @@
 }
 
 .tray-icon {
+    color: var(--win-black);
     width: 28px;
     height: 28px;
     display: flex;
@@ -698,22 +699,24 @@
 
 .tray-lang {
     height: 22px;
-    min-width: 28px;
-    padding: 0 4px;
+    padding: 0 3px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--win-gray);
-    color: var(--win-black);
-    border: 1px solid;
-    border-color: var(--win-dark-gray) var(--win-white) var(--win-white) var(--win-dark-gray);
-    font: bold 11px 'MS Sans Serif', Tahoma, sans-serif;
+    background: transparent;
+    border: 1px solid transparent;
     cursor: pointer;
+}
+
+.tray-lang svg {
+    display: block;
+    width: 22px;
+    height: 14px;
+    outline: 1px solid rgba(0, 0, 0, 0.45);
 }
 
 .tray-lang:hover,
 .tray-lang:focus-visible {
-    background: var(--win-blue);
-    color: var(--win-text-white);
+    border-color: var(--win-white) var(--win-dark-gray) var(--win-dark-gray) var(--win-white);
     outline: none;
 }

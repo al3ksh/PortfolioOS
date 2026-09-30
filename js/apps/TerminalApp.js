@@ -39,6 +39,7 @@ export const TerminalApp = {
   type      - Display file contents
   color     - Change text color
   matrix    - ???
+  bios      - Reboot into BIOS setup
   sudo      - Request administrator powers
   format c: - Pretend to format the drive
   ping girlfriend - Test your luck
@@ -139,6 +140,14 @@ amazing web experiences. Check out my projects!`;
                 return `Color changed.`;
             }
             return `Invalid color. Use: 0=black a=green b=blue c=red d=magenta e=yellow f=white`;
+        },
+
+        bios: () => {
+            sessionStorage.setItem('enterBios', '1');
+            sessionStorage.removeItem('hasBooted');
+            document.documentElement.dataset.reloading = 'true';
+            setTimeout(() => location.reload(), 600);
+            return 'Rebooting... Press DEL to enter SETUP';
         },
 
         matrix: () => {

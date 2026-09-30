@@ -71,8 +71,10 @@ export const ContactApp = {
                             placeholder="${t('contact.messagePlaceholder')}" required></textarea>
                     </div>
 
+                    ${Profile.turnstileSiteKey ? '<div class="form-group contact-turnstile" id="contactTurnstile"></div>' : ''}
+
                     <div class="form-actions">
-                        <button type="submit" class="win-btn win-btn-primary">
+                        <button type="submit" class="win-btn win-btn-primary"${Profile.turnstileSiteKey ? ' disabled' : ''}>
                             ${Icons.actSend} ${t('contact.send')}
                         </button>
                         <button type="reset" class="win-btn">
@@ -109,6 +111,28 @@ export const ContactApp = {
         form?.addEventListener('reset', () => {
             SoundManager.play('click');
         });
+
+        ContactApp.token = '';
+        if (Profile.turnstileSiteKey && form) ContactApp.mountTurnstile(form);
+    },
+
+    // Cloudflare Turnstile anti-spam check; the script is loaded only when
+    // the contact window opens. Send stays disabled until it passes.
+    mountTurnstile(form) {
+        const submit = form.querySelector('button[type="submit"]');
+        const slot = form.querySelector('#contactTurnstile');
+        const render = () => window.turnstile?.render(slot, {
+            sitekey: Profile.turnstileSiteKey,
+            callback: (token) => { ContactApp.token = token; submit.disabled = false; },
+            'expired-callback': () => { ContactApp.token = ''; submit.disabled = true; },
+            'error-callback': () => { ContactApp.token = ''; submit.disabled = true; }
+        });
+        if (window.turnstile) return render();
+        const script = document.createElement('script');
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+        script.async = true;
+        script.addEventListener('load', render);
+        document.head.append(script);
     },
 
     sendMessage(container) {
@@ -116,6 +140,7 @@ export const ContactApp = {
         const email = container.querySelector('#contactEmail').value;
         const subject = container.querySelector('#contactSubject').value;
         const message = container.querySelector('#contactMessage').value;
+        const turnstileToken = ContactApp.token;
 
         // Show sending animation
         const formEl = container.querySelector('.contact-form');
@@ -142,7 +167,7 @@ export const ContactApp = {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ name, email, subject, message }),
+            body: JSON.stringify({ name, email, subject, message, turnstileToken }),
             signal: controller.signal
         })
         .then(response => response.json())

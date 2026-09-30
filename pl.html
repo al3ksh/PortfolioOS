@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -7,17 +7,17 @@
     <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <!-- meta:start -->
-    <meta name="description" content="Your Name, Full-Stack Developer portfolio with selected projects, experience and contact details.">
-    <link rel="canonical" href="https://example.com/">
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Your Name","jobTitle":"Full-Stack Developer","description":"Short introduction about yourself: what you study or do, what you are certified in, and what kind of software you like to build.","url":"https://example.com/","image":"https://example.com/og-image.png","email":"mailto:you@example.com","sameAs":["https://github.com/your-github-username"],"knowsAbout":["JavaScript","TypeScript","Python","C++","Node.js","Express","Next.js","PostgreSQL","MongoDB","Tailwind","Docker","Git"],"alumniOf":[{"@type":"EducationalOrganization","name":"Your University"},{"@type":"EducationalOrganization","name":"Your Technical School · Certifications"}]}</script>
+    <meta name="description" content="Your Name - Full-Stack Developer. Portfolio z projektami, doświadczeniem i kontaktem.">
+    <link rel="canonical" href="https://example.com/pl.html">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Your Name","jobTitle":"Full-Stack Developer","description":"Krótko o sobie: co studiujesz lub czym się zajmujesz, jakie masz certyfikaty i jakie oprogramowanie lubisz tworzyć.","url":"https://example.com/","image":"https://example.com/og-image.png","email":"mailto:you@example.com","sameAs":["https://github.com/your-github-username"],"knowsAbout":["JavaScript","TypeScript","Python","C++","Node.js","Express","Next.js","PostgreSQL","MongoDB","Tailwind","Docker","Git"],"alumniOf":[{"@type":"EducationalOrganization","name":"Your University"},{"@type":"EducationalOrganization","name":"Your Technical School · Certifications"}]}</script>
     <meta property="og:title" content="Your Name | Full-Stack Developer">
-    <meta property="og:description" content="Your Name, Full-Stack Developer portfolio with selected projects, experience and contact details.">
+    <meta property="og:description" content="Your Name - Full-Stack Developer. Portfolio z projektami, doświadczeniem i kontaktem.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://example.com/">
+    <meta property="og:url" content="https://example.com/pl.html">
     <meta property="og:image" content="https://example.com/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:locale" content="en_US">
+    <meta property="og:locale" content="pl_PL">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://example.com/og-image.png">
     <link rel="alternate" hreflang="en" href="https://example.com/">
@@ -28,7 +28,7 @@
     <!-- Marks JavaScript as available before anything renders; css/static.css then hides the static version. -->
     <script>document.documentElement.classList.add('js');</script>
     <!-- lang:start -->
-    
+    <script>if (!/[?&]lang=/.test(location.search) && !sessionStorage.getItem('lang') && !localStorage.getItem('lang')) sessionStorage.setItem('lang', 'pl');</script>
     <!-- lang:end -->
     <style>html.js, html.js body { background: #000; }</style>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23000080' width='100' height='100'/><rect fill='%23c0c0c0' x='10' y='10' width='80' height='70'/><rect fill='%23000080' x='15' y='15' width='70' height='15'/><text x='20' y='27' fill='white' font-size='12' font-family='Arial'>PortfolioOS</text><rect fill='white' x='20' y='35' width='60' height='40'/></svg>">
@@ -40,8 +40,8 @@
 <body>
     <div class="static-root">
     <!-- static:start -->
-    <div class="static-page" lang="en">
-    <a class="static-skip" href="#static-content">Skip to content</a>
+    <div class="static-page" lang="pl">
+    <a class="static-skip" href="#static-content">Przejdź do treści</a>
     <main class="static-main">
         <div class="static-window">
             <div class="static-titlebar">
@@ -50,16 +50,16 @@
                 <span class="static-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
             </div>
             <nav class="static-menu" aria-label="Portfolio">
-                <a href="#about">About Me</a>
-                <a href="#experience">Experience</a>
-                <a href="#projects">Projects</a>
-                <a href="#skills">Skills</a>
-                <a href="#education">Education</a>
-                <a href="#contact">Contact</a>
-                <a class="static-menu-right" href="cv.html">CV</a>
-                <a href="pl.html" hreflang="pl">Polski</a>
+                <a href="#about">O mnie</a>
+                <a href="#experience">Doświadczenie</a>
+                <a href="#projects">Projekty</a>
+                <a href="#skills">Umiejętności</a>
+                <a href="#education">Wykształcenie</a>
+                <a href="#contact">Kontakt</a>
+                <a class="static-menu-right" href="cv.pl.html">CV</a>
+                <a href="./" hreflang="en">English</a>
             </nav>
-            <p class="static-notice" role="note">JavaScript is turned off, so this is the lightweight version of Portfolio OS. Turn JavaScript on for the full interactive desktop.</p>
+            <p class="static-notice" role="note">JavaScript jest wyłączony, więc widzisz lekką wersję Portfolio OS. Włącz JavaScript, żeby zobaczyć pełny, interaktywny pulpit.</p>
             <div class="static-body" id="static-content">
                 <section class="static-card static-hero is-wide" aria-label="Your Name">
                     <pre class="static-avatar" aria-hidden="true">╔══════════╗
@@ -75,12 +75,12 @@
                 </section>
 
                 <section class="static-card is-wide" id="about">
-                    <h2>About Me</h2>
-                    <p class="static-desc">Short introduction about yourself: what you study or do, what you are certified in, and what kind of software you like to build.</p>
+                    <h2>O mnie</h2>
+                    <p class="static-desc">Krótko o sobie: co studiujesz lub czym się zajmujesz, jakie masz certyfikaty i jakie oprogramowanie lubisz tworzyć.</p>
                 </section>
 
                 <section class="static-card" id="experience">
-                    <h2>Experience</h2>
+                    <h2>Doświadczenie</h2>
                     <div class="static-item">
                         <div class="static-item-head"><span>Full-Stack Developer (Contract)</span><span class="static-date">2024</span></div>
                         <div class="static-sub">Company Name · Client Name</div>
@@ -94,11 +94,11 @@
 
                 <div>
                     <section class="static-card" id="skills">
-                        <h2>Skills</h2>
+                        <h2>Umiejętności</h2>
                         <ul class="static-tags"><li>JavaScript</li><li>TypeScript</li><li>Python</li><li>C++</li><li>Node.js</li><li>Express</li><li>Next.js</li><li>PostgreSQL</li><li>MongoDB</li><li>Tailwind</li><li>Docker</li><li>Git</li></ul>
                     </section>
                     <section class="static-card" id="education" style="margin-top:8px">
-                        <h2>Education</h2>
+                        <h2>Wykształcenie</h2>
                         <div class="static-item">
                             <div class="static-item-head"><span>Computer Science</span><span class="static-date">2025 - present</span></div>
                             <div class="static-desc">Your University</div>
@@ -110,7 +110,7 @@
                 </div>
 
                 <section class="static-card is-wide" id="projects">
-                    <h2>Projects</h2>
+                    <h2>Projekty</h2>
                     <ul class="static-projects"><li class="static-featured">
                         <a href="https://github.com/your-github-username/PortfolioOS" rel="noopener noreferrer">PortfolioOS</a>
                         <small>JavaScript, CSS, HTML</small>
@@ -128,29 +128,29 @@
                         <small>Python</small>
                         <span class="static-desc">Short description of your third project.</span>
                     </li></ul>
-                    <p class="static-more"><a href="https://github.com/your-github-username?tab=repositories" rel="noopener noreferrer">All projects on GitHub →</a></p>
+                    <p class="static-more"><a href="https://github.com/your-github-username?tab=repositories" rel="noopener noreferrer">Wszystkie projekty na GitHubie →</a></p>
                 </section>
 
                 <section class="static-card is-wide" id="contact">
-                    <h2>Contact</h2>
-                    <p class="static-desc">Send me a message or reach me directly:</p>
+                    <h2>Kontakt</h2>
+                    <p class="static-desc">Napisz wiadomość albo skontaktuj się bezpośrednio:</p>
                     <ul class="static-links">
                         <li>E-mail: <a href="mailto:you@example.com">you@example.com</a></li>
                         <li>GitHub: <a href="https://github.com/your-github-username" rel="noopener noreferrer">github.com/your-github-username</a></li>
                         <li>Discord: your-discord-username</li>
                     </ul>
                     <form class="static-form" action="/api/contact" method="post">
-                        <input type="hidden" name="lang" value="en">
+                        <input type="hidden" name="lang" value="pl">
                         <label class="static-hp" aria-hidden="true">Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
-                        <label>Your Name: <input type="text" name="name" required maxlength="100" autocomplete="name"></label>
-                        <label>Email Address: <input type="email" name="email" required maxlength="254" autocomplete="email"></label>
-                        <label class="is-wide">Subject:
-                            <select name="subject"><option value="general">General Inquiry</option><option value="job">Job Opportunity</option><option value="project">Project Collaboration</option><option value="feedback">Feedback</option><option value="bug">Bug Report</option></select>
+                        <label>Imię i nazwisko: <input type="text" name="name" required maxlength="100" autocomplete="name"></label>
+                        <label>Adres e-mail: <input type="email" name="email" required maxlength="254" autocomplete="email"></label>
+                        <label class="is-wide">Temat:
+                            <select name="subject"><option value="general">Pytanie ogólne</option><option value="job">Oferta pracy</option><option value="project">Współpraca przy projekcie</option><option value="feedback">Opinia</option><option value="bug">Zgłoszenie błędu</option></select>
                         </label>
-                        <label class="is-wide">Message: <textarea name="message" required maxlength="5000" placeholder="Type your message here..."></textarea></label>
+                        <label class="is-wide">Wiadomość: <textarea name="message" required maxlength="5000" placeholder="Wpisz tutaj swoją wiadomość..."></textarea></label>
                         <div class="static-form-actions">
-                            <button type="submit">Send Message</button>
-                            <small>The form works without JavaScript.</small>
+                            <button type="submit">Wyślij</button>
+                            <small>Formularz działa bez JavaScriptu.</small>
                         </div>
                     </form>
                 </section>
@@ -160,7 +160,7 @@
     <footer class="static-taskbar">
         <span class="static-start"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="1" width="14" height="14" fill="#000"/><rect x="2" y="2" width="12" height="10" fill="#008080"/><rect x="2" y="12" width="12" height="2" fill="#C0C0C0"/><rect x="2" y="12" width="3" height="2" fill="#808080"/><rect x="3" y="3" width="3" height="2" fill="#FFFF80"/><rect x="3" y="7" width="2" height="3" fill="#FFF"/><rect x="8" y="4" width="5" height="5" fill="#C0C0C0"/><rect x="8" y="4" width="5" height="1" fill="#000080"/></svg> Start</span>
         <span class="static-task">Portfolio.exe</span>
-        <span class="static-tray">Static mode<span class="static-copyright"> · © 2026 Your Name</span></span>
+        <span class="static-tray">Tryb statyczny<span class="static-copyright"> · © 2026 Your Name</span></span>
     </footer>
 </div>
     <!-- static:end -->

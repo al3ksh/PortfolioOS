@@ -89,3 +89,168 @@
         animation: none;
     }
 }
+
+/* ===========================================
+   BIOS SETUP (DEL during boot)
+   =========================================== */
+
+.boot-bios-hint {
+    position: absolute;
+    left: 40px;
+    bottom: 40px;
+    margin: 0;
+    color: #AAAAAA;
+    font-family: var(--font-mono);
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.boot-bios-hint[hidden] { display: none; }
+
+.boot-bios-hint:hover,
+.boot-bios-hint:focus-visible {
+    color: #FFF;
+    outline: none;
+}
+
+.bios-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    flex-direction: column;
+    background: #0000AA;
+    color: #FFFFFF;
+    font-family: 'Perfect DOS VGA 437', 'Lucida Console', 'Courier New', monospace;
+    font-size: 16px;
+    line-height: 1.5;
+    user-select: none;
+}
+
+.bios-screen button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    text-align: left;
+}
+
+.bios-title {
+    padding: 4px 12px;
+    background: #00AAAA;
+    color: #FFF;
+    text-align: center;
+    font-weight: bold;
+}
+
+.bios-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 0 12px;
+    background: #00AAAA;
+    border-bottom: 2px solid #FFF;
+}
+
+.bios-tab {
+    padding: 2px 16px;
+}
+
+.bios-tab.is-active {
+    background: #0000AA;
+    color: #FFFF55 !important;
+}
+
+.bios-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+    gap: 0;
+    min-height: 0;
+    margin: 12px;
+    border: 2px solid #AAAAAA;
+}
+
+.bios-items {
+    padding: 12px 8px;
+    overflow: auto;
+}
+
+.bios-item {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(0, 1.2fr);
+    gap: 16px;
+    padding: 2px 8px;
+    color: #AAAAAA !important;
+}
+
+.bios-item:not(.is-info) .bios-item-value { color: #FFF; }
+.bios-item.is-info { cursor: default; }
+.bios-item.is-info .bios-item-label { color: #AAAAAA; }
+
+.bios-item.is-selected,
+.bios-item:not(.is-info):hover {
+    background: #AAAAAA;
+    color: #0000AA !important;
+    outline: none;
+}
+
+.bios-item.is-selected .bios-item-value,
+.bios-item:not(.is-info):hover .bios-item-value {
+    color: #0000AA;
+}
+
+.bios-help {
+    padding: 12px;
+    border-left: 2px solid #AAAAAA;
+    color: #FFF;
+}
+
+.bios-help-title {
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    color: #FFFF55;
+    border-bottom: 1px solid #AAAAAA;
+}
+
+.bios-help p { margin: 0 0 10px; }
+.bios-help-note { color: #AAAAAA; font-size: 13px; }
+
+.bios-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 24px;
+    padding: 4px 12px;
+    background: #00AAAA;
+    color: #FFF;
+}
+
+.bios-legend button { color: #FFFF55 !important; }
+
+.bios-dialog {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 320px;
+    padding: 16px 24px;
+    background: #AA0000;
+    color: #FFF;
+    border: 3px double #FFF;
+    box-shadow: 8px 8px 0 #000;
+    text-align: center;
+}
+
+.bios-dialog p { margin: 0 0 12px; }
+.bios-dialog div { display: flex; justify-content: center; gap: 16px; }
+.bios-dialog button:focus-visible,
+.bios-dialog button:hover { background: #FFF; color: #AA0000 !important; outline: none; }
+
+@media (max-width: 700px) {
+    .bios-screen { font-size: 13px; }
+    .bios-body { grid-template-columns: 1fr; margin: 6px; }
+    .bios-help { border-left: 0; border-top: 2px solid #AAAAAA; }
+    .bios-item { grid-template-columns: 1fr; gap: 0; padding: 4px 8px; }
+    .bios-legend span { display: none; }
+}

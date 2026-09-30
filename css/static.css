@@ -1,0 +1,391 @@
+/* ===========================================
+   Static (no-JavaScript) pages
+   The static portfolio in index.html / pl.html and the generated
+   contact-*.html and 404.html pages.
+   =========================================== */
+
+/* The static version lives in the page for search engines and no-JS visitors.
+   An inline script adds .js to <html>; then the desktop takes over. */
+.js .static-root { display: none !important; }
+
+html:not(.js) #bootScreen,
+html:not(.js) #desktop,
+html:not(.js) #bsodScreen,
+html:not(.js) #privacyModal { display: none !important; }
+
+/* base.css locks the page for the desktop (overflow: hidden, no text selection);
+   the static page must scroll and be selectable like a normal document. */
+html:not(.js),
+html:not(.js) body {
+    background: #008080 !important;
+    height: auto !important;
+    overflow: auto !important;
+    position: static !important;
+}
+
+html:not(.js) body {
+    margin: 0;
+    user-select: text !important;
+    -webkit-font-smoothing: auto;
+}
+
+.static-page, .static-page *, .static-page *::before, .static-page *::after { box-sizing: border-box; }
+
+.static-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: #000;
+    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, Geneva, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    background: #008080;
+}
+
+.static-skip {
+    position: absolute;
+    left: -9999px;
+}
+
+.static-skip:focus {
+    left: 8px;
+    top: 8px;
+    z-index: 10;
+    padding: 6px 10px;
+    background: #FFFFE1;
+    color: #000;
+    border: 1px solid #000;
+}
+
+.static-main {
+    flex: 1;
+    width: 100%;
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 24px 16px;
+}
+
+.static-window {
+    background: #C0C0C0;
+    border: 2px solid;
+    border-color: #FFF #404040 #404040 #FFF;
+    box-shadow: 1px 1px 0 #000;
+}
+
+.static-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 4px 3px 6px;
+    background: #000080;
+    color: #FFF;
+    font-weight: bold;
+}
+
+.static-titlebar svg,
+.static-start svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.static-titlebar-text { flex: 1; }
+
+.static-controls {
+    display: flex;
+    gap: 2px;
+}
+
+.static-controls span {
+    width: 18px;
+    height: 16px;
+    display: grid;
+    place-items: center;
+    background: #C0C0C0;
+    color: #000;
+    border: 1px solid;
+    border-color: #FFF #404040 #404040 #FFF;
+    font-size: 10px;
+    line-height: 1;
+}
+
+.static-menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 4px;
+    padding: 3px 4px;
+    border-bottom: 1px solid #808080;
+}
+
+.static-menu a {
+    padding: 2px 8px;
+    color: #000;
+    text-decoration: none;
+}
+
+.static-menu a:hover,
+.static-menu a:focus-visible {
+    background: #000080;
+    color: #FFF;
+    outline: none;
+}
+
+.static-menu .static-menu-right { margin-left: auto; }
+
+.static-notice {
+    margin: 8px 8px 0;
+    padding: 6px 10px;
+    background: #FFFFE1;
+    border: 1px solid #000;
+    font-size: 13px;
+}
+
+.static-notice a { color: #000080; }
+
+.static-body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 8px;
+}
+
+.static-card {
+    padding: 12px 14px;
+    background: #C0C0C0;
+    border: 2px solid;
+    border-color: #FFF #808080 #808080 #FFF;
+    min-width: 0;
+}
+
+.static-card.is-wide { grid-column: 1 / -1; }
+
+.static-card h2 {
+    margin: 0 0 10px;
+    padding-bottom: 6px;
+    font-size: 15px;
+    border-bottom: 1px solid #808080;
+}
+
+.static-hero {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.static-avatar {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 12px 14px;
+    background: #1B1B1B;
+    color: #00FF00;
+    border: 3px solid;
+    border-color: #404040 #FFF #FFF #404040;
+    font: 12px/1.15 'Courier New', monospace;
+}
+
+.static-hero h1 {
+    margin: 0;
+    font-size: 26px;
+    line-height: 1.2;
+}
+
+.static-role {
+    margin: 2px 0 8px;
+    color: #404040;
+}
+
+.static-bio {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+}
+
+.static-bio li::before { content: '> '; }
+
+.static-item + .static-item {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dotted #808080;
+}
+
+.static-item-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-weight: bold;
+}
+
+.static-date {
+    flex-shrink: 0;
+    color: #404040;
+    font-weight: normal;
+}
+
+.static-sub { color: #000080; font-size: 13px; }
+.static-desc { margin: 2px 0 0; color: #202020; font-size: 13px; }
+
+.static-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.static-tags li {
+    padding: 1px 8px;
+    background: #FFF;
+    border: 1px solid #808080;
+    font-size: 13px;
+}
+
+.static-projects {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.static-projects li {
+    padding: 8px 10px;
+    background: #FFF;
+    border: 1px solid #808080;
+}
+
+.static-projects a { color: #000080; font-weight: bold; }
+.static-projects .static-featured { border-color: #000080; box-shadow: inset 3px 0 0 #000080; }
+.static-projects small { display: block; color: #606060; font-size: 12px; }
+
+.static-more { margin: 10px 0 0; }
+.static-more a, .static-links a { color: #000080; }
+
+.static-links {
+    margin: 0 0 12px;
+    padding: 0;
+    list-style: none;
+}
+
+.static-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 12px;
+}
+
+.static-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 13px;
+}
+
+.static-form .is-wide { grid-column: 1 / -1; }
+
+.static-form input,
+.static-form select,
+.static-form textarea {
+    width: 100%;
+    padding: 4px 6px;
+    font: inherit;
+    background: #FFF;
+    color: #000;
+    border: 2px solid;
+    border-color: #808080 #FFF #FFF #808080;
+    border-radius: 0;
+}
+
+.static-form textarea { min-height: 110px; resize: vertical; }
+
+.static-form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.static-button,
+.static-form button {
+    display: inline-block;
+    padding: 5px 18px;
+    background: #C0C0C0;
+    color: #000;
+    font: inherit;
+    text-decoration: none;
+    border: 2px solid;
+    border-color: #FFF #404040 #404040 #FFF;
+    box-shadow: 1px 1px 0 #000;
+    cursor: pointer;
+}
+
+.static-button:active,
+.static-form button:active { border-color: #404040 #FFF #FFF #404040; }
+
+.static-form-actions small { color: #404040; }
+
+.static-hp { position: absolute; left: -9999px; }
+
+.static-taskbar {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 4px;
+    background: #C0C0C0;
+    border-top: 2px solid #FFF;
+    font-size: 13px;
+}
+
+.static-start {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    font-weight: bold;
+    border: 2px solid;
+    border-color: #FFF #404040 #404040 #FFF;
+}
+
+.static-task {
+    padding: 2px 10px;
+    border: 2px solid;
+    border-color: #404040 #FFF #FFF #404040;
+    background: #DFDFDF;
+}
+
+.static-tray {
+    margin-left: auto;
+    padding: 2px 10px;
+    border: 1px solid;
+    border-color: #808080 #FFF #FFF #808080;
+}
+
+/* Small standalone message pages (contact sent / error) */
+.static-dialog {
+    max-width: 460px;
+    margin: 12vh auto 0;
+}
+
+.static-dialog-body {
+    display: flex;
+    gap: 14px;
+    padding: 18px;
+}
+
+.static-dialog-body p { margin: 0 0 14px; }
+.static-dialog-icon { font-size: 30px; line-height: 1; }
+
+@media (max-width: 720px) {
+    .static-main { padding: 8px 6px; }
+    .static-body { grid-template-columns: 1fr; }
+    .static-hero { flex-direction: column; align-items: flex-start; }
+    .static-form { grid-template-columns: 1fr; }
+    .static-menu .static-menu-right { margin-left: 0; }
+    .static-controls { display: none; }
+    .static-taskbar { position: static; }
+    .static-task, .static-copyright { display: none; }
+}
