@@ -1,453 +1,388 @@
 /**
- * Internet App - Web Browser with iframe
+ * Internet App - retro web browser.
+ *
+ * Most sites refuse to be shown in an iframe (X-Frame-Options / frame-ancestors),
+ * so the address bar routes each URL to something that can be shown:
+ *   - YouTube / Spotify / Vimeo links  -> their official embed players
+ *   - your own GitHub repos / profile  -> Project Viewer / Projects.exe
+ *   - Wikipedia, archive.org, your site -> loaded directly
+ *   - anything else                    -> latest Wayback Machine copy
+ * The Time machine switches every page to its Wayback copy from a chosen year.
  */
 
 import { Icons } from '../icons.js?v=15';
+import { Profile, githubUrl, featuredProjects } from '../config.js?v=15';
+import { t, loc, lang } from '../i18n.js?v=15';
+import { WindowManager } from '../managers/WindowManager.js?v=15';
+import { ProjectViewerApp } from './ProjectViewerApp.js?v=15';
 
-const escapeHtml = (value) => {
-    const div = document.createElement('div');
-    div.textContent = String(value ?? '');
-    return div.innerHTML;
-};
+const TIME_MACHINE_YEARS = ['2015', '2010', '2005', '2000', '1996'];
+const FRAMEABLE_HOSTS = ['wikipedia.org', 'wikimedia.org', 'wiktionary.org', 'archive.org'];
+const HOME = 'about:home';
+
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+})[char]);
+
+const wikiSearch = query => `https://${lang === 'pl' ? 'pl' : 'en'}.wikipedia.org/w/index.php?search=${encodeURIComponent(query)}`;
+const wayback = (url, year) => `https://web.archive.org/web/${year}if_/${url}`;
+const hostMatches = (host, domain) => host === domain || host.endsWith(`.${domain}`);
+
+function ownHosts() {
+    const hosts = [];
+    try { if (Profile.siteUrl) hosts.push(new URL(Profile.siteUrl).hostname); } catch { /* ignore */ }
+    return hosts.concat(Profile.browser?.frameable || []);
+}
+
+function toUrl(input) {
+    const text = String(input || '').trim();
+    if (!text || text === HOME) return null;
+    if (/^[a-z]+:\/\//i.test(text)) return new URL(text);
+    if (!text.includes(' ') && /\.[a-z]{2,}(\/|$|:|\?)/i.test(text)) return new URL(`https://${text}`);
+    return { search: text };
+}
+
+function embedFor(url) {
+    const host = url.hostname.replace(/^www\.|^m\./, '');
+    const path = url.pathname.split('/').filter(Boolean);
+    if (host === 'youtube.com' || host === 'youtube-nocookie.com') {
+        const id = url.searchParams.get('v') || (['shorts', 'embed', 'live'].includes(path[0]) ? path[1] : null);
+        if (id) return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}`;
+    }
+    if (host === 'youtu.be' && path[0]) return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(path[0])}`;
+    if (host === 'open.spotify.com') {
+        const parts = path[0]?.startsWith('intl-') ? path.slice(1) : path;
+        if (['track', 'album', 'playlist', 'episode', 'show', 'artist'].includes(parts[0]) && parts[1]) {
+            return `https://open.spotify.com/embed/${parts[0]}/${encodeURIComponent(parts[1])}`;
+        }
+    }
+    if (host === 'vimeo.com' && /^\d+$/.test(path[0] || '')) return `https://player.vimeo.com/video/${path[0]}`;
+    return null;
+}
+
+// Decide how to show an address. Returns { type, src, display, note }.
+function resolve(input, year) {
+    let url;
+    try {
+        url = toUrl(input);
+    } catch {
+        url = { search: input };
+    }
+    if (!url) return { type: 'home', display: HOME };
+    if (url.search !== undefined && !(url instanceof URL)) {
+        return { type: 'frame', src: wikiSearch(url.search), display: url.search };
+    }
+    if (!['http:', 'https:'].includes(url.protocol)) return { type: 'home', display: HOME };
+
+    const display = url.href;
+    const host = url.hostname;
+    const path = url.pathname.split('/').filter(Boolean);
+    const me = Profile.contact.github.toLowerCase();
+
+    if (hostMatches(host, 'github.com') && path[0]?.toLowerCase() === me) {
+        if (path[1]) {
+            const repository = Profile.projects.find(project => project.name.toLowerCase() === path[1].toLowerCase())
+                || { name: path[1], url: `https://github.com/${path[0]}/${path[1]}`, description: '' };
+            return { type: 'app', app: 'viewer', repository, display };
+        }
+        return { type: 'app', app: 'projects', display };
+    }
+
+    const embed = embedFor(url);
+    if (embed) return { type: 'frame', src: embed, display };
+
+    if (year && !hostMatches(host, 'archive.org')) {
+        return { type: 'frame', src: wayback(display, year), display, note: t('browser.archivedYear', { year }), live: display };
+    }
+    if ([...FRAMEABLE_HOSTS, ...ownHosts()].some(domain => hostMatches(host, domain))) return { type: 'frame', src: display, display };
+    return { type: 'frame', src: wayback(display, new Date().getFullYear()), display, note: t('browser.archived'), live: display };
+}
+
+function visitCount() {
+    let count = Number(localStorage.getItem('homeVisits') || sessionStorage.getItem('homeVisits') || 0);
+    if (!sessionStorage.getItem('homeVisitCounted')) {
+        count += 1;
+        sessionStorage.setItem('homeVisitCounted', '1');
+        sessionStorage.setItem('homeVisits', String(count));
+        localStorage.setItem('homeVisits', String(count));
+    }
+    return Math.max(count, 1);
+}
+
+function renderHome() {
+    const first = Profile.firstName || Profile.name;
+    const counter = String(visitCount()).padStart(6, '0').split('').map(digit => `<span>${digit}</span>`).join('');
+    const coolLinks = [
+        [t('home.random'), `https://${lang === 'pl' ? 'pl' : 'en'}.wikipedia.org/wiki/Special:Random`],
+        [t('home.google99'), wayback('http://www.google.com/', '1999')],
+        [t('home.yahoo96'), wayback('http://www.yahoo.com/', '1996')],
+        [t('home.spacejam'), wayback('http://www.spacejam.com/', '1996')],
+        [t('home.youtube05'), wayback('http://www.youtube.com/', '2005')]
+    ];
+
+    return `
+        <div class="retro-home">
+            <div class="retro-marquee" aria-hidden="true"><span>${escapeHtml(t('home.marquee'))}</span></div>
+            <h1 class="retro-title">${escapeHtml(t('home.welcome', { name: first }))}</h1>
+            <div class="retro-construction"><span>${escapeHtml(t('home.construction'))}</span></div>
+
+            <div class="retro-grid">
+                <section class="retro-box">
+                    <h2>${t('home.about')}</h2>
+                    <p><strong>${escapeHtml(Profile.name)}</strong> - ${escapeHtml(loc(Profile.title))}</p>
+                    <ul>${Profile.bio.map(line => `<li>${escapeHtml(loc(line))}</li>`).join('')}</ul>
+                    <p><a href="mailto:${escapeHtml(Profile.contact.email)}">${t('home.email')}</a></p>
+                </section>
+
+                <section class="retro-box">
+                    <h2>${t('home.projects')}</h2>
+                    <ul>${featuredProjects().map(project => `<li><a href="#" data-go="${escapeHtml(project.url)}">${escapeHtml(project.name)}</a> - ${escapeHtml(loc(project.description))}</li>`).join('')}</ul>
+                    <p><a href="#" data-go="${escapeHtml(githubUrl())}">github.com/${escapeHtml(Profile.contact.github)}</a></p>
+                </section>
+
+                <section class="retro-box">
+                    <h2>${t('home.cool')}</h2>
+                    <ul>${coolLinks.map(([label, url]) => `<li><a href="#" data-go="${escapeHtml(url)}">${escapeHtml(label)}</a></li>`).join('')}</ul>
+                </section>
+
+                <section class="retro-box">
+                    <h2>${t('home.search')}</h2>
+                    <form class="retro-search" data-search>
+                        <input type="search" class="win-input" aria-label="${escapeHtml(t('home.search'))}" placeholder="FPV, Windows 95, ...">
+                        <button class="win-btn" type="submit">${t('home.searchButton')}</button>
+                    </form>
+                    <p class="retro-tip">${t('home.tip')}</p>
+                </section>
+            </div>
+
+            <div class="retro-counter">
+                ${t('home.visitor')} <span class="retro-digits">${counter}</span> ${t('home.times')}
+            </div>
+
+            <div class="retro-badges" aria-hidden="true">
+                <span class="badge-88 badge-blue">BEST VIEWED<br>INTERNET 3.1</span>
+                <span class="badge-88 badge-green">MADE WITH<br>NOTEPAD</span>
+                <span class="badge-88 badge-black">HTML<br>3.2 OK</span>
+                <span class="badge-88 badge-red">NO FRAMES*<br>*except this</span>
+            </div>
+
+            <div class="retro-webring">« ${t('home.webring')} »</div>
+            <p class="retro-footer">${t('home.updated')}: ${new Date(document.lastModified).toLocaleDateString(lang === 'pl' ? 'pl-PL' : 'en-US')}</p>
+        </div>
+    `;
+}
 
 export const BrowserApp = {
     id: 'browser',
     title: 'Internet.exe',
     icon: Icons.browser,
     width: 900,
-    height: 700,
-    minWidth: 500,
-    minHeight: 400,
+    height: 680,
+    minWidth: 420,
+    minHeight: 380,
     hasMenu: true,
-    menuItems: ['File', 'Edit', 'View', 'Favorites', 'Help'],
+    menuItems: ['File', 'View', 'Favorites', 'Help'],
 
     menuConfig: {
-        'File': [
-            { label: 'New Window', action: 'newWindow', disabled: true },
-            { divider: true },
-            { label: 'Open Location...', action: 'openUrl' },
+        File: [
+            { label: 'Open Location...', action: 'openUrl', shortcut: 'Ctrl+L' },
             { divider: true },
             { label: 'Close', action: 'close', shortcut: 'Alt+F4' }
         ],
-        'Edit': [
-            { label: 'Copy', action: 'copy', shortcut: 'Ctrl+C' },
-            { divider: true },
-            { label: 'Select All', action: 'selectAll', shortcut: 'Ctrl+A' }
-        ],
-        'View': [
+        View: [
             { label: 'Refresh', action: 'refresh', shortcut: 'F5' },
-            { label: 'Stop', action: 'stop' },
-            { divider: true },
-            { label: 'Full Screen', action: 'fullscreen', shortcut: 'F11' }
+            { label: 'Stop', action: 'stop' }
         ],
-        'Favorites': [
-            { label: 'Add to Favorites...', action: 'addFavorite', disabled: true },
+        Favorites: [
+            { label: 'Home Page', action: 'goHome' },
             { divider: true },
-            { label: ' Wikipedia', action: 'goWiki' },
-            { label: ' Google', action: 'goGoogle' },
-            { label: ' GitHub', action: 'goGitHub' }
+            { label: 'Wikipedia', action: 'goWiki' },
+            { label: 'Google (1999)', action: 'goGoogle' },
+            { label: 'My GitHub', action: 'goGitHub' }
         ],
-        'Help': [
+        Help: [
             { label: 'About Internet', action: 'about' }
         ]
     },
 
-    currentUrl: 'about:home',
+    history: [],
+    index: -1,
+    year: '',
 
     render() {
         return `
             <div class="browser-container">
                 <div class="browser-toolbar">
                     <div class="browser-nav-buttons">
-                        <button class="browser-nav-btn" id="browserBack" title="Back" disabled>${Icons.navBack}</button>
-                        <button class="browser-nav-btn" id="browserForward" title="Forward" disabled>${Icons.navForward}</button>
-                        <button class="browser-nav-btn" id="browserRefresh" title="Refresh">${Icons.ctxRefresh}</button>
-                        <button class="browser-nav-btn" id="browserHome" title="Home">${Icons.navHome}</button>
+                        <button class="browser-nav-btn" type="button" data-nav="back" title="${t('browser.back')}" aria-label="${t('browser.back')}" disabled>${Icons.navBack}</button>
+                        <button class="browser-nav-btn" type="button" data-nav="forward" title="${t('browser.forward')}" aria-label="${t('browser.forward')}" disabled>${Icons.navForward}</button>
+                        <button class="browser-nav-btn" type="button" data-nav="refresh" title="${t('browser.refresh')}" aria-label="${t('browser.refresh')}">${Icons.ctxRefresh}</button>
+                        <button class="browser-nav-btn" type="button" data-nav="home" title="${t('browser.home')}" aria-label="${t('browser.home')}">${Icons.navHome}</button>
                     </div>
-                    <div class="browser-address-bar">
+                    <form class="browser-address-bar" data-address>
                         <span class="address-icon">${Icons.navGlobe}</span>
-                        <input type="text" id="browserUrl" class="browser-url-input" 
-                            placeholder="Type a URL and press Enter..." 
-                            value="about:home">
-                        <button class="browser-go-btn" id="browserGo">Go</button>
-                    </div>
+                        <input type="text" class="browser-url-input" placeholder="${escapeHtml(t('browser.placeholder'))}" value="${HOME}" aria-label="URL" spellcheck="false">
+                        <button class="browser-go-btn" type="submit">${t('browser.go')}</button>
+                    </form>
+                    <label class="browser-time-machine" title="${t('browser.timeMachine')}">
+                        <span>${t('browser.timeMachine')}:</span>
+                        <select class="win-select" data-year>
+                            <option value="">${t('browser.live')}</option>
+                            ${TIME_MACHINE_YEARS.map(year => `<option value="${year}">${year}</option>`).join('')}
+                        </select>
+                    </label>
                 </div>
-                
-                <div class="browser-bookmarks">
-                    <button class="bookmark-btn" data-url="https://en.wikipedia.org">Wikipedia</button>
-                    <button class="bookmark-btn" data-url="https://www.google.com">Google</button>
-                    <button class="bookmark-btn" data-url="https://github.com">GitHub</button>
-                    <button class="bookmark-btn" data-url="https://www.youtube.com">YouTube</button>
+                <div class="browser-notice" hidden>
+                    <span class="browser-notice-text"></span>
+                    <a class="browser-notice-link" target="_blank" rel="noopener noreferrer"></a>
                 </div>
-                
-                <div class="browser-content" id="browserContent">
-                    ${BrowserApp.renderHomePage()}
-                </div>
-                
+                <div class="browser-content"></div>
                 <div class="browser-statusbar">
-                    <span id="browserStatus">Ready</span>
+                    <span class="browser-status">${t('browser.done')}</span>
                     <span class="browser-security">${Icons.navLock} Internet Zone</span>
                 </div>
             </div>
         `;
     },
 
-    renderHomePage() {
-        return `
-            <div class="browser-home-page" id="browserHomePage">
-                <div class="home-logo">
-                    <div class="ie-logo">
-                        <span style="color: #0078D4; font-size: 64px; font-family: 'Times New Roman', serif; font-style: italic; font-weight: bold;">e</span>
-                    </div>
-                    <h1>Internet</h1>
-                    <p class="ie-version">Version 3.1 for Portfolio OS</p>
-                </div>
-                
-                <div class="home-search">
-                    <input type="text" id="homeSearchInput" class="home-search-input" 
-                        placeholder="Search the web...">
-                    <button class="win-btn" id="homeSearchBtn">${Icons.navSearch} Search</button>
-                </div>
-                
-                <div class="home-quicklinks">
-                    <h3>Quick Links</h3>
-                    <div class="quicklinks-grid">
-                        <a href="#" class="quicklink" data-url="https://en.wikipedia.org">
-                            <span class="quicklink-icon">${Icons.navGlobe}</span>
-                            <span>Wikipedia</span>
-                        </a>
-                        <a href="#" class="quicklink" data-url="https://www.google.com">
-                            <span class="quicklink-icon">${Icons.navSearch}</span>
-                            <span>Google</span>
-                        </a>
-                        <a href="#" class="quicklink" data-url="https://github.com">
-                            <span class="quicklink-icon">${Icons.socialGithub}</span>
-                            <span>GitHub</span>
-                        </a>
-                        <a href="#" class="quicklink" data-url="https://www.youtube.com">
-                            <span class="quicklink-icon">${Icons.navGlobe}</span>
-                            <span>YouTube</span>
-                        </a>
-                        <a href="#" class="quicklink" data-url="https://stackoverflow.com">
-                            <span class="quicklink-icon">${Icons.fileText}</span>
-                            <span>Stack Overflow</span>
-                        </a>
-                        <a href="#" class="quicklink" data-url="https://linkedin.com">
-                            <span class="quicklink-icon">${Icons.secBriefcase}</span>
-                            <span>LinkedIn</span>
-                        </a>
-                        <a href="#" class="quicklink" data-url="https://twitter.com">
-                            <span class="quicklink-icon">${Icons.secUser}</span>
-                            <span>Twitter/X</span>
-                        </a>
-                        <a href="#" class="quicklink" data-url="https://reddit.com">
-                            <span class="quicklink-icon">${Icons.smInfo}</span>
-                            <span>Reddit</span>
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="browser-info-box">
-                    <p>${Icons.smInfo} <strong>Note:</strong> Due to security restrictions, some websites may not load in iframe.
-                    They will open in a new browser tab instead.</p>
-                </div>
-            </div>
-        `;
-    },
-
-    onMenuAction(action) {
-        switch(action) {
-            case 'refresh':
-                BrowserApp.refreshPage();
-                break;
-            case 'goGoogle':
-                BrowserApp.navigate('https://www.google.com');
-                break;
-            case 'goGitHub':
-                BrowserApp.navigate('https://github.com');
-                break;
-            case 'goWiki':
-                BrowserApp.navigate('https://en.wikipedia.org');
-                break;
-            case 'openUrl':
-                const url = prompt('Enter URL:', 'https://');
-                if (url) BrowserApp.navigate(url);
-                break;
-        }
+    el(selector) {
+        return document.querySelector(`#window-browser ${selector}`);
     },
 
     onInit() {
-        const container = document.querySelector('#window-browser');
-        if (!container) return;
+        const windowEl = document.querySelector('#window-browser');
+        if (!windowEl) return;
+        BrowserApp.history = [];
+        BrowserApp.index = -1;
+        BrowserApp.year = '';
 
-        const urlInput = container.querySelector('#browserUrl');
-        const goBtn = container.querySelector('#browserGo');
-        const homeBtn = container.querySelector('#browserHome');
-        const backBtn = container.querySelector('#browserBack');
-        const refreshBtn = container.querySelector('#browserRefresh');
-        const homeSearch = container.querySelector('#homeSearchInput');
-        const homeSearchBtn = container.querySelector('#homeSearchBtn');
-
-        // URL input
-        urlInput?.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                BrowserApp.navigate(urlInput.value);
+        windowEl.querySelector('[data-address]').addEventListener('submit', (event) => {
+            event.preventDefault();
+            BrowserApp.navigate(BrowserApp.el('.browser-url-input').value);
+        });
+        windowEl.querySelector('.browser-nav-buttons').addEventListener('click', (event) => {
+            const action = event.target.closest('[data-nav]')?.dataset.nav;
+            if (action === 'back') BrowserApp.go(-1);
+            if (action === 'forward') BrowserApp.go(1);
+            if (action === 'refresh') BrowserApp.refresh();
+            if (action === 'home') BrowserApp.navigate(HOME);
+        });
+        windowEl.querySelector('[data-year]').addEventListener('change', (event) => {
+            BrowserApp.year = event.target.value;
+            if (BrowserApp.current() !== HOME) BrowserApp.refresh();
+        });
+        windowEl.querySelector('.browser-content').addEventListener('click', (event) => {
+            const link = event.target.closest('[data-go]');
+            if (!link) return;
+            event.preventDefault();
+            BrowserApp.navigate(link.dataset.go);
+        });
+        windowEl.querySelector('.browser-content').addEventListener('submit', (event) => {
+            if (!event.target.matches('[data-search]')) return;
+            event.preventDefault();
+            const query = event.target.querySelector('input').value.trim();
+            if (query) BrowserApp.navigate(wikiSearch(query));
+        });
+        windowEl.addEventListener('keydown', (event) => {
+            if (event.ctrlKey && event.key.toLowerCase() === 'l') {
+                event.preventDefault();
+                BrowserApp.el('.browser-url-input')?.select();
             }
         });
 
-        // Go button
-        goBtn?.addEventListener('click', () => {
-            BrowserApp.navigate(urlInput.value);
-        });
-
-        // Home button
-        homeBtn?.addEventListener('click', () => {
-            BrowserApp.goHome();
-        });
-
-        // Back button
-        backBtn?.addEventListener('click', () => {
-            BrowserApp.goHome();
-        });
-
-        // Refresh button
-        refreshBtn?.addEventListener('click', () => {
-            BrowserApp.refreshPage();
-        });
-
-        // Home page search
-        homeSearch?.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                BrowserApp.searchWeb(homeSearch.value);
-            }
-        });
-        homeSearchBtn?.addEventListener('click', () => {
-            BrowserApp.searchWeb(homeSearch.value);
-        });
-
-        // Bookmark buttons
-        container.querySelectorAll('.bookmark-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                BrowserApp.navigate(btn.dataset.url);
-            });
-        });
-
-        // Quick links
-        container.querySelectorAll('.quicklink').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                BrowserApp.navigate(link.dataset.url);
-            });
-        });
+        BrowserApp.navigate(HOME);
     },
 
-    // Sites known to block iframes (X-Frame-Options)
-    blockedSites: [
-        'youtube.com',
-        'google.com', 
-        'facebook.com',
-        'twitter.com',
-        'instagram.com',
-        'linkedin.com',
-        'github.com',
-        'reddit.com',
-        'amazon.com',
-        'netflix.com',
-        'stackoverflow.com'
-    ],
+    current() {
+        return BrowserApp.history[BrowserApp.index] ?? HOME;
+    },
 
-    navigate(url) {
-        if (!url || url.trim() === '' || url === 'about:home') {
-            BrowserApp.goHome();
+    navigate(input) {
+        const address = String(input || '').trim() || HOME;
+        BrowserApp.history = BrowserApp.history.slice(0, BrowserApp.index + 1);
+        BrowserApp.history.push(address);
+        BrowserApp.index = BrowserApp.history.length - 1;
+        BrowserApp.show(address);
+    },
+
+    go(step) {
+        const next = BrowserApp.index + step;
+        if (next < 0 || next >= BrowserApp.history.length) return;
+        BrowserApp.index = next;
+        BrowserApp.show(BrowserApp.current());
+    },
+
+    refresh() {
+        BrowserApp.show(BrowserApp.current());
+    },
+
+    show(address) {
+        const content = BrowserApp.el('.browser-content');
+        if (!content) return;
+        const target = resolve(address, BrowserApp.year);
+        const input = BrowserApp.el('.browser-url-input');
+        const status = BrowserApp.el('.browser-status');
+        const notice = BrowserApp.el('.browser-notice');
+        if (input) input.value = target.display;
+        BrowserApp.el('[data-nav="back"]').disabled = BrowserApp.index <= 0;
+        BrowserApp.el('[data-nav="forward"]').disabled = BrowserApp.index >= BrowserApp.history.length - 1;
+
+        notice.hidden = !target.note;
+        if (target.note) {
+            notice.querySelector('.browser-notice-text').textContent = target.note;
+            const link = notice.querySelector('.browser-notice-link');
+            link.href = target.live;
+            link.textContent = t('browser.openLive');
+        }
+
+        content.replaceChildren();
+        if (target.type === 'home') {
+            // renderHome escapes every value taken from config or the address bar.
+            content.insertAdjacentHTML('beforeend', renderHome());
+            status.textContent = t('browser.done');
             return;
         }
 
-        url = url.trim();
-        const status = document.querySelector('#window-browser #browserStatus');
-        const urlInput = document.querySelector('#window-browser #browserUrl');
-        const content = document.querySelector('#window-browser #browserContent');
-        const backBtn = document.querySelector('#window-browser #browserBack');
-
-        // Handle search (no dots, not a protocol)
-        if (!url.includes('.') && !url.includes('://')) {
-            BrowserApp.searchWeb(url);
+        if (target.type === 'app') {
+            const appName = target.app === 'viewer' ? 'Project Viewer' : 'Projects.exe';
+            if (target.app === 'viewer') ProjectViewerApp.open(target.repository);
+            else WindowManager.createWindow('projects');
+            const message = document.createElement('p');
+            message.className = 'browser-app-note';
+            message.textContent = t('browser.openedApp', { app: appName });
+            content.append(message);
+            status.textContent = t('browser.done');
             return;
         }
 
-        // Add protocol if missing and reject unsafe schemes/attribute payloads.
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-            url = 'https://' + url;
-        }
-        try {
-            const parsedUrl = new URL(url);
-            if (!['http:', 'https:'].includes(parsedUrl.protocol)) throw new Error('Unsupported protocol');
-            url = parsedUrl.href;
-        } catch {
-            BrowserApp.showError('Invalid URL');
-            return;
-        }
-
-        // Check if site is known to block iframes
-        const hostname = new URL(url).hostname.toLowerCase();
-        const isBlocked = BrowserApp.blockedSites.some(site => hostname === site || hostname.endsWith(`.${site}`));
-        if (isBlocked) {
-            BrowserApp.currentUrl = url;
-            if (urlInput) urlInput.value = url;
-            if (backBtn) backBtn.disabled = false;
-            BrowserApp.showBlockedMessage(url);
-            return;
-        }
-
-        // Try to load in iframe
-        BrowserApp.currentUrl = url;
-        if (urlInput) urlInput.value = url;
-        if (backBtn) backBtn.disabled = false;
-        if (status) status.textContent = 'Loading ' + url + '...';
-
-        if (content) {
-            content.replaceChildren();
-            const loading = document.createElement('div');
-            loading.className = 'browser-loading';
-            loading.id = 'browserLoading';
-            loading.innerHTML = '<div class="loading-spinner"></div><p>Loading…</p>';
-            const iframe = document.createElement('iframe');
-            iframe.className = 'browser-frame';
-            iframe.id = 'browserFrame';
-            iframe.src = url;
-            iframe.title = `Embedded page: ${hostname}`;
-            iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation-by-user-activation');
-            content.append(loading, iframe);
-
-            // Handle iframe load
-            iframe?.addEventListener('load', () => {
-                if (loading) loading.style.display = 'none';
-                if (status) status.textContent = 'Done';
-            });
-
-            // Handle iframe error
-            iframe?.addEventListener('error', () => {
-                BrowserApp.showError(url);
-            });
-
-            // Timeout fallback - if iframe doesn't load in 8s, offer to open in new tab
-            setTimeout(() => {
-                if (loading && loading.style.display !== 'none') {
-                    // Check if iframe loaded anything
-                    try {
-                        // This will throw if cross-origin
-                        const doc = iframe?.contentDocument;
-                        if (loading) loading.style.display = 'none';
-                        if (iframe) iframe.style.display = 'block';
-                        if (status) status.textContent = 'Done';
-                    } catch (e) {
-                        // Cross-origin or blocked - show loaded anyway
-                        if (loading) loading.style.display = 'none';
-                        if (iframe) iframe.style.display = 'block';
-                        if (status) status.textContent = 'Done';
-                    }
-                }
-            }, 3000);
-        }
-    },
-
-    showBlockedMessage(url) {
-        const content = document.querySelector('#window-browser #browserContent');
-        const status = document.querySelector('#window-browser #browserStatus');
-        
-        if (content) {
-            content.innerHTML = `
-                <div class="browser-error">
-                    <div class="error-icon">${Icons.navLock}</div>
-                    <h2>This page blocks embedding</h2>
-                    <p>The page <strong>${escapeHtml(url)}</strong> blocks iframe display for security reasons.</p>
-                    <p class="error-note">Most large sites (Google, YouTube, GitHub, LinkedIn) use this protection.</p>
-                    <button class="win-btn" id="openInNewTab">${Icons.navGlobe} Open in New Tab</button>
-                    <button class="win-btn" id="goHomeBtn" style="margin-left: 10px;">${Icons.navHome} Back to Home</button>
-                </div>
-            `;
-            
-            content.querySelector('#openInNewTab')?.addEventListener('click', () => {
-                window.open(url, '_blank', 'noopener,noreferrer');
-            });
-            content.querySelector('#goHomeBtn')?.addEventListener('click', () => {
-                BrowserApp.goHome();
-            });
-        }
-        if (status) status.textContent = 'Page blocked';
-    },
-
-    showError(url) {
-        const content = document.querySelector('#window-browser #browserContent');
-        const status = document.querySelector('#window-browser #browserStatus');
-        
-        if (content) {
-            content.innerHTML = `
-                <div class="browser-error">
-                    <div class="error-icon">${Icons.statusWarning}</div>
-                    <h2>Cannot display this page</h2>
-            <p>The page at <strong>${escapeHtml(url)}</strong> refused to connect.</p>
-                    <p class="error-note">Many websites block iframe embedding for security reasons.</p>
-                    <button class="win-btn" id="openInNewTab">Open in New Tab</button>
-                </div>
-            `;
-            
-            content.querySelector('#openInNewTab')?.addEventListener('click', () => {
-                window.open(url, '_blank', 'noopener,noreferrer');
-            });
-        }
-        if (status) status.textContent = 'Error loading page';
-    },
-
-    goHome() {
-        const content = document.querySelector('#window-browser #browserContent');
-        const urlInput = document.querySelector('#window-browser #browserUrl');
-        const backBtn = document.querySelector('#window-browser #browserBack');
-        const status = document.querySelector('#window-browser #browserStatus');
-
-        BrowserApp.currentUrl = 'about:home';
-        if (urlInput) urlInput.value = 'about:home';
-        if (backBtn) backBtn.disabled = true;
-        if (status) status.textContent = 'Ready';
-
-        if (content) {
-            content.innerHTML = BrowserApp.renderHomePage();
-            // Rebind events for new home page
-            BrowserApp.bindHomePageEvents();
-        }
-    },
-
-    bindHomePageEvents() {
-        const container = document.querySelector('#window-browser');
-        if (!container) return;
-
-        const homeSearch = container.querySelector('#homeSearchInput');
-        const homeSearchBtn = container.querySelector('#homeSearchBtn');
-        
-        homeSearch?.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') BrowserApp.searchWeb(homeSearch.value);
+        const frame = document.createElement('iframe');
+        frame.className = 'browser-frame';
+        frame.src = target.src;
+        frame.title = target.display;
+        frame.referrerPolicy = 'strict-origin-when-cross-origin';
+        frame.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
+        frame.allowFullscreen = true;
+        // No allow-top-navigation: old archived pages must not "frame-bust" the portfolio.
+        frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation');
+        let host = target.display;
+        try { host = new URL(target.src).hostname; } catch { /* keep display */ }
+        status.textContent = t('browser.loading', { host });
+        frame.addEventListener('load', () => {
+            if (status.isConnected) status.textContent = t('browser.done');
         });
-        homeSearchBtn?.addEventListener('click', () => {
-            BrowserApp.searchWeb(homeSearch.value);
-        });
-        container.querySelectorAll('.quicklink').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                BrowserApp.navigate(link.dataset.url);
-            });
-        });
+        content.append(frame);
     },
 
-    refreshPage() {
-        if (BrowserApp.currentUrl && BrowserApp.currentUrl !== 'about:home') {
-            BrowserApp.navigate(BrowserApp.currentUrl);
+    onMenuAction(action) {
+        switch (action) {
+            case 'refresh': BrowserApp.refresh(); break;
+            case 'stop': BrowserApp.el('.browser-frame')?.setAttribute('src', 'about:blank'); break;
+            case 'goHome': BrowserApp.navigate(HOME); break;
+            case 'goWiki': BrowserApp.navigate(`https://${lang === 'pl' ? 'pl' : 'en'}.wikipedia.org/`); break;
+            case 'goGoogle': BrowserApp.navigate(wayback('http://www.google.com/', '1999')); break;
+            case 'goGitHub': BrowserApp.navigate(githubUrl()); break;
+            case 'openUrl': BrowserApp.el('.browser-url-input')?.select(); break;
         }
-    },
-
-    searchWeb(query) {
-        if (!query || query.trim() === '') return;
-        // Use Google search in iframe
-        const searchUrl = 'https://www.google.com/search?igu=1&q=' + encodeURIComponent(query);
-        BrowserApp.navigate(searchUrl);
     }
 };
 

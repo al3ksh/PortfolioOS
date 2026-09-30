@@ -278,10 +278,6 @@
     color: var(--content-subtle);
 }
 
-[data-theme="dark"] .browser-home-page {
-    background: linear-gradient(180deg, var(--win-gray) 0%, var(--content-bg) 100%);
-}
-
 /* Theme: Clouds */
 [data-theme="clouds"] {
     --bg-desktop: #6B8E9F;

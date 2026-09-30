@@ -15,8 +15,8 @@ export class Window {
         this.height = config.height || 300;
         this.minWidth = config.minWidth || 200;
         this.minHeight = config.minHeight || 150;
-        this.x = config.x || 100;
-        this.y = config.y || 100;
+        this.x = config.x ?? 100;
+        this.y = config.y ?? 100;
         this.zIndex = config.zIndex || 100;
         this.resizable = config.resizable !== false;
         this.hasMenu = config.hasMenu !== false;

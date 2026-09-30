@@ -59,72 +59,73 @@ export const SimpleModeApp = {
     },
 
     getPortfolioContent() {
+        const site = (Profile.siteUrl || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
+        const contact = [
+            [Icons.secLocation, loc(Profile.location), null],
+            [Icons.secMail, Profile.contact.email, `mailto:${Profile.contact.email}`],
+            [Icons.navGlobe, site, Profile.siteUrl],
+            [Icons.socialGithub, `github.com/${Profile.contact.github}`, githubUrl()],
+            [Icons.socialDiscord, Profile.contact.discord, null]
+        ].filter(([, text]) => text);
+        const entry = (title, date, sub, desc = '') => `
+            <div class="sv-entry">
+                <div class="sv-entry-head"><strong>${title}</strong><span class="sv-date">${date}</span></div>
+                <div class="sv-sub">${sub}</div>
+                ${desc ? `<p class="sv-desc">${desc}</p>` : ''}
+            </div>`;
+
         return `
-            <div class="simple-portfolio">
-                <header class="simple-header">
+            <article class="sv-sheet">
+                <header class="sv-header">
                     <h1>${Profile.name}</h1>
-                    <p class="simple-subtitle">${loc(Profile.title)}</p>
-                    <p class="simple-location">${Icons.secLocation} ${loc(Profile.location)}</p>
+                    <p class="sv-title">${loc(Profile.title)}</p>
                 </header>
-
-                <section class="simple-section">
-                    <h2>${Icons.secUser} ${t('section.about')}</h2>
-                    <p>${loc(Profile.about)}</p>
-                </section>
-
-                <section class="simple-section">
-                    <h2>${Icons.secBriefcase} ${t('section.experience')}</h2>
-                    ${Profile.experience.map(job => `
-                        <div class="simple-item">
-                            <strong>${loc(job.role)}</strong> @ ${loc(job.company)}
-                            <span class="simple-date">${loc(job.date)}</span>
-                            <p>${loc(job.description)}</p>
-                        </div>
-                    `).join('')}
-                </section>
-
-                <section class="simple-section">
-                    <h2>${Icons.secLightbulb} ${t('section.skills')}</h2>
-                    <div class="simple-skills">
-                        ${Profile.skills.map(skill => `<span class="simple-skill">${skill}</span>`).join('')}
+                <div class="sv-columns">
+                    <aside class="sv-sidebar">
+                        <section>
+                            <h2>${t('cv.contact')}</h2>
+                            <ul class="sv-contact">
+                                ${contact.map(([icon, text, href]) => `<li><span class="sv-icon">${icon}</span>${href ? `<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>` : `<span>${text}</span>`}</li>`).join('')}
+                            </ul>
+                        </section>
+                        <section>
+                            <h2>${t('section.skills')}</h2>
+                            <ul class="sv-skills">${Profile.skills.map(skill => `<li>${loc(skill)}</li>`).join('')}</ul>
+                        </section>
+                        ${Profile.interests?.length ? `
+                        <section>
+                            <h2>${t('section.interests')}</h2>
+                            <ul class="sv-interests">${Profile.interests.map(item => `<li>${loc(item)}</li>`).join('')}</ul>
+                        </section>` : ''}
+                    </aside>
+                    <div class="sv-main">
+                        <section>
+                            <h2>${t('cv.profile')}</h2>
+                            <p class="sv-desc">${loc(Profile.about)}</p>
+                        </section>
+                        <section>
+                            <h2>${t('section.experience')}</h2>
+                            <div class="sv-timeline">${Profile.experience.map(job => entry(loc(job.role), loc(job.date), loc(job.company), loc(job.description))).join('')}</div>
+                        </section>
+                        <section>
+                            <h2>${t('section.projects')}</h2>
+                            <div class="sv-projects">
+                                ${featuredProjects().map(project => `
+                                    <div>
+                                        <a class="sv-project-name" href="${project.url}" target="_blank" rel="noopener noreferrer">${project.name}</a>
+                                        <span class="sv-project-tech">${project.tech || project.language}</span>
+                                        <p class="sv-desc">${loc(project.description)}</p>
+                                    </div>`).join('')}
+                            </div>
+                        </section>
+                        <section>
+                            <h2>${t('section.education')}</h2>
+                            <div class="sv-timeline">${Profile.education.map(edu => entry(loc(edu.degree), loc(edu.date), loc(edu.school))).join('')}</div>
+                        </section>
                     </div>
-                </section>
-
-                <section class="simple-section">
-                    <h2>${Icons.smFolder} ${t('section.projects')}</h2>
-                    ${featuredProjects().map(project => `
-                        <div class="simple-item">
-                            <strong><a href="${project.url}" target="_blank" rel="noopener noreferrer">${project.name}</a></strong>
-                            <p>${loc(project.description)}</p>
-                            <small>${project.tech || project.language}</small>
-                        </div>
-                    `).join('')}
-                </section>
-
-                <section class="simple-section">
-                    <h2>${Icons.secGraduation} ${t('section.education')}</h2>
-                    ${Profile.education.map(edu => `
-                        <div class="simple-item">
-                            <strong>${loc(edu.degree)}</strong>
-                            <span class="simple-date">${loc(edu.date)}</span>
-                            <p>${loc(edu.school)}</p>
-                        </div>
-                    `).join('')}
-                </section>
-
-                <section class="simple-section">
-                    <h2>${Icons.secMail} ${t('section.contact')}</h2>
-                    <ul class="simple-contact">
-                        <li>${Icons.secMail} Email: <a href="mailto:${Profile.contact.email}">${Profile.contact.email}</a></li>
-                        <li>${Icons.socialGithub} GitHub: <a href="${githubUrl()}" target="_blank" rel="noopener noreferrer">@${Profile.contact.github}</a></li>
-                        <li>${Icons.socialDiscord} Discord: ${Profile.contact.discord}</li>
-                    </ul>
-                </section>
-
-                <footer class="simple-footer">
-                    <p>© ${new Date().getFullYear()} ${Profile.name}. ${t('simple.footer')}</p>
-                </footer>
-            </div>
+                </div>
+                <footer class="sv-footer">© ${new Date().getFullYear()} ${Profile.name} · ${t('simple.footer')}</footer>
+            </article>
         `;
     },
 

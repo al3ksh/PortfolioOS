@@ -5,6 +5,9 @@
 import { Icons } from '../icons.js?v=15';
 import { Profile, githubUrl } from '../config.js?v=15';
 import { SoundManager } from '../managers/SoundManager.js?v=15';
+import { ScreenSaver } from '../managers/ScreenSaver.js?v=15';
+import { SCREENSAVERS } from '../screensavers.js?v=15';
+import { getSetting, setSetting } from '../settings.js?v=15';
 import { WindowManager } from '../managers/WindowManager.js?v=15';
 
 export const ControlApp = {
@@ -80,6 +83,24 @@ export const ControlApp = {
                         <input type="checkbox" id="crtEnabled" ${ControlApp.crtEnabled ? 'checked' : ''}>
                         CRT Scanline Effect (retro monitor look)
                     </label>
+                </div>
+
+                <div class="control-section">
+                    <h3>${Icons.cpDisplay} Screen Saver</h3>
+                    <div class="screensaver-row">
+                        <label for="screensaverType">Screen saver:</label>
+                        <select id="screensaverType" class="win-select">
+                            <option value="none" ${getSetting('screensaver') === 'none' ? 'selected' : ''}>(None)</option>
+                            ${Object.entries(SCREENSAVERS).map(([key, saver]) => `<option value="${key}" ${getSetting('screensaver') === key ? 'selected' : ''}>${saver.label}</option>`).join('')}
+                        </select>
+                        <button class="win-btn win-btn-sm" type="button" id="screensaverPreview">Preview</button>
+                    </div>
+                    <div class="screensaver-row">
+                        <label for="screensaverDelay">Wait:</label>
+                        <select id="screensaverDelay" class="win-select">
+                            ${[1, 3, 5, 10].map(minutes => `<option value="${minutes}" ${getSetting('screensaverDelay') === String(minutes) ? 'selected' : ''}>${minutes} min</option>`).join('')}
+                        </select>
+                    </div>
                 </div>
 
                 <div class="control-section">
@@ -179,6 +200,23 @@ export const ControlApp = {
             SoundManager.play('click');
         });
 
+        // Screen saver
+        const saverSelect = window.querySelector('#screensaverType');
+        saverSelect?.addEventListener('change', (e) => {
+            setSetting('screensaver', e.target.value);
+            ScreenSaver.resetTimer();
+            SoundManager.play('click');
+        });
+        window.querySelector('#screensaverDelay')?.addEventListener('change', (e) => {
+            setSetting('screensaverDelay', e.target.value);
+            ScreenSaver.resetTimer();
+            SoundManager.play('click');
+        });
+        window.querySelector('#screensaverPreview')?.addEventListener('click', () => {
+            const type = saverSelect?.value;
+            ScreenSaver.activate(type === 'none' ? 'matrix' : type, { preview: true });
+        });
+
         // Volume slider
         const volumeSlider = window.querySelector('#volumeSlider');
         volumeSlider?.addEventListener('input', (e) => {
@@ -239,13 +277,13 @@ export const ControlApp = {
 
     loadSavedTheme() {
         // Check auto theme first
-        const autoTheme = localStorage.getItem('autoTheme');
+        const autoTheme = getSetting('autoTheme');
         ControlApp.autoTheme = autoTheme !== 'false'; // Default true
         
         if (ControlApp.autoTheme) {
             ControlApp.applyAutoTheme();
         } else {
-            const saved = localStorage.getItem('portfolio-theme');
+            const saved = getSetting('portfolio-theme');
             if (saved) {
                 ControlApp.currentTheme = saved;
                 ControlApp.setTheme(saved);
@@ -253,7 +291,7 @@ export const ControlApp = {
         }
         
         // Load CRT effect
-        const crtSaved = localStorage.getItem('crtEffect');
+        const crtSaved = getSetting('crtEffect');
         if (crtSaved === 'true') {
             ControlApp.crtEnabled = true;
             document.body.classList.add('crt-effect');

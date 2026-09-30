@@ -9,6 +9,9 @@ import { DesktopGridManager } from './managers/DesktopGridManager.js?v=15';
 import { StorageManager } from './managers/StorageManager.js?v=15';
 import { DesktopIcon } from './components/DesktopIcon.js?v=15';
 import { Icons } from './icons.js?v=15';
+import { ScreenSaver } from './managers/ScreenSaver.js?v=15';
+import { BiosSetup } from './components/BiosSetup.js?v=15';
+import { getSetting } from './settings.js?v=15';
 import { lang, setLanguage, applyStaticTranslations } from './i18n.js?v=15';
 
 function replaceDataIcons() {
@@ -95,7 +98,7 @@ class TaskbarManager {
         // Language toggle (EN/PL indicator, like the Windows language bar)
         const langBtn = document.getElementById('langToggle');
         if (langBtn) {
-            langBtn.textContent = lang.toUpperCase();
+            langBtn.innerHTML = lang === 'pl' ? Icons.flagPL : Icons.flagEN;
             langBtn.addEventListener('click', () => setLanguage(lang === 'en' ? 'pl' : 'en'));
         }
 
@@ -225,143 +228,6 @@ class TaskbarManager {
 }
 
 // ===========================================
-// SCREEN SAVER - MATRIX RAIN
-// ===========================================
-
-class ScreenSaver {
-    static timeout = 60000; // 1 minute of inactivity
-    static timer = null;
-    static active = false;
-    static canvas = null;
-    static ctx = null;
-    static animationId = null;
-    static columns = [];
-    static fontSize = 16;
-    static chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-    static init() {
-        ScreenSaver.canvas = document.getElementById('screenSaverCanvas');
-        if (ScreenSaver.canvas) {
-            ScreenSaver.ctx = ScreenSaver.canvas.getContext('2d');
-            ScreenSaver.resize();
-            window.addEventListener('resize', ScreenSaver.resize);
-        }
-
-        // Reset timer on any activity
-        ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(event => {
-            document.addEventListener(event, ScreenSaver.resetTimer);
-        });
-
-        // Click to deactivate
-        document.querySelector('.screen-saver')?.addEventListener('click', () => {
-            ScreenSaver.deactivate();
-        });
-
-        ScreenSaver.resetTimer();
-    }
-
-    static resize() {
-        if (ScreenSaver.canvas) {
-            ScreenSaver.canvas.width = window.innerWidth;
-            ScreenSaver.canvas.height = window.innerHeight;
-            ScreenSaver.initMatrix();
-        }
-    }
-
-    static resetTimer() {
-        if (ScreenSaver.active) {
-            ScreenSaver.deactivate();
-        }
-
-        clearTimeout(ScreenSaver.timer);
-        ScreenSaver.timer = setTimeout(() => {
-            ScreenSaver.activate();
-        }, ScreenSaver.timeout);
-    }
-
-    static activate() {
-        ScreenSaver.active = true;
-        const saverEl = document.querySelector('.screen-saver');
-        if (saverEl) {
-            saverEl.classList.add('active');
-        }
-        ScreenSaver.initMatrix();
-        ScreenSaver.animate();
-    }
-
-    static deactivate() {
-        ScreenSaver.active = false;
-        const saverEl = document.querySelector('.screen-saver');
-        if (saverEl) {
-            saverEl.classList.remove('active');
-        }
-        if (ScreenSaver.animationId) {
-            cancelAnimationFrame(ScreenSaver.animationId);
-        }
-        ScreenSaver.resetTimer();
-    }
-
-    static initMatrix() {
-        const columnCount = Math.floor(window.innerWidth / ScreenSaver.fontSize);
-        ScreenSaver.columns = [];
-        for (let i = 0; i < columnCount; i++) {
-            ScreenSaver.columns.push({
-                y: Math.random() * -100,
-                speed: 0.5 + Math.random() * 0.5,
-                chars: []
-            });
-        }
-    }
-
-    static animate() {
-        if (!ScreenSaver.active || !ScreenSaver.ctx) return;
-
-        const ctx = ScreenSaver.ctx;
-        const width = ScreenSaver.canvas.width;
-        const height = ScreenSaver.canvas.height;
-
-        // Fade effect - creates trail
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        ctx.fillRect(0, 0, width, height);
-
-        ctx.font = `${ScreenSaver.fontSize}px monospace`;
-
-        ScreenSaver.columns.forEach((col, i) => {
-            // Random character
-            const char = ScreenSaver.chars[Math.floor(Math.random() * ScreenSaver.chars.length)];
-            const x = i * ScreenSaver.fontSize;
-            const y = col.y * ScreenSaver.fontSize;
-
-            // Head character (bright green/white)
-            ctx.fillStyle = '#FFF';
-            ctx.fillText(char, x, y);
-
-            // Trail characters (fading green)
-            for (let j = 1; j < 20; j++) {
-                const trailY = y - j * ScreenSaver.fontSize;
-                if (trailY > 0) {
-                    const alpha = 1 - (j / 20);
-                    ctx.fillStyle = `rgba(0, 255, 70, ${alpha})`;
-                    const trailChar = ScreenSaver.chars[Math.floor(Math.random() * ScreenSaver.chars.length)];
-                    ctx.fillText(trailChar, x, trailY);
-                }
-            }
-
-            // Move column down
-            col.y += col.speed;
-
-            // Reset when off screen
-            if (col.y * ScreenSaver.fontSize > height + 200) {
-                col.y = Math.random() * -20;
-                col.speed = 0.5 + Math.random() * 0.5;
-            }
-        });
-
-        ScreenSaver.animationId = requestAnimationFrame(ScreenSaver.animate);
-    }
-}
-
-// ===========================================
 // KONAMI CODE EASTER EGG
 // ===========================================
 
@@ -447,7 +313,7 @@ class BootSequence {
         this.skipRequested = false;
         this.finished = false;
         this.lines = [
-            { el: document.getElementById('bootLine1'), text: 'Checking Memory... 640K OK', delay: 300 },
+            { el: document.getElementById('bootLine1'), memoryTest: true, delay: 400 },
             { el: document.getElementById('bootLine2'), text: 'Loading Portfolio OS v1.0...', delay: 600 },
             { el: document.getElementById('bootLine3'), text: 'Starting Desktop Manager...', delay: 400 }
         ];
@@ -468,11 +334,40 @@ class BootSequence {
                 return;
             }
 
-            if (event.code === 'Space' || event.key === 'Enter') {
+            if ((event.key === 'Delete' || event.key === 'F2') && this.biosWindowOpen) {
+                event.preventDefault();
+                this.enterBios();
+            } else if (event.code === 'Space' || event.key === 'Enter') {
                 event.preventDefault();
                 this.requestSkip();
             }
         });
+
+        const hint = document.getElementById('biosHint');
+        hint?.addEventListener('click', () => this.enterBios());
+        hint?.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                event.stopPropagation();
+                this.enterBios();
+            }
+        });
+    }
+
+    // Like a real POST screen, the "Press DEL" prompt is only shown (and DEL only
+    // works) while the memory test runs. `bios` in the Terminal passes force.
+    setBiosWindow(open) {
+        this.biosWindowOpen = open;
+        const hint = document.getElementById('biosHint');
+        if (hint) hint.hidden = !open;
+    }
+
+    async enterBios(force = false) {
+        if (this.finished || BiosSetup.isOpen || !(force || this.biosWindowOpen)) return;
+        this.setBiosWindow(false);
+        this.skipRequested = true;
+        await BiosSetup.open();
+        this.finishBoot();
     }
 
     requestSkip() {
@@ -579,9 +474,21 @@ class BootSequence {
                 });
             }
             
+            // `bios` in the Terminal reboots straight into setup
+            if (sessionStorage.getItem('enterBios')) {
+                sessionStorage.removeItem('enterBios');
+                await this.enterBios(true);
+                return;
+            }
+
             // Check if already booted this session
             if (sessionStorage.getItem('hasBooted')) {
                 this.skipBoot();
+                return;
+            }
+
+            if (getSetting('quickBoot') === 'true') {
+                this.finishBoot();
                 return;
             }
 
@@ -598,9 +505,27 @@ class BootSequence {
     async typeLines() {
         for (const line of this.lines) {
             if (this.skipRequested) return;
-            await this.typeLine(line.el, line.text);
-            await this.sleep(line.delay);
+            if (line.memoryTest) {
+                this.setBiosWindow(true);
+                await this.memoryTest(line.el);
+                await this.sleep(line.delay);
+                this.setBiosWindow(false);
+            } else {
+                await this.typeLine(line.el, line.text);
+                await this.sleep(line.delay);
+            }
         }
+    }
+
+    async memoryTest(element) {
+        if (!element) return;
+        await this.typeLine(element, 'Checking Memory... ');
+        for (let kb = 64; kb <= 640; kb += 64) {
+            if (this.skipRequested) return;
+            element.textContent = `Checking Memory... ${kb}K`;
+            await this.sleep(110);
+        }
+        element.textContent = 'Checking Memory... 640K OK';
     }
 
     async typeLine(element, text) {
@@ -701,7 +626,9 @@ class BootSequence {
 
     setupBeforeUnload() {
         // Warn user before leaving if there are open windows
+        // Reloads started by the OS itself (language switch, `bios`) set data-reloading.
         window.addEventListener('beforeunload', (e) => {
+            if (document.documentElement.dataset.reloading) return;
             if (WindowManager.windows.size > 0) {
                 e.preventDefault();
                 e.returnValue = 'You have open windows. Are you sure you want to leave?';
@@ -766,15 +693,16 @@ function startSystemClock() {
     const clockWrapper = document.getElementById('clockWrapper');
     if (!clockEl) return;
 
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const fullMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const locale = lang === 'pl' ? 'pl-PL' : 'en-US';
+    const shortDate = new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' });
+    const longDate = new Intl.DateTimeFormat(locale, { month: 'long', day: 'numeric', year: 'numeric' });
+    const dayName = new Intl.DateTimeFormat(locale, { weekday: 'long' });
 
     function updateClock() {
         const now = new Date();
         clockEl.textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
         if (dateEl) {
-            dateEl.textContent = `${months[now.getMonth()]} ${now.getDate()}`;
+            dateEl.textContent = shortDate.format(now);
         }
         const calTime = document.querySelector('.calendar-popup .calendar-time');
         if (calTime) {
@@ -796,8 +724,8 @@ function startSystemClock() {
             popup.className = 'calendar-popup';
             popup.innerHTML = `
                 <div class="calendar-header">
-                    <span class="calendar-day-name">${days[now.getDay()]}</span>
-                    <span class="calendar-full-date">${fullMonths[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}</span>
+                    <span class="calendar-day-name">${dayName.format(now)}</span>
+                    <span class="calendar-full-date">${longDate.format(now)}</span>
                 </div>
                 <div class="calendar-time">${now.toLocaleTimeString('en-GB')}</div>
             `;

@@ -2,10 +2,9 @@
 FROM nginx:alpine
 
 # Copy static files
-COPY index.html /usr/share/nginx/html/
+COPY *.html robots.txt sitemap.xml /usr/share/nginx/html/
 COPY css/ /usr/share/nginx/html/css/
 COPY js/ /usr/share/nginx/html/js/
-COPY cv.html /usr/share/nginx/html/cv.html
 COPY og-image.png /usr/share/nginx/html/og-image.png
 
 # Copy nginx config

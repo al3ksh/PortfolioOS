@@ -1,53 +1,122 @@
 /**
- * Tetris Game App - Classic falling blocks
+ * Tetris - falling blocks, Guideline style:
+ * SRS rotation with wall kicks, 7-bag randomizer, lock delay, DAS/ARR and a ghost piece.
+ * The board scales to the window height, so nothing is cut off on short screens.
  */
 
 import { Icons } from '../icons.js?v=15';
 import { SoundManager } from '../managers/SoundManager.js?v=15';
 
+const COLS = 10;
+const VISIBLE = 20;
+const HIDDEN = 4;               // buffer rows above the visible board
+const ROWS = VISIBLE + HIDDEN;
+const SPAWN_Y = 2;
+
+const LOCK_DELAY = 500;         // ms on the ground before the piece locks
+const MAX_LOCK_RESETS = 15;     // moves/rotations that may restart the lock timer
+const DAS = 200;                // ms before auto-repeat starts
+const ARR = 60;                 // ms between auto-repeat steps
+const SOFT_DROP_FACTOR = 20;
+const LINE_POINTS = [0, 100, 300, 500, 800];
+
+const NEXT_COUNT = 3;
+const NEXT_CELL = 16;
+const NEXT_SLOT = 44;
+const NEXT_WIDTH = 80;
+
+const MIN_CELL = 13;
+const MAX_CELL = 34;
+
 const getThemeColor = (varName) => getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || '';
+
+const rotateCW = (m) => m[0].map((_, x) => m.map((_, y) => m[m.length - 1 - y][x]));
+
+const makePiece = (color, box, spawnX) => {
+    const rot = [box];
+    for (let i = 1; i < 4; i++) rot.push(rotateCW(rot[i - 1]));
+    const cells = rot.map(m => {
+        const out = [];
+        m.forEach((row, y) => row.forEach((v, x) => { if (v) out.push([x, y]); }));
+        return out;
+    });
+    return { color, cells, spawnX };
+};
+
+const PIECES = {
+    I: makePiece('#00FFFF', [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], 3),
+    O: makePiece('#FFFF00', [[1,1],[1,1]], 4),
+    T: makePiece('#AA00FF', [[0,1,0],[1,1,1],[0,0,0]], 3),
+    J: makePiece('#0000FF', [[1,0,0],[1,1,1],[0,0,0]], 3),
+    L: makePiece('#FF8800', [[0,0,1],[1,1,1],[0,0,0]], 3),
+    S: makePiece('#00FF00', [[0,1,1],[1,1,0],[0,0,0]], 3),
+    Z: makePiece('#FF0000', [[1,1,0],[0,1,1],[0,0,0]], 3)
+};
+const TYPES = Object.keys(PIECES);
+
+// SRS wall kick offsets as [x, y] with y pointing up (as in the Guideline); flipped to screen coordinates on use
+const KICKS_JLSTZ = {
+    '0>1': [[0,0],[-1,0],[-1,1],[0,-2],[-1,-2]],
+    '1>0': [[0,0],[1,0],[1,-1],[0,2],[1,2]],
+    '1>2': [[0,0],[1,0],[1,-1],[0,2],[1,2]],
+    '2>1': [[0,0],[-1,0],[-1,1],[0,-2],[-1,-2]],
+    '2>3': [[0,0],[1,0],[1,1],[0,-2],[1,-2]],
+    '3>2': [[0,0],[-1,0],[-1,-1],[0,2],[-1,2]],
+    '3>0': [[0,0],[-1,0],[-1,-1],[0,2],[-1,2]],
+    '0>3': [[0,0],[1,0],[1,1],[0,-2],[1,-2]]
+};
+const KICKS_I = {
+    '0>1': [[0,0],[-2,0],[1,0],[-2,-1],[1,2]],
+    '1>0': [[0,0],[2,0],[-1,0],[2,1],[-1,-2]],
+    '1>2': [[0,0],[-1,0],[2,0],[-1,2],[2,-1]],
+    '2>1': [[0,0],[1,0],[-2,0],[1,-2],[-2,1]],
+    '2>3': [[0,0],[2,0],[-1,0],[2,1],[-1,-2]],
+    '3>2': [[0,0],[-2,0],[1,0],[-2,-1],[1,2]],
+    '3>0': [[0,0],[1,0],[-2,0],[1,-2],[-2,1]],
+    '0>3': [[0,0],[-1,0],[2,0],[-1,2],[2,-1]]
+};
 
 export const TetrisApp = {
     id: 'tetris',
     title: 'Tetris',
     icon: Icons.tetris,
-    width: 360,
-    height: 580,
+    width: 380,
+    height: 610,
     hasMenu: true,
     menuItems: ['Game', 'Help'],
     resizable: false,
-
-    // Game constants
-    COLS: 10,
-    ROWS: 20,
-    BLOCK_SIZE: 20,
 
     // Game state
     canvas: null,
     ctx: null,
     nextCanvas: null,
     nextCtx: null,
+    win: null,
+    main: null,
+    cell: 20,
     board: [],
-    currentPiece: null,
-    nextPiece: null,
-    gameLoop: null,
+    piece: null,
+    bag: [],
+    queue: [],
     score: 0,
     level: 1,
     lines: 0,
+    running: false,
     gameOver: false,
     isPaused: false,
-    dropInterval: 1000,
-
-    // Tetromino shapes
-    PIECES: [
-        { shape: [[1,1,1,1]], color: '#00FFFF' },           // I
-        { shape: [[1,1],[1,1]], color: '#FFFF00' },         // O
-        { shape: [[0,1,0],[1,1,1]], color: '#AA00FF' },     // T
-        { shape: [[1,0,0],[1,1,1]], color: '#0000FF' },     // J
-        { shape: [[0,0,1],[1,1,1]], color: '#FF8800' },     // L
-        { shape: [[0,1,1],[1,1,0]], color: '#00FF00' },     // S
-        { shape: [[1,1,0],[0,1,1]], color: '#FF0000' }      // Z
-    ],
+    gravity: 1000,
+    dropTimer: 0,
+    lockTimer: 0,
+    lockResets: 0,
+    lowestY: 0,
+    softDrop: false,
+    heldDir: 0,
+    dasTimer: 0,
+    arrTimer: 0,
+    keysDown: {},
+    raf: 0,
+    lastTime: 0,
+    colors: { bg: '#111', grid: '#222', at: -Infinity },
 
     menuConfig: {
         'Game': [
@@ -64,7 +133,7 @@ export const TetrisApp = {
     },
 
     onMenuAction(action) {
-        switch(action) {
+        switch (action) {
             case 'newGame':
                 TetrisApp.startGame();
                 break;
@@ -75,15 +144,15 @@ export const TetrisApp = {
                 import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
                     DialogManager.alert(
                         'How to Play Tetris:\n\n' +
-                        '• ← → to move piece\n' +
-                        '• ↑ or W to rotate\n' +
-                        '• ↓ to soft drop\n' +
-                        '• SPACE for hard drop\n' +
-                        '• Swipe on board (mobile):\n' +
-                        '   ←→ move, ↑ rotate, ↓ soft drop,\n' +
-                        '   fast ↓ swipe = hard drop\n' +
-                        '• P to pause\n\n' +
-                        'Clear lines to score!',
+                        '• ← → (or A D) move, hold to slide\n' +
+                        '• ↑ or X rotate clockwise\n' +
+                        '• Z rotate counter-clockwise\n' +
+                        '• ↓ (or S) soft drop\n' +
+                        '• SPACE hard drop\n' +
+                        '• P or ESC pause, F2 new game\n' +
+                        '• Touch: tap rotates, drag moves,\n' +
+                        '   hold = soft drop, flick down = hard drop\n\n' +
+                        'Clear lines to score and speed up!',
                         'How to Play'
                     );
                 });
@@ -100,14 +169,14 @@ export const TetrisApp = {
                         <div class="tetris-overlay" id="tetrisOverlay">
                             <div class="tetris-message">
                                 <h3>TETRIS</h3>
-                                <p>Press SPACE, tap or swipe to start</p>
+                                <p>Press SPACE, tap or click to start</p>
                             </div>
                         </div>
                     </div>
                     <div class="tetris-sidebar">
                         <div class="tetris-next">
                             <div class="tetris-label">NEXT</div>
-                            <canvas id="tetrisNextCanvas" width="80" height="80"></canvas>
+                            <canvas id="tetrisNextCanvas" width="${NEXT_WIDTH}" height="${NEXT_COUNT * NEXT_SLOT}"></canvas>
                         </div>
                         <div class="tetris-stats">
                             <div class="tetris-stat">
@@ -134,500 +203,647 @@ export const TetrisApp = {
     },
 
     onInit() {
-        const container = document.querySelector('#window-tetris .window-content-inner');
+        const win = document.querySelector('#window-tetris');
+        const container = win?.querySelector('.window-content-inner');
         if (!container) return;
 
-        TetrisApp.canvas = container.querySelector('#tetrisCanvas');
-        TetrisApp.ctx = TetrisApp.canvas?.getContext('2d');
-        TetrisApp.nextCanvas = container.querySelector('#tetrisNextCanvas');
-        TetrisApp.nextCtx = TetrisApp.nextCanvas?.getContext('2d');
-        
-        // Buttons
-        container.querySelector('#tetrisNewGame')?.addEventListener('click', () => TetrisApp.startGame());
-        container.querySelector('#tetrisPause')?.addEventListener('click', () => TetrisApp.togglePause());
+        const T = TetrisApp;
+        T.win = win;
+        T.canvas = container.querySelector('#tetrisCanvas');
+        T.ctx = T.canvas?.getContext('2d');
+        T.nextCanvas = container.querySelector('#tetrisNextCanvas');
+        T.nextCtx = T.nextCanvas?.getContext('2d');
+        T.main = container.querySelector('.tetris-main');
+        T.board = T.emptyBoard();
+        T.queue = [];
+        T.piece = null;
+        T.running = false;
+        T.gameOver = false;
+        T.isPaused = false;
+        T.releaseKeys();
+
+        container.querySelector('#tetrisNewGame')?.addEventListener('click', () => T.startGame());
+        container.querySelector('#tetrisPause')?.addEventListener('click', () => T.togglePause());
         container.querySelector('#tetrisOverlay')?.addEventListener('click', () => {
-            if (TetrisApp.isPaused) {
-                TetrisApp.togglePause();
-            } else {
-                TetrisApp.startGame();
-            }
+            if (T.isPaused) T.togglePause();
+            else T.startGame();
         });
 
-        // Keyboard
-        TetrisApp.keyHandler = (e) => {
-            if (!document.querySelector('#window-tetris')) return;
-            
-            if (e.code === 'Space' && (TetrisApp.gameOver || !TetrisApp.gameLoop)) {
-                e.preventDefault();
-                TetrisApp.startGame();
-                return;
-            }
-            
-            if (e.code === 'KeyP') {
-                TetrisApp.togglePause();
-                return;
-            }
-            
-            if (TetrisApp.isPaused || TetrisApp.gameOver || !TetrisApp.currentPiece) return;
-            
-            switch(e.code) {
-                case 'ArrowLeft':
-                case 'KeyA':
-                    TetrisApp.movePiece(-1, 0);
-                    e.preventDefault();
-                    break;
-                case 'ArrowRight':
-                case 'KeyD':
-                    TetrisApp.movePiece(1, 0);
-                    e.preventDefault();
-                    break;
-                case 'ArrowDown':
-                case 'KeyS':
-                    TetrisApp.movePiece(0, 1);
-                    e.preventDefault();
-                    break;
-                case 'ArrowUp':
-                case 'KeyW':
-                    TetrisApp.rotatePiece();
-                    e.preventDefault();
-                    break;
-                case 'Space':
-                    TetrisApp.hardDrop();
-                    e.preventDefault();
-                    break;
-            }
-        };
-        
-        document.addEventListener('keydown', TetrisApp.keyHandler);
+        T.keyDownHandler = (e) => T.onKeyDown(e);
+        T.keyUpHandler = (e) => T.onKeyUp(e);
+        T.blurHandler = () => T.releaseKeys();
+        T.visHandler = () => { if (document.hidden) T.autoPause(); };
+        document.addEventListener('keydown', T.keyDownHandler);
+        document.addEventListener('keyup', T.keyUpHandler);
+        window.addEventListener('blur', T.blurHandler);
+        document.addEventListener('visibilitychange', T.visHandler);
 
-        // Pause when tab hidden, resume when visible
-        TetrisApp._visHandler = () => {
-            if (document.hidden) {
-                if (!TetrisApp.isPaused && !TetrisApp.gameOver && TetrisApp.gameLoop) {
-                    TetrisApp._wasRunning = true;
-                    TetrisApp.isPaused = true;
-                    clearInterval(TetrisApp.gameLoop);
-                    TetrisApp.gameLoop = null;
-                }
-            } else {
-                if (TetrisApp._wasRunning && !TetrisApp.gameOver && !TetrisApp.gameLoop) {
-                    TetrisApp._wasRunning = false;
-                    TetrisApp.isPaused = false;
-                    const overlay = document.querySelector('#tetrisOverlay');
-                    if (overlay) overlay.style.display = 'none';
-                    TetrisApp.gameLoop = setInterval(() => TetrisApp.update(), TetrisApp.dropInterval);
-                }
-            }
-        };
-        document.addEventListener('visibilitychange', TetrisApp._visHandler);
-        
-        // Swipe gestures on board
-        const boardWrapper = container.querySelector('.tetris-board-wrapper');
-        TetrisApp.initSwipeGestures(boardWrapper || TetrisApp.canvas);
-        
-        TetrisApp.drawEmpty();
+        T.initTouch(container.querySelector('.tetris-board-wrapper') || T.canvas);
+
+        if (typeof ResizeObserver !== 'undefined' && T.main) {
+            T.resizeObserver = new ResizeObserver(() => T.fit());
+            T.resizeObserver.observe(T.main);
+        }
+        T.fit();
+        T.updateStats();
+        T.drawNext();
+        T.startLoop();
     },
 
     onClose() {
-        clearInterval(TetrisApp.gameLoop);
-        TetrisApp.gameLoop = null;
-        document.removeEventListener('keydown', TetrisApp.keyHandler);
-        document.removeEventListener('visibilitychange', TetrisApp._visHandler);
-        TetrisApp._wasRunning = false;
+        const T = TetrisApp;
+        cancelAnimationFrame(T.raf);
+        T.raf = 0;
+        T.running = false;
+        T.resizeObserver?.disconnect();
+        T.resizeObserver = null;
+        document.removeEventListener('keydown', T.keyDownHandler);
+        document.removeEventListener('keyup', T.keyUpHandler);
+        window.removeEventListener('blur', T.blurHandler);
+        document.removeEventListener('visibilitychange', T.visHandler);
+        T.releaseKeys();
+        T.win = null;
     },
 
-    initSwipeGestures(element) {
-        if (!element) return;
+    /* ---------- Layout ---------- */
 
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let holdTimer = null;
+    // Pick the largest cell size that fits the window, so the board is never cut off
+    fit() {
+        const T = TetrisApp;
+        if (!T.main || !T.canvas) return;
+        const sidebar = T.main.querySelector('.tetris-sidebar');
+        T.main.classList.toggle('compact', T.main.clientHeight < 385);
+        const gap = parseFloat(getComputedStyle(T.main).columnGap) || 12;
+        const availW = T.main.clientWidth - (sidebar?.offsetWidth || 0) - gap - 6;
+        const availH = T.main.clientHeight - 6;
+        if (availW <= 0 || availH <= 0) return;
+        const cell = Math.max(MIN_CELL, Math.min(MAX_CELL, Math.floor(Math.min(availW / COLS, availH / VISIBLE))));
+        T.cell = cell;
+        if (T.canvas.width !== COLS * cell || T.canvas.height !== VISIBLE * cell) {
+            T.canvas.width = COLS * cell;
+            T.canvas.height = VISIBLE * cell;
+        }
+        T.draw();
+    },
+
+    /* ---------- Input ---------- */
+
+    isActive() {
+        const win = TetrisApp.win;
+        return !!win && document.body.contains(win) && win.classList.contains('active') && !win.classList.contains('minimized');
+    },
+
+    onKeyDown(e) {
+        const T = TetrisApp;
+        if (!T.isActive() || e.ctrlKey || e.altKey || e.metaKey) return;
+
+        if (e.code === 'F2') {
+            e.preventDefault();
+            T.startGame();
+            return;
+        }
+        if (e.code === 'Space' && (!T.running || T.gameOver)) {
+            e.preventDefault();
+            T.startGame();
+            return;
+        }
+        if (e.code === 'KeyP' || e.code === 'Escape') {
+            if (T.running && !T.gameOver) {
+                e.preventDefault();
+                T.togglePause();
+            }
+            return;
+        }
+        if (!T.running || T.isPaused || T.gameOver || !T.piece) return;
+
+        switch (e.code) {
+            case 'ArrowLeft':
+            case 'KeyA':
+                e.preventDefault();
+                if (!e.repeat) T.pressDir(-1);
+                break;
+            case 'ArrowRight':
+            case 'KeyD':
+                e.preventDefault();
+                if (!e.repeat) T.pressDir(1);
+                break;
+            case 'ArrowDown':
+            case 'KeyS':
+                e.preventDefault();
+                T.softDrop = true;
+                break;
+            case 'ArrowUp':
+            case 'KeyW':
+            case 'KeyX':
+                e.preventDefault();
+                if (!e.repeat) T.rotate(1);
+                break;
+            case 'KeyZ':
+            case 'KeyQ':
+                e.preventDefault();
+                if (!e.repeat) T.rotate(-1);
+                break;
+            case 'Space':
+                e.preventDefault();
+                if (!e.repeat) T.hardDrop();
+                break;
+        }
+    },
+
+    onKeyUp(e) {
+        const T = TetrisApp;
+        switch (e.code) {
+            case 'ArrowLeft':
+            case 'KeyA':
+                T.keysDown.left = false;
+                T.refreshDir();
+                break;
+            case 'ArrowRight':
+            case 'KeyD':
+                T.keysDown.right = false;
+                T.refreshDir();
+                break;
+            case 'ArrowDown':
+            case 'KeyS':
+                T.softDrop = false;
+                break;
+        }
+    },
+
+    pressDir(dir) {
+        const T = TetrisApp;
+        T.keysDown[dir < 0 ? 'left' : 'right'] = true;
+        T.heldDir = dir;
+        T.dasTimer = 0;
+        T.arrTimer = 0;
+        T.shift(dir);
+    },
+
+    // After a release, keep sliding if the opposite key is still held
+    refreshDir() {
+        const T = TetrisApp;
+        const next = T.keysDown.left && !T.keysDown.right ? -1 : T.keysDown.right && !T.keysDown.left ? 1 : 0;
+        if (next !== T.heldDir) {
+            T.heldDir = next;
+            T.dasTimer = 0;
+            T.arrTimer = 0;
+        }
+    },
+
+    releaseKeys() {
+        const T = TetrisApp;
+        T.keysDown = {};
+        T.heldDir = 0;
+        T.softDrop = false;
+    },
+
+    initTouch(element) {
+        if (!element) return;
+        const T = TetrisApp;
+        let startX = 0, startY = 0, startT = 0, anchorX = 0;
+        let moved = false, hold = null;
+
+        const stopHold = () => {
+            clearTimeout(hold);
+            hold = null;
+            T.softDrop = false;
+        };
+        const playing = () => T.running && !T.isPaused && !T.gameOver && T.piece;
 
         element.addEventListener('touchstart', (e) => {
-            if (TetrisApp.isPaused || TetrisApp.gameOver || !TetrisApp.currentPiece) return;
+            if (!playing()) return;
             const t = e.touches[0];
-            touchStartX = t.clientX;
-            touchStartY = t.clientY;
+            startX = anchorX = t.clientX;
+            startY = t.clientY;
+            startT = performance.now();
+            moved = false;
+            // Hold in place to soft drop
+            hold = setTimeout(() => { if (!moved) T.softDrop = true; }, 220);
+        }, { passive: true });
 
-            // Hold to soft-drop (speed up, repeats)
-            holdTimer = setTimeout(() => {
-                if (!TetrisApp.isPaused && !TetrisApp.gameOver && TetrisApp.currentPiece) {
-                    TetrisApp.movePiece(0, 1);
-                }
-                holdTimer = setInterval(() => {
-                    if (!TetrisApp.isPaused && !TetrisApp.gameOver && TetrisApp.currentPiece) {
-                        TetrisApp.movePiece(0, 1);
-                    }
-                }, 80);
-            }, 200);
+        element.addEventListener('touchmove', (e) => {
+            if (!playing()) return;
+            const t = e.touches[0];
+            const step = Math.max(T.cell * 1.1, 16);
+            while (t.clientX - anchorX >= step) { T.shift(1); anchorX += step; moved = true; }
+            while (anchorX - t.clientX >= step) { T.shift(-1); anchorX -= step; moved = true; }
+            if (Math.abs(t.clientY - startY) > 14 || Math.abs(t.clientX - startX) > 14) clearTimeout(hold);
         }, { passive: true });
 
         element.addEventListener('touchend', (e) => {
-            clearTimeout(holdTimer);
-            clearInterval(holdTimer);
-
-            if (TetrisApp.isPaused || TetrisApp.gameOver || !TetrisApp.currentPiece) return;
+            const wasSoft = T.softDrop;
+            stopHold();
+            if (!playing() || wasSoft) return;
             const t = e.changedTouches[0];
-            const dx = t.clientX - touchStartX;
-            const dy = t.clientY - touchStartY;
+            const dx = t.clientX - startX;
+            const dy = t.clientY - startY;
+            const dt = performance.now() - startT;
 
-            if (Math.abs(dx) < 20 && Math.abs(dy) < 20) return; // tap, not swipe
-
-            if (Math.abs(dx) > Math.abs(dy)) {
-                if (dx > 0) TetrisApp.movePiece(1, 0);
-                else TetrisApp.movePiece(-1, 0);
-            } else {
-                if (dy < 0) {
-                    TetrisApp.rotatePiece();
-                } else {
-                    TetrisApp.hardDrop();
-                }
+            if (!moved && Math.abs(dx) < 14 && Math.abs(dy) < 14) {
+                T.rotate(1);                                  // tap
+            } else if (!moved && dy > T.cell * 2 && Math.abs(dy) > Math.abs(dx) * 1.5 && dt < 350) {
+                T.hardDrop();                                 // flick down
+            } else if (!moved && dy < -T.cell * 1.5 && Math.abs(dy) > Math.abs(dx)) {
+                T.rotate(1);                                  // swipe up
             }
         }, { passive: true });
+
+        element.addEventListener('touchcancel', stopHold, { passive: true });
     },
 
-    drawEmpty() {
-        if (!TetrisApp.ctx) return;
-        TetrisApp.ctx.fillStyle = getThemeColor('--canvas-grid-alt') || '#111';
-        TetrisApp.ctx.fillRect(0, 0, 200, 400);
-        
-        // Grid lines
-        TetrisApp.ctx.strokeStyle = getThemeColor('--canvas-grid') || '#222';
-        for (let x = 0; x <= TetrisApp.COLS; x++) {
-            TetrisApp.ctx.beginPath();
-            TetrisApp.ctx.moveTo(x * TetrisApp.BLOCK_SIZE, 0);
-            TetrisApp.ctx.lineTo(x * TetrisApp.BLOCK_SIZE, 400);
-            TetrisApp.ctx.stroke();
-        }
-        for (let y = 0; y <= TetrisApp.ROWS; y++) {
-            TetrisApp.ctx.beginPath();
-            TetrisApp.ctx.moveTo(0, y * TetrisApp.BLOCK_SIZE);
-            TetrisApp.ctx.lineTo(200, y * TetrisApp.BLOCK_SIZE);
-            TetrisApp.ctx.stroke();
-        }
+    /* ---------- Game flow ---------- */
+
+    emptyBoard() {
+        return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
     },
 
     startGame() {
-        clearInterval(TetrisApp.gameLoop);
-        
-        // Reset state
-        TetrisApp.board = Array(TetrisApp.ROWS).fill(null).map(() => Array(TetrisApp.COLS).fill(0));
-        TetrisApp.score = 0;
-        TetrisApp.level = 1;
-        TetrisApp.lines = 0;
-        TetrisApp.gameOver = false;
-        TetrisApp.isPaused = false;
-        TetrisApp.dropInterval = 1000;
-        
-        TetrisApp.nextPiece = TetrisApp.randomPiece();
-        TetrisApp.spawnPiece();
-        TetrisApp.updateStats();
-        
-        // Hide overlay
-        const overlay = document.querySelector('#tetrisOverlay');
-        if (overlay) overlay.style.display = 'none';
-        
-        TetrisApp.gameLoop = setInterval(() => TetrisApp.update(), TetrisApp.dropInterval);
+        const T = TetrisApp;
+        T.board = T.emptyBoard();
+        T.score = 0;
+        T.level = 1;
+        T.lines = 0;
+        T.gameOver = false;
+        T.isPaused = false;
+        T.running = true;
+        T.bag = [];
+        T.queue = [];
+        T.gravity = T.gravityFor(1);
+        T.releaseKeys();
+        T.updateStats();
+        T.hideOverlay();
+        T.spawn();
+        T.startLoop();
         SoundManager.play('click');
     },
 
-    togglePause() {
-        if (TetrisApp.gameOver || !TetrisApp.gameLoop) return;
-        
-        TetrisApp.isPaused = !TetrisApp.isPaused;
-        
-        const overlay = document.querySelector('#tetrisOverlay');
-        const message = overlay?.querySelector('.tetris-message');
-        
-        if (TetrisApp.isPaused) {
-            if (overlay) overlay.style.display = 'flex';
-                if (message) message.innerHTML = '<h3>' + Icons.statusPause + ' PAUSED</h3><p>Press P to continue</p>';
-        } else {
-            if (overlay) overlay.style.display = 'none';
+    startLoop() {
+        const T = TetrisApp;
+        cancelAnimationFrame(T.raf);
+        T.lastTime = performance.now();
+        T.raf = requestAnimationFrame((ts) => T.loop(ts));
+    },
+
+    loop(ts) {
+        const T = TetrisApp;
+        if (!T.win || !document.body.contains(T.win)) return;
+        const dt = Math.min(ts - T.lastTime, 100);
+        T.lastTime = ts;
+
+        if (T.running && !T.isPaused && !T.gameOver) {
+            if (T.win.classList.contains('minimized')) T.autoPause();
+            else T.update(dt);
         }
-        
-        SoundManager.play('click');
+        T.draw();
+        T.raf = requestAnimationFrame((next) => T.loop(next));
     },
 
-    randomPiece() {
-        const piece = TetrisApp.PIECES[Math.floor(Math.random() * TetrisApp.PIECES.length)];
-        return {
-            shape: piece.shape.map(row => [...row]),
-            color: piece.color,
-            x: Math.floor((TetrisApp.COLS - piece.shape[0].length) / 2),
-            y: 0
-        };
+    // Guideline gravity curve: milliseconds per row at a given level
+    gravityFor(level) {
+        return Math.max(16, 1000 * Math.pow(0.8 - (level - 1) * 0.007, level - 1));
     },
 
-    spawnPiece() {
-        TetrisApp.currentPiece = TetrisApp.nextPiece;
-        TetrisApp.nextPiece = TetrisApp.randomPiece();
-        TetrisApp.drawNextPiece();
-        
-        // Check game over
-        if (TetrisApp.collision(0, 0)) {
-            TetrisApp.endGame();
-        }
-    },
+    update(dt) {
+        const T = TetrisApp;
+        if (!T.piece) return;
 
-    collision(offsetX, offsetY, shape = TetrisApp.currentPiece?.shape) {
-        if (!TetrisApp.currentPiece || !shape) return true;
-        
-        for (let y = 0; y < shape.length; y++) {
-            for (let x = 0; x < shape[y].length; x++) {
-                if (shape[y][x]) {
-                    const newX = TetrisApp.currentPiece.x + x + offsetX;
-                    const newY = TetrisApp.currentPiece.y + y + offsetY;
-                    
-                    if (newX < 0 || newX >= TetrisApp.COLS || newY >= TetrisApp.ROWS) {
-                        return true;
-                    }
-                    
-                    if (newY >= 0 && TetrisApp.board[newY][newX]) {
-                        return true;
-                    }
+        // Auto-repeat for held left/right
+        if (T.heldDir) {
+            T.dasTimer += dt;
+            if (T.dasTimer >= DAS) {
+                T.arrTimer += dt;
+                while (T.arrTimer >= ARR) {
+                    T.arrTimer -= ARR;
+                    if (!T.shift(T.heldDir)) { T.arrTimer = 0; break; }
                 }
+            }
+        }
+
+        // Gravity (or soft drop)
+        const interval = T.softDrop ? Math.max(T.gravity / SOFT_DROP_FACTOR, 20) : T.gravity;
+        T.dropTimer += dt;
+        while (T.dropTimer >= interval) {
+            T.dropTimer -= interval;
+            if (!T.stepDown()) { T.dropTimer = 0; break; }
+            if (T.softDrop) { T.score += 1; T.updateStats(); }
+        }
+
+        // Lock delay while resting on something
+        const p = T.piece;
+        if (T.fits(p.type, p.rot, p.x, p.y + 1)) {
+            T.lockTimer = 0;
+        } else {
+            T.lockTimer += dt;
+            if (T.lockTimer >= LOCK_DELAY) T.lock();
+        }
+    },
+
+    /* ---------- Pieces ---------- */
+
+    refillBag() {
+        const bag = [...TYPES];
+        for (let i = bag.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [bag[i], bag[j]] = [bag[j], bag[i]];
+        }
+        TetrisApp.bag = bag;
+    },
+
+    takeType() {
+        const T = TetrisApp;
+        if (!T.bag.length) T.refillBag();
+        return T.bag.pop();
+    },
+
+    spawn() {
+        const T = TetrisApp;
+        while (T.queue.length < NEXT_COUNT + 1) T.queue.push(T.takeType());
+        const type = T.queue.shift();
+        T.piece = { type, rot: 0, x: PIECES[type].spawnX, y: SPAWN_Y };
+        T.dropTimer = 0;
+        T.lockTimer = 0;
+        T.lockResets = 0;
+        T.lowestY = T.piece.y;
+        T.drawNext();
+
+        if (!T.fits(type, 0, T.piece.x, T.piece.y)) {
+            T.endGame();
+            return;
+        }
+        // Guideline: a new piece drops one row straight away
+        T.stepDown();
+    },
+
+    cells(type, rot, x, y) {
+        return PIECES[type].cells[rot].map(([cx, cy]) => [x + cx, y + cy]);
+    },
+
+    fits(type, rot, x, y) {
+        const board = TetrisApp.board;
+        for (const [cx, cy] of TetrisApp.cells(type, rot, x, y)) {
+            if (cx < 0 || cx >= COLS || cy < 0 || cy >= ROWS) return false;
+            if (board[cy][cx]) return false;
+        }
+        return true;
+    },
+
+    // Called after a successful shift or rotation
+    onMoved() {
+        const T = TetrisApp;
+        const p = T.piece;
+        if (T.fits(p.type, p.rot, p.x, p.y + 1)) {
+            T.lockTimer = 0;
+        } else if (T.lockResets < MAX_LOCK_RESETS) {
+            T.lockTimer = 0;
+            T.lockResets++;
+        }
+    },
+
+    shift(dir) {
+        const T = TetrisApp;
+        const p = T.piece;
+        if (!p || !T.fits(p.type, p.rot, p.x + dir, p.y)) return false;
+        p.x += dir;
+        T.onMoved();
+        return true;
+    },
+
+    stepDown() {
+        const T = TetrisApp;
+        const p = T.piece;
+        if (!p || !T.fits(p.type, p.rot, p.x, p.y + 1)) return false;
+        p.y++;
+        if (p.y > T.lowestY) {
+            T.lowestY = p.y;
+            T.lockResets = 0;
+        }
+        return true;
+    },
+
+    rotate(dir) {
+        const T = TetrisApp;
+        const p = T.piece;
+        if (!p || p.type === 'O') return false;
+        const to = (p.rot + (dir > 0 ? 1 : 3)) % 4;
+        const kicks = (p.type === 'I' ? KICKS_I : KICKS_JLSTZ)[`${p.rot}>${to}`];
+        for (const [kx, ky] of kicks) {
+            const nx = p.x + kx;
+            const ny = p.y - ky;                              // kick tables have y up, the board has y down
+            if (T.fits(p.type, to, nx, ny)) {
+                p.rot = to;
+                p.x = nx;
+                p.y = ny;
+                if (p.y > T.lowestY) { T.lowestY = p.y; T.lockResets = 0; }
+                T.onMoved();
+                SoundManager.play('click');
+                return true;
             }
         }
         return false;
     },
 
-    getGhostY() {
-        if (!TetrisApp.currentPiece) return 0;
-        let ghostY = TetrisApp.currentPiece.y;
-        while (!TetrisApp.collision(0, ghostY - TetrisApp.currentPiece.y + 1)) {
-            ghostY++;
-        }
-        return ghostY;
-    },
-
-    movePiece(dx, dy) {
-        if (!TetrisApp.collision(dx, dy)) {
-            TetrisApp.currentPiece.x += dx;
-            TetrisApp.currentPiece.y += dy;
-            TetrisApp.draw();
-            return true;
-        }
-        return false;
-    },
-
-    rotatePiece() {
-        if (!TetrisApp.currentPiece) return;
-        
-        // Rotate matrix 90 degrees clockwise
-        const shape = TetrisApp.currentPiece.shape;
-        const rotated = shape[0].map((_, i) => shape.map(row => row[i]).reverse());
-        
-        if (!TetrisApp.collision(0, 0, rotated)) {
-            TetrisApp.currentPiece.shape = rotated;
-            TetrisApp.draw();
-            SoundManager.play('click');
-        }
+    ghostY() {
+        const p = TetrisApp.piece;
+        let y = p.y;
+        while (TetrisApp.fits(p.type, p.rot, p.x, y + 1)) y++;
+        return y;
     },
 
     hardDrop() {
-        while (TetrisApp.movePiece(0, 1)) {
-            TetrisApp.score += 2;
-        }
-        TetrisApp.lockPiece();
+        const T = TetrisApp;
+        if (!T.piece) return;
+        const target = T.ghostY();
+        T.score += (target - T.piece.y) * 2;
+        T.piece.y = target;
+        T.lock();
     },
 
-    update() {
-        if (TetrisApp.isPaused || TetrisApp.gameOver) return;
-        
-        if (!TetrisApp.movePiece(0, 1)) {
-            TetrisApp.lockPiece();
+    lock() {
+        const T = TetrisApp;
+        const p = T.piece;
+        if (!p) return;
+        const color = PIECES[p.type].color;
+        let allHidden = true;
+        for (const [cx, cy] of T.cells(p.type, p.rot, p.x, p.y)) {
+            T.board[cy][cx] = color;
+            if (cy >= HIDDEN) allHidden = false;
         }
-    },
-
-    lockPiece() {
-        if (!TetrisApp.currentPiece) return;
-        
-        // Add piece to board
-        const shape = TetrisApp.currentPiece.shape;
-        for (let y = 0; y < shape.length; y++) {
-            for (let x = 0; x < shape[y].length; x++) {
-                if (shape[y][x]) {
-                    const boardY = TetrisApp.currentPiece.y + y;
-                    const boardX = TetrisApp.currentPiece.x + x;
-                    if (boardY >= 0) {
-                        TetrisApp.board[boardY][boardX] = TetrisApp.currentPiece.color;
-                    }
-                }
-            }
+        T.piece = null;
+        T.clearLines();
+        T.updateStats();
+        if (allHidden) {
+            T.endGame();
+            return;
         }
-        
-        TetrisApp.clearLines();
-        TetrisApp.spawnPiece();
-        TetrisApp.draw();
+        T.spawn();
     },
 
     clearLines() {
-        let linesCleared = 0;
-        
-        for (let y = TetrisApp.ROWS - 1; y >= 0; y--) {
-            if (TetrisApp.board[y].every(cell => cell !== 0)) {
-                TetrisApp.board.splice(y, 1);
-                TetrisApp.board.unshift(Array(TetrisApp.COLS).fill(0));
-                linesCleared++;
-                y++; // Check same row again
+        const T = TetrisApp;
+        let cleared = 0;
+        for (let y = ROWS - 1; y >= 0; y--) {
+            if (T.board[y].every(c => c !== 0)) {
+                T.board.splice(y, 1);
+                T.board.unshift(Array(COLS).fill(0));
+                cleared++;
+                y++;
             }
         }
-        
-        if (linesCleared > 0) {
-            // Scoring: 100, 300, 500, 800 for 1-4 lines
-            const points = [0, 100, 300, 500, 800];
-            TetrisApp.score += points[linesCleared] * TetrisApp.level;
-            TetrisApp.lines += linesCleared;
-            
-            // Level up every 10 lines
-            const newLevel = Math.floor(TetrisApp.lines / 10) + 1;
-            if (newLevel > TetrisApp.level) {
-                TetrisApp.level = newLevel;
-                TetrisApp.dropInterval = Math.max(100, 1000 - (TetrisApp.level - 1) * 100);
-                clearInterval(TetrisApp.gameLoop);
-                TetrisApp.gameLoop = setInterval(() => TetrisApp.update(), TetrisApp.dropInterval);
-            }
-            
-            TetrisApp.updateStats();
-            SoundManager.play('chord');
-        }
+        if (!cleared) return;
+
+        T.score += LINE_POINTS[cleared] * T.level;
+        T.lines += cleared;
+        T.level = Math.floor(T.lines / 10) + 1;
+        T.gravity = T.gravityFor(T.level);
+        SoundManager.play('chord');
     },
 
-    draw() {
-        if (!TetrisApp.ctx) return;
-        const ctx = TetrisApp.ctx;
-        const size = TetrisApp.BLOCK_SIZE;
-        
-        // Clear
-        ctx.fillStyle = getThemeColor('--canvas-grid-alt') || '#111';
-        ctx.fillRect(0, 0, 200, 400);
-        
-        // Draw board
-        for (let y = 0; y < TetrisApp.ROWS; y++) {
-            for (let x = 0; x < TetrisApp.COLS; x++) {
-                if (TetrisApp.board[y][x]) {
-                    TetrisApp.drawBlock(ctx, x, y, TetrisApp.board[y][x]);
-                }
-            }
-        }
-        
-        // Draw ghost piece
-        if (TetrisApp.currentPiece) {
-            const ghostY = TetrisApp.getGhostY();
-            const shape = TetrisApp.currentPiece.shape;
-            ctx.globalAlpha = 0.25;
-            for (let y = 0; y < shape.length; y++) {
-                for (let x = 0; x < shape[y].length; x++) {
-                    if (shape[y][x]) {
-                        TetrisApp.drawBlock(
-                            ctx,
-                            TetrisApp.currentPiece.x + x,
-                            ghostY + y,
-                            TetrisApp.currentPiece.color
-                        );
-                    }
-                }
-            }
-            ctx.globalAlpha = 1;
-        }
+    /* ---------- Pause / game over ---------- */
 
-        // Draw current piece
-        if (TetrisApp.currentPiece) {
-            const shape = TetrisApp.currentPiece.shape;
-            for (let y = 0; y < shape.length; y++) {
-                for (let x = 0; x < shape[y].length; x++) {
-                    if (shape[y][x]) {
-                        TetrisApp.drawBlock(
-                            ctx,
-                            TetrisApp.currentPiece.x + x,
-                            TetrisApp.currentPiece.y + y,
-                            TetrisApp.currentPiece.color
-                        );
-                    }
-                }
-            }
+    togglePause() {
+        const T = TetrisApp;
+        if (!T.running || T.gameOver) return;
+        T.isPaused = !T.isPaused;
+        if (T.isPaused) {
+            T.releaseKeys();
+            T.showOverlay(`<h3>${Icons.statusPause} PAUSED</h3><p>Press P or click to continue</p>`);
+        } else {
+            T.hideOverlay();
+            T.lastTime = performance.now();
         }
-        
-        // Draw grid
-        ctx.strokeStyle = getThemeColor('--canvas-grid') || '#222';
-        for (let x = 0; x <= TetrisApp.COLS; x++) {
-            ctx.beginPath();
-            ctx.moveTo(x * size, 0);
-            ctx.lineTo(x * size, 400);
-            ctx.stroke();
-        }
-        for (let y = 0; y <= TetrisApp.ROWS; y++) {
-            ctx.beginPath();
-            ctx.moveTo(0, y * size);
-            ctx.lineTo(200, y * size);
-            ctx.stroke();
-        }
+        SoundManager.play('click');
     },
 
-    drawBlock(ctx, x, y, color) {
-        const size = TetrisApp.BLOCK_SIZE;
-        
-        // Main color
-        ctx.fillStyle = color;
-        ctx.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
-        
-        // Highlight
-        ctx.fillStyle = 'rgba(255,255,255,0.3)';
-        ctx.fillRect(x * size + 1, y * size + 1, size - 2, 3);
-        ctx.fillRect(x * size + 1, y * size + 1, 3, size - 2);
-        
-        // Shadow
-        ctx.fillStyle = 'rgba(0,0,0,0.3)';
-        ctx.fillRect(x * size + size - 4, y * size + 1, 3, size - 2);
-        ctx.fillRect(x * size + 1, y * size + size - 4, size - 2, 3);
-    },
-
-    drawNextPiece() {
-        if (!TetrisApp.nextCtx || !TetrisApp.nextPiece) return;
-        const ctx = TetrisApp.nextCtx;
-        
-        ctx.fillStyle = getThemeColor('--canvas-grid-alt') || '#222';
-        ctx.fillRect(0, 0, 80, 80);
-        
-        const shape = TetrisApp.nextPiece.shape;
-        const offsetX = (80 - shape[0].length * 20) / 2;
-        const offsetY = (80 - shape.length * 20) / 2;
-        
-        for (let y = 0; y < shape.length; y++) {
-            for (let x = 0; x < shape[y].length; x++) {
-                if (shape[y][x]) {
-                    ctx.fillStyle = TetrisApp.nextPiece.color;
-                    ctx.fillRect(offsetX + x * 20 + 1, offsetY + y * 20 + 1, 18, 18);
-                }
-            }
-        }
-    },
-
-    updateStats() {
-        document.querySelector('#tetrisScore').textContent = TetrisApp.score;
-        document.querySelector('#tetrisLevel').textContent = TetrisApp.level;
-        document.querySelector('#tetrisLines').textContent = TetrisApp.lines;
+    autoPause() {
+        const T = TetrisApp;
+        if (T.running && !T.isPaused && !T.gameOver) T.togglePause();
     },
 
     endGame() {
-        clearInterval(TetrisApp.gameLoop);
-        TetrisApp.gameLoop = null;
-        TetrisApp.gameOver = true;
-        
+        const T = TetrisApp;
+        T.running = false;
+        T.gameOver = true;
+        T.piece = null;
+        T.releaseKeys();
         SoundManager.play('error');
-        
-        const overlay = document.querySelector('#tetrisOverlay');
+        T.showOverlay(`
+            <h3>${Icons.statusSkull} GAME OVER</h3>
+            <p>Score: ${T.score}</p>
+            <p>Level: ${T.level}</p>
+            <p>Press SPACE to play again</p>
+        `);
+    },
+
+    showOverlay(html) {
+        const overlay = TetrisApp.win?.querySelector('#tetrisOverlay');
         const message = overlay?.querySelector('.tetris-message');
-        
-        if (overlay) overlay.style.display = 'flex';
-        if (message) {
-            message.innerHTML = `
-                <h3>${Icons.statusSkull} GAME OVER</h3>
-                <p>Score: ${TetrisApp.score}</p>
-                <p>Level: ${TetrisApp.level}</p>
-                <p>Press SPACE to play again</p>
-            `;
+        if (!overlay || !message) return;
+        message.replaceChildren();
+        message.insertAdjacentHTML('beforeend', html);
+        overlay.style.display = 'flex';
+    },
+
+    hideOverlay() {
+        const overlay = TetrisApp.win?.querySelector('#tetrisOverlay');
+        if (overlay) overlay.style.display = 'none';
+    },
+
+    updateStats() {
+        const win = TetrisApp.win;
+        if (!win) return;
+        win.querySelector('#tetrisScore').textContent = TetrisApp.score;
+        win.querySelector('#tetrisLevel').textContent = TetrisApp.level;
+        win.querySelector('#tetrisLines').textContent = TetrisApp.lines;
+    },
+
+    /* ---------- Drawing ---------- */
+
+    themeColors() {
+        const T = TetrisApp;
+        const now = performance.now();
+        if (now - T.colors.at > 1000) {
+            T.colors = {
+                bg: getThemeColor('--canvas-grid-alt') || '#111',
+                grid: getThemeColor('--canvas-grid') || '#222',
+                at: now
+            };
         }
+        return T.colors;
+    },
+
+    draw() {
+        const T = TetrisApp;
+        const ctx = T.ctx;
+        if (!ctx) return;
+        const size = T.cell;
+        const w = COLS * size;
+        const h = VISIBLE * size;
+        const colors = T.themeColors();
+
+        ctx.fillStyle = colors.bg;
+        ctx.fillRect(0, 0, w, h);
+
+        ctx.strokeStyle = colors.grid;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let x = 0; x <= COLS; x++) { ctx.moveTo(x * size + 0.5, 0); ctx.lineTo(x * size + 0.5, h); }
+        for (let y = 0; y <= VISIBLE; y++) { ctx.moveTo(0, y * size + 0.5); ctx.lineTo(w, y * size + 0.5); }
+        ctx.stroke();
+
+        for (let y = HIDDEN; y < ROWS; y++) {
+            for (let x = 0; x < COLS; x++) {
+                const color = T.board[y]?.[x];
+                if (color) T.drawBlock(ctx, x * size, (y - HIDDEN) * size, size, color);
+            }
+        }
+
+        const p = T.piece;
+        if (p && T.running) {
+            const color = PIECES[p.type].color;
+            const gy = T.ghostY();
+            ctx.globalAlpha = 0.25;
+            for (const [cx, cy] of T.cells(p.type, p.rot, p.x, gy)) {
+                if (cy >= HIDDEN) T.drawBlock(ctx, cx * size, (cy - HIDDEN) * size, size, color);
+            }
+            ctx.globalAlpha = 1;
+            for (const [cx, cy] of T.cells(p.type, p.rot, p.x, p.y)) {
+                if (cy >= HIDDEN) T.drawBlock(ctx, cx * size, (cy - HIDDEN) * size, size, color);
+            }
+        }
+    },
+
+    drawBlock(ctx, px, py, size, color) {
+        const bevel = Math.max(2, Math.round(size / 7));
+        ctx.fillStyle = color;
+        ctx.fillRect(px + 1, py + 1, size - 2, size - 2);
+
+        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+        ctx.fillRect(px + 1, py + 1, size - 2, bevel);
+        ctx.fillRect(px + 1, py + 1, bevel, size - 2);
+
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fillRect(px + size - 1 - bevel, py + 1, bevel, size - 2);
+        ctx.fillRect(px + 1, py + size - 1 - bevel, size - 2, bevel);
+    },
+
+    drawNext() {
+        const T = TetrisApp;
+        const ctx = T.nextCtx;
+        if (!ctx) return;
+        ctx.fillStyle = getThemeColor('--canvas-grid-alt') || '#222';
+        ctx.fillRect(0, 0, NEXT_WIDTH, NEXT_COUNT * NEXT_SLOT);
+
+        T.queue.slice(0, NEXT_COUNT).forEach((type, i) => {
+            const cells = PIECES[type].cells[0];
+            const xs = cells.map(c => c[0]);
+            const ys = cells.map(c => c[1]);
+            const minX = Math.min(...xs), maxX = Math.max(...xs);
+            const minY = Math.min(...ys), maxY = Math.max(...ys);
+            const ox = (NEXT_WIDTH - (maxX - minX + 1) * NEXT_CELL) / 2 - minX * NEXT_CELL;
+            const oy = i * NEXT_SLOT + (NEXT_SLOT - (maxY - minY + 1) * NEXT_CELL) / 2 - minY * NEXT_CELL;
+            for (const [cx, cy] of cells) {
+                T.drawBlock(ctx, ox + cx * NEXT_CELL, oy + cy * NEXT_CELL, NEXT_CELL, PIECES[type].color);
+            }
+        });
     }
 };

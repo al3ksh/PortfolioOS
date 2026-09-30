@@ -22,6 +22,7 @@ import { SimpleModeApp } from './SimpleModeApp.js?v=15';
 import { ProjectsApp } from './ProjectsApp.js?v=15';
 import { ProjectViewerApp } from './ProjectViewerApp.js?v=15';
 import { NetworkApp } from './NetworkApp.js?v=15';
+import { PrinterApp } from './PrinterApp.js?v=15';
 
 export const Apps = {
     portfolio: PortfolioApp,
@@ -43,7 +44,8 @@ export const Apps = {
     simplemode: SimpleModeApp,
     projects: ProjectsApp,
     projectviewer: ProjectViewerApp,
-    network: NetworkApp
+    network: NetworkApp,
+    printer: PrinterApp
 };
 
 export default Apps;

@@ -319,8 +319,7 @@
         overflow: hidden;
     }
 
-    .snake-container canvas,
-    .tetris-container canvas {
+    .snake-container canvas {
         max-width: 100%;
         height: auto !important;
     }
