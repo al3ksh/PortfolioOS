@@ -17,7 +17,7 @@ const LOCK_DELAY = 500;         // ms on the ground before the piece locks
 const MAX_LOCK_RESETS = 15;     // moves/rotations that may restart the lock timer
 const DAS = 200;                // ms before auto-repeat starts
 const ARR = 60;                 // ms between auto-repeat steps
-const SOFT_DROP_FACTOR = 20;
+const SOFT_DROP_MS = 90; // time per cell while soft dropping (never slower than gravity)
 const LINE_POINTS = [0, 100, 300, 500, 800];
 
 const NEXT_COUNT = 3;
@@ -520,7 +520,9 @@ export const TetrisApp = {
         }
 
         // Gravity (or soft drop)
-        const interval = T.softDrop ? Math.max(T.gravity / SOFT_DROP_FACTOR, 20) : T.gravity;
+        const interval = T.softDrop ? Math.min(T.gravity, SOFT_DROP_MS) : T.gravity;
+        // Time banked under slow gravity must not be spent at the fast rate (that was the "teleport")
+        if (T.softDrop && T.dropTimer > interval) T.dropTimer = interval;
         T.dropTimer += dt;
         while (T.dropTimer >= interval) {
             T.dropTimer -= interval;
@@ -706,7 +708,7 @@ export const TetrisApp = {
         T.isPaused = !T.isPaused;
         if (T.isPaused) {
             T.releaseKeys();
-            T.showOverlay(`<h3>${Icons.statusPause} PAUSED</h3><p>Press P or click to continue</p>`);
+            T.showOverlay(`${Icons.gamePause}<h3>PAUSED</h3><p>Press P or click to continue</p>`);
         } else {
             T.hideOverlay();
             T.lastTime = performance.now();
@@ -727,7 +729,8 @@ export const TetrisApp = {
         T.releaseKeys();
         SoundManager.play('error');
         T.showOverlay(`
-            <h3>${Icons.statusSkull} GAME OVER</h3>
+            ${Icons.gameOverSkull}
+            <h3>GAME OVER</h3>
             <p>Score: ${T.score}</p>
             <p>Level: ${T.level}</p>
             <p>Press SPACE to play again</p>

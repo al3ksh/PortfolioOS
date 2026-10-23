@@ -2302,10 +2302,12 @@
     margin: 0 0 10px;
 }
 
-.tetris-message h3 svg {
-    width: 24px;
-    height: 24px;
-    vertical-align: middle;
+.tetris-message .game-icon,
+.snake-message .game-icon {
+    display: block;
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 10px;
 }
 
 .tetris-message p {
