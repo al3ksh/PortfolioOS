@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const os = require('os');
+const { createScoresRouter } = require('./scores');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -50,6 +51,9 @@ async function verifyTurnstile(token, ip) {
         return false;
     }
 }
+
+// Game leaderboards (GET /scores/:game, POST /scores)
+app.use('/scores', createScoresRouter({ clientIp, verifyTurnstile, turnstileEnabled: Boolean(TURNSTILE_SECRET) }));
 
 // Rate limiting - max 5 contact requests per 15 minutes per IP
 const contactLimiter = rateLimit({

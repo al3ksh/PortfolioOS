@@ -1,83 +1,84 @@
 /**
- * README App - Welcome/Onboarding text
+ * README App - a short guide to the desktop
  */
 
 import { Icons } from '../icons.js?v=15';
-import { t } from '../i18n.js?v=15';
-
-const lines = key => t(key).map(line => `<p>${line}</p>`).join('');
+import { t, loc } from '../i18n.js?v=15';
 import { Profile, githubUrl } from '../config.js?v=15';
+
+const GROUPS = [
+    { title: 'readme.group.about', apps: [['portfolio', 'Portfolio.exe'], ['projects', 'Projects.exe'], ['network', 'Network.exe'], ['contact', 'Contact.exe'], ['simplemode', 'Simple View']] },
+    { title: 'readme.group.tools', apps: [['browser', 'Internet.exe'], ['notepad', 'Notepad.exe'], ['paint', 'Paint.exe'], ['calc', 'Calc.exe'], ['terminal', 'Terminal.exe'], ['explorer', 'Explorer.exe'], ['tunes', 'Tunes.exe']] },
+    { title: 'readme.group.games', apps: [['mines', 'Mines.exe'], ['snake', 'Snake.exe'], ['tetris', 'Tetris.exe']], note: 'readme.gamesNote' },
+    { title: 'readme.group.system', apps: [['control', 'Control.cpl'], ['sysinfo', 'System Info'], ['taskmgr', 'Task Manager']] }
+];
+
+const THEMES = ['Teal', 'Dark', 'Hot Dog', 'Matrix', 'Clouds', 'Win 95', 'Win 98', 'macOS', 'Ubuntu'];
+const COMMANDS = ['help', 'neofetch', 'matrix', 'hack', 'fortune', 'cowsay', 'sl', 'party', 'leet', 'coffee', 'sudo', 'format'];
+
+const pairs = key => t(key).map(([term, text]) => `<dt>${term}</dt><dd>${text}</dd>`).join('');
+const keys = text => text.replace(/\[([^\]]+)\]/g, '<kbd>$1</kbd>');
+
+function section(title, body) {
+    return `<section class="rm-section"><h3>${t(title)}</h3>${body}</section>`;
+}
+
+function appCard([id, name], descriptions) {
+    return `
+        <div class="rm-app">
+            <span class="rm-app-icon">${Icons[id]}</span>
+            <span class="rm-app-name">${name}</span>
+            <span class="rm-app-desc">${descriptions[id]}</span>
+        </div>`;
+}
 
 export const ReadmeApp = {
     id: 'readme',
     title: 'README.TXT',
     icon: Icons.readme,
-    width: 500,
-    height: 520,
+    width: 520,
+    height: 560,
     hasMenu: false,
     resizable: true,
 
     render() {
+        const descriptions = t('readme.appDesc');
+        const groups = GROUPS.map(group => `
+            <h4>${t(group.title)}</h4>
+            <div class="rm-apps">${group.apps.map(app => appCard(app, descriptions)).join('')}</div>
+            ${group.note ? `<p class="rm-note">${t(group.note)}</p>` : ''}`).join('');
+
         return `
             <div class="readme-content">
-                <p>═══════════════════════════════════════════</p>
-                <p>         <span class="highlight">PORTFOLIO OS v1.0</span></p>
-                <p>═══════════════════════════════════════════</p>
-                <br>
-                <p>${t('readme.welcome')}</p>
-                <br>
-                ${lines('readme.intro')}
-                <br>
-                <p>${t('readme.howTo')}</p>
-                <p>────────────────────</p>
-                ${lines('readme.howToItems')}
-                <br>
-                <p>${t('readme.apps')}</p>
-                <p>────────────────────</p>
-                ${lines('readme.appItems')}
-                <br>
-                <p>${t('readme.themes')}</p>
-                <p>────────────────────</p>
-                ${lines('readme.themeItems')}
-                <br>
+                <header class="rm-hero">
+                    <span class="rm-hero-icon">${Icons.startMenu}</span>
+                    <div>
+                        <h2>Portfolio OS</h2>
+                        <p>${t('readme.tagline')}</p>
+                    </div>
+                </header>
+                <p class="rm-tip">${keys(t('readme.tip'))}</p>
+
+                ${section('readme.start', `<dl class="rm-list">${pairs('readme.startItems')}</dl>`)}
+                ${section('readme.apps', groups)}
+                ${section('readme.themes', `
+                    <div class="rm-chips">${THEMES.map(name => `<span class="rm-chip">${name}</span>`).join('')}</div>
+                    <p>${t('readme.themesNote')}</p>`)}
+                ${section('readme.keys', `<dl class="rm-list rm-keys">${t('readme.keyItems').map(([combo, text]) => `<dt>${keys(combo)}</dt><dd>${text}</dd>`).join('')}</dl>`)}
+
                 <details class="readme-spoiler">
                     <summary>${t('readme.secrets')}</summary>
                     <div class="spoiler-content">
-                        <br>
-                        <p>Easter Eggs to discover:</p>
-                        <p>────────────────────</p>
-                        <p>🎬 Close Portfolio.exe 3 times</p>
-                        <p>   → Dramatic animation!</p>
-                        <br>
-                        <p>📺 Matrix Screensaver</p>
-                        <p>   → Control Panel → Screen Saver</p>
-                        <br>
-                        <p>🎮 Hidden Terminal commands:</p>
-                        <p>   → "matrix" - Matrix effect</p>
-                        <p>   → "neofetch" - System summary</p>
-                        <p>   → "open website" - Open a link</p>
-                        <p>   → "github" - Open GitHub profile</p>
-                        <p>   → "clear" / "history" - Terminal basics</p>
-                        <p>   → "hack" - Hacker simulation</p>
-                        <p>   → "sudo", "format c:", "ping girlfriend" - Safe fake commands</p>
-                        <p>   → "fortune" - Fortune cookie</p>
-                        <p>   → "cowsay" - Talking cow</p>
-                        <p>   → "sl" - Train goes choo</p>
-                        <br>
-                        <p>🖼️ CRT Effect in Control Panel</p>
-                        <p>   → Retro monitor vibes</p>
-                        <br>
-                        <p>🔊 System sounds</p>
-                        <p>   → Enable in Control Panel</p>
-                        <br>
-                        <p>⌨️ Keyboard shortcuts:</p>
-                        <p>   → F11 = Fullscreen</p>
+                        <dl class="rm-list">${pairs('readme.secretItems')}</dl>
+                        <p>${t('readme.commands')}</p>
+                        <div class="rm-chips">${COMMANDS.map(name => `<code class="rm-chip">${name}</code>`).join('')}</div>
                     </div>
                 </details>
-                <br>
-                <p>═══════════════════════════════════════════</p>
-                <p>       (C) 2026 Portfolio OS Team</p>
-                <p>═══════════════════════════════════════════</p>
+
+                <footer class="rm-footer">
+                    ${t('readme.madeBy', { name: loc(Profile.name) })} ·
+                    <a href="${githubUrl()}" target="_blank" rel="noopener noreferrer">GitHub</a>
+                </footer>
             </div>
         `;
     }

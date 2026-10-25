@@ -30,11 +30,16 @@ services:
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
       - STATUS_SERVICES=${STATUS_SERVICES:-}
       - STATUS_HOST_LABEL=${STATUS_HOST_LABEL:-}
+    volumes:
+      - portfolio-data:/data
     networks:
       - portfolio-network
     # Uncomment to expose backend directly for debugging
     # ports:
     #   - "3000:3000"
+
+volumes:
+  portfolio-data:
 
 networks:
   portfolio-network:

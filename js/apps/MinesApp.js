@@ -1,9 +1,71 @@
 /**
- * Minesweeper App - Classic game
+ * Minesweeper App - Classic game with safe first click, chording and touch flagging
  */
 
 import { Icons } from '../icons.js?v=15';
 import { SoundManager } from '../managers/SoundManager.js?v=15';
+import { WindowManager } from '../managers/WindowManager.js?v=15';
+import { Leaderboard } from '../leaderboard.js?v=15';
+
+const DIFFICULTIES = {
+    beginner: { width: 9, height: 9, mines: 10 },
+    intermediate: { width: 16, height: 16, mines: 40 },
+    expert: { width: 30, height: 16, mines: 99 }
+};
+
+const CELL = 20;
+const LONG_PRESS_MS = 450;
+
+// 11x11 pixel sprites rendered as crisp SVG
+const SPRITE_COLORS = { k: '#000', w: '#fff', r: '#E00000', x: '#E00000' };
+const MINE_ROWS = [
+    '.....k.....',
+    '.k...k...k.',
+    '..k.kkk.k..',
+    '...kkkkk...',
+    '..kkwwkkk..',
+    'kkkkwwkkkkk',
+    '..kkkkkkk..',
+    '...kkkkk...',
+    '..k.kkk.k..',
+    '.k...k...k.',
+    '.....k.....'
+];
+const FLAG_ROWS = [
+    '....rr.....',
+    '....rrrr...',
+    '....rrrrrr.',
+    '....rrrr...',
+    '....rr.....',
+    '....k......',
+    '....k......',
+    '..kkkkk....',
+    '.kkkkkkk...',
+    '...........',
+    '...........'
+];
+
+const sprite = (rows) => {
+    let rects = '';
+    rows.forEach((row, y) => {
+        [...row].forEach((c, x) => {
+            if (SPRITE_COLORS[c]) rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${SPRITE_COLORS[c]}"/>`;
+        });
+    });
+    return `<svg viewBox="0 0 11 11" shape-rendering="crispEdges">${rects}</svg>`;
+};
+
+const MINE_SVG = sprite(MINE_ROWS);
+const FLAG_SVG = sprite(FLAG_ROWS);
+// A mine with a red cross over it marks a wrong flag
+const WRONG_SVG = sprite(MINE_ROWS.map((row, y) => {
+    const chars = [...row];
+    chars[y] = 'x';
+    chars[10 - y] = 'x';
+    return chars.join('');
+}));
+
+const counterText = (n) => (n < 0 ? '-' + String(Math.min(99, -n)).padStart(2, '0') : String(Math.min(999, n)).padStart(3, '0'));
 
 export const MinesApp = {
     id: 'mines',
@@ -20,21 +82,26 @@ export const MinesApp = {
     gridHeight: 9,
     mineCount: 10,
     revealed: 0,
-    gameOver: false,
     flagCount: 0,
+    started: false,
+    gameOver: false,
     timerInterval: null,
     time: 0,
     currentDifficulty: 'beginner',
+    flagStamp: 0,
+    pressTimer: 0,
+    win: null,
 
     menuConfig: {
         'Game': [
             { label: 'New Game', action: 'newGame', shortcut: 'F2' },
             { divider: true },
-            { label: 'Beginner (9×9, 10 mines)', action: 'beginner' },
-            { label: 'Intermediate (16×16, 40 mines)', action: 'intermediate' },
-            { label: 'Expert (30×16, 99 mines)', action: 'expert' },
+            { label: 'Beginner (9×9, 10 mines)', action: 'beginner', checked: true, checkGroup: 'difficulty' },
+            { label: 'Intermediate (16×16, 40 mines)', action: 'intermediate', checked: false, checkGroup: 'difficulty' },
+            { label: 'Expert (30×16, 99 mines)', action: 'expert', checked: false, checkGroup: 'difficulty' },
             { divider: true },
             { label: 'Best Times...', action: 'bestTimes' },
+            { label: 'Leaderboard...', action: 'leaderboard' },
             { divider: true },
             { label: 'Exit', action: 'close', shortcut: 'Alt+F4' }
         ],
@@ -46,21 +113,21 @@ export const MinesApp = {
     },
 
     onMenuAction(action) {
-        switch(action) {
+        switch (action) {
             case 'newGame':
                 MinesApp.initGame();
                 break;
             case 'beginner':
-                MinesApp.setDifficulty('beginner', 9, 9, 10);
-                break;
             case 'intermediate':
-                MinesApp.setDifficulty('intermediate', 16, 16, 40);
-                break;
             case 'expert':
-                MinesApp.setDifficulty('expert', 30, 16, 99);
+                MinesApp.setDifficulty(action);
+                SoundManager.play('click');
                 break;
             case 'bestTimes':
                 MinesApp.showBestTimes();
+                break;
+            case 'leaderboard':
+                Leaderboard.show(`mines-${MinesApp.currentDifficulty}`);
                 break;
             case 'howToPlay':
                 MinesApp.showHowToPlay();
@@ -68,45 +135,26 @@ export const MinesApp = {
         }
     },
 
-    setDifficulty(name, width, height, mines) {
-        MinesApp.currentDifficulty = name;
-        MinesApp.gridWidth = width;
-        MinesApp.gridHeight = height;
-        MinesApp.mineCount = mines;
-        
-        // Update menu checkmarks
-        const windowEl = document.querySelector('#window-mines');
-        if (windowEl) {
-            windowEl.querySelectorAll('.menu-dropdown-item').forEach(item => {
-                const action = item.dataset.action;
-                const label = item.querySelector('.menu-dropdown-label');
-                if (['beginner', 'intermediate', 'expert'].includes(action)) {
-                    const text = label.textContent.replace(/^✓ /, '');
-                    label.textContent = (action === name ? '✓ ' : '') + text;
-                }
-            });
-            
-            // Resize window for larger grids
-            if (name === 'intermediate') {
-                windowEl.style.width = '420px';
-                windowEl.style.height = '500px';
-            } else if (name === 'expert') {
-                windowEl.style.width = '680px';
-                windowEl.style.height = '560px';
-            } else {
-                windowEl.style.width = '250px';
-                windowEl.style.height = '350px';
-            }
-            // Update grid class
-            const gridEl = windowEl.querySelector('.mines-grid');
-            if (gridEl) {
-                gridEl.className = `mines-grid size-${height}`;
-                gridEl.style.gridTemplateColumns = `repeat(${width}, 20px)`;
-            }
+    setDifficulty(name) {
+        const d = DIFFICULTIES[name];
+        if (!d) return;
+        const M = MinesApp;
+        M.currentDifficulty = name;
+        M.gridWidth = d.width;
+        M.gridHeight = d.height;
+        M.mineCount = d.mines;
+        localStorage.setItem('minesweeperDifficulty', name);
+
+        WindowManager.getWindowInstance('mines')?.updateMenuChecked('Game', name);
+
+        const win = M.win;
+        if (win) {
+            const gridEl = win.querySelector('.mines-grid');
+            const size = gridEl ? parseFloat(getComputedStyle(gridEl).getPropertyValue('--mine-size')) || CELL : CELL;
+            win.style.width = `${d.width * size + 70}px`;
+            win.style.height = `${d.height * size + 170}px`;
         }
-        
-        MinesApp.initGame();
-        SoundManager.play('click');
+        M.initGame();
     },
 
     showBestTimes() {
@@ -125,12 +173,12 @@ export const MinesApp = {
             DialogManager.alert(
                 'How to Play:\n\n' +
                 '• Left-click to reveal a cell\n' +
-                '• Right-click to place/remove a flag\n' +
+                '• Right-click (or long-press on a phone) to flag a mine\n' +
                 '• Numbers show adjacent mines\n' +
+                '• Click a number whose flags are all placed (or middle-click it) to reveal the rest around it\n' +
+                '• Your first click is always safe\n' +
                 '• Clear all non-mine cells to win!\n\n' +
-                'Tips:\n' +
-                '• Use flags to mark suspected mines\n' +
-                '• Click the face to start a new game',
+                'F2 or the face starts a new game.',
                 'How to Play'
             );
         });
@@ -144,281 +192,343 @@ export const MinesApp = {
                     <button class="mines-face" data-action="reset">${Icons.statusSmiley}</button>
                     <div class="mines-timer">000</div>
                 </div>
-                <div class="mines-grid size-9"></div>
+                <div class="mines-grid"></div>
             </div>
         `;
     },
 
     onInit() {
-        MinesApp.initGame();
-        // Set initial checkmark on beginner
-        const windowEl = document.querySelector('#window-mines');
-        if (windowEl) {
-            windowEl.querySelectorAll('.menu-dropdown-item').forEach(item => {
-                const label = item.querySelector('.menu-dropdown-label');
-                if (item.dataset.action === 'beginner' && label && !label.textContent.startsWith('✓')) {
-                    label.textContent = '✓ ' + label.textContent;
-                }
-            });
-        }
+        const M = MinesApp;
+        const win = document.querySelector('#window-mines');
+        if (!win) return;
+        M.win = win;
+
+        win.querySelector('.mines-face')?.addEventListener('click', () => M.initGame());
+
+        const gridEl = win.querySelector('.mines-grid');
+        gridEl.addEventListener('click', (e) => {
+            const pos = M.cellPos(e);
+            if (!pos) return;
+            const cell = M.grid[pos.y][pos.x];
+            if (cell.revealed) M.chord(pos.x, pos.y);
+            else M.revealCell(pos.x, pos.y);
+        });
+        gridEl.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const pos = M.cellPos(e);
+            if (pos) M.flagOnce(pos.x, pos.y);
+        });
+        gridEl.addEventListener('auxclick', (e) => {
+            if (e.button !== 1) return;
+            e.preventDefault();
+            const pos = M.cellPos(e);
+            if (pos) M.chord(pos.x, pos.y);
+        });
+        // Middle click would otherwise start browser auto-scroll
+        gridEl.addEventListener('mousedown', (e) => { if (e.button === 1) e.preventDefault(); });
+
+        // Long press flags on touch screens
+        gridEl.addEventListener('touchstart', (e) => {
+            const pos = M.cellPos(e);
+            if (!pos) return;
+            clearTimeout(M.pressTimer);
+            M.pressTimer = setTimeout(() => {
+                M.pressTimer = 0;
+                M.flagOnce(pos.x, pos.y);
+                M.suppressClick = true;
+            }, LONG_PRESS_MS);
+        }, { passive: true });
+        const cancelPress = () => { clearTimeout(M.pressTimer); M.pressTimer = 0; };
+        gridEl.addEventListener('touchmove', cancelPress, { passive: true });
+        gridEl.addEventListener('touchend', (e) => {
+            cancelPress();
+            if (M.suppressClick) {
+                M.suppressClick = false;
+                e.preventDefault();
+            }
+        });
+
+        M.keyHandler = (e) => {
+            if (e.code !== 'F2' || !M.win?.classList.contains('active') || M.win.classList.contains('minimized')) return;
+            e.preventDefault();
+            M.initGame();
+        };
+        document.addEventListener('keydown', M.keyHandler);
+
+        const saved = localStorage.getItem('minesweeperDifficulty');
+        M.setDifficulty(DIFFICULTIES[saved] ? saved : 'beginner');
+    },
+
+    cellPos(e) {
+        const el = (e.target.closest ? e.target : e.target.parentElement)?.closest('.mine-cell');
+        if (!el) return null;
+        return { x: Number(el.dataset.x), y: Number(el.dataset.y) };
     },
 
     initGame() {
-        const window = document.querySelector('#window-mines');
-        if (!window) return;
-
-        MinesApp.gameOver = false;
-        MinesApp.revealed = 0;
-        MinesApp.flagCount = 0;
-        MinesApp.time = 0;
-        MinesApp.grid = [];
-        
-        clearInterval(MinesApp.timerInterval);
-
-        const gridEl = window.querySelector('.mines-grid');
-        const faceBtn = window.querySelector('.mines-face');
-        const counter = window.querySelector('.mines-counter');
-        const timer = window.querySelector('.mines-timer');
-
+        const M = MinesApp;
+        const win = M.win;
+        const gridEl = win?.querySelector('.mines-grid');
         if (!gridEl) return;
 
-        // Reset face
-            if (faceBtn) faceBtn.innerHTML = Icons.statusSmiley;
-        if (counter) counter.textContent = String(MinesApp.mineCount).padStart(3, '0');
-        if (timer) timer.textContent = '000';
+        clearInterval(M.timerInterval);
+        M.timerInterval = null;
+        M.gameOver = false;
+        M.started = false;
+        M.revealed = 0;
+        M.flagCount = 0;
+        M.time = 0;
 
-        // Initialize grid
-        for (let y = 0; y < MinesApp.gridHeight; y++) {
-            MinesApp.grid[y] = [];
-            for (let x = 0; x < MinesApp.gridWidth; x++) {
-                MinesApp.grid[y][x] = {
-                    mine: false,
-                    revealed: false,
-                    flagged: false,
-                    adjacentMines: 0
-                };
-            }
-        }
+        M.grid = Array.from({ length: M.gridHeight }, () =>
+            Array.from({ length: M.gridWidth }, () => ({ mine: false, revealed: false, flagged: false, adjacentMines: 0 }))
+        );
 
-        // Place mines randomly
-        let minesPlaced = 0;
-        while (minesPlaced < MinesApp.mineCount) {
-            const x = Math.floor(Math.random() * MinesApp.gridWidth);
-            const y = Math.floor(Math.random() * MinesApp.gridHeight);
-            
-            if (!MinesApp.grid[y][x].mine) {
-                MinesApp.grid[y][x].mine = true;
-                minesPlaced++;
-            }
-        }
+        M.setFace(Icons.statusSmiley);
+        M.updateCounter();
+        win.querySelector('.mines-timer').textContent = '000';
 
-        // Calculate adjacent mines
-        for (let y = 0; y < MinesApp.gridHeight; y++) {
-            for (let x = 0; x < MinesApp.gridWidth; x++) {
-                if (!MinesApp.grid[y][x].mine) {
-                    MinesApp.grid[y][x].adjacentMines = MinesApp.countAdjacentMines(x, y);
-                }
-            }
-        }
+        const container = win.querySelector('.mines-container');
+        container.style.setProperty('--cols', M.gridWidth);
+        gridEl.style.gridTemplateColumns = `repeat(${M.gridWidth}, var(--mine-size))`;
 
-        // Render grid
-        gridEl.innerHTML = '';
-        gridEl.style.gridTemplateColumns = `repeat(${MinesApp.gridWidth}, 20px)`;
-        for (let y = 0; y < MinesApp.gridHeight; y++) {
-            for (let x = 0; x < MinesApp.gridWidth; x++) {
+        const frag = document.createDocumentFragment();
+        for (let y = 0; y < M.gridHeight; y++) {
+            for (let x = 0; x < M.gridWidth; x++) {
                 const cell = document.createElement('div');
                 cell.className = 'mine-cell';
                 cell.dataset.x = x;
                 cell.dataset.y = y;
-                
-                cell.addEventListener('click', () => MinesApp.revealCell(x, y));
-                cell.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    MinesApp.toggleFlag(x, y);
-                });
-                
-                gridEl.appendChild(cell);
+                frag.appendChild(cell);
             }
         }
-
-        // Reset button
-        faceBtn?.addEventListener('click', () => MinesApp.initGame());
+        gridEl.replaceChildren(frag);
     },
 
-    countAdjacentMines(x, y) {
-        let count = 0;
-        for (let dy = -1; dy <= 1; dy++) {
-            for (let dx = -1; dx <= 1; dx++) {
-                const nx = x + dx;
-                const ny = y + dy;
-                if (nx >= 0 && nx < MinesApp.gridWidth && 
-                    ny >= 0 && ny < MinesApp.gridHeight) {
-                    if (MinesApp.grid[ny][nx].mine) count++;
-                }
+    // Mines are placed on the first click, so it can never hit one (nor its neighbours)
+    placeMines(safeX, safeY) {
+        const M = MinesApp;
+        let placed = 0;
+        while (placed < M.mineCount) {
+            const x = Math.floor(Math.random() * M.gridWidth);
+            const y = Math.floor(Math.random() * M.gridHeight);
+            if (Math.abs(x - safeX) <= 1 && Math.abs(y - safeY) <= 1) continue;
+            if (M.grid[y][x].mine) continue;
+            M.grid[y][x].mine = true;
+            placed++;
+        }
+        for (let y = 0; y < M.gridHeight; y++) {
+            for (let x = 0; x < M.gridWidth; x++) {
+                M.grid[y][x].adjacentMines = M.neighbours(x, y).filter(([nx, ny]) => M.grid[ny][nx].mine).length;
             }
         }
-        return count;
+    },
+
+    neighbours(x, y) {
+        const out = [];
+        for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+                if (!dx && !dy) continue;
+                const nx = x + dx;
+                const ny = y + dy;
+                if (nx >= 0 && nx < MinesApp.gridWidth && ny >= 0 && ny < MinesApp.gridHeight) out.push([nx, ny]);
+            }
+        }
+        return out;
     },
 
     revealCell(x, y) {
-        if (MinesApp.gameOver) return;
-        
-        const cell = MinesApp.grid[y]?.[x];
-        if (!cell || cell.revealed || cell.flagged) return;
+        const M = MinesApp;
+        if (M.gameOver) return;
+        const first = M.grid[y]?.[x];
+        if (!first || first.revealed || first.flagged) return;
 
-        // Start timer on first click
-        if (MinesApp.revealed === 0) {
-            MinesApp.startTimer();
+        if (!M.started) {
+            M.started = true;
+            M.placeMines(x, y);
+            M.startTimer();
         }
 
-        cell.revealed = true;
-        MinesApp.revealed++;
+        const stack = [[x, y]];
+        let hit = null;
+        while (stack.length) {
+            const [cx, cy] = stack.pop();
+            const cell = M.grid[cy][cx];
+            if (cell.revealed || cell.flagged) continue;
+            cell.revealed = true;
+            M.revealed++;
+            M.paint(cx, cy);
+            if (cell.mine) {
+                hit = [cx, cy];
+                continue;
+            }
+            if (cell.adjacentMines === 0) M.neighbours(cx, cy).forEach((n) => stack.push(n));
+        }
 
-        const cellEl = MinesApp.getCellElement(x, y);
-        cellEl?.classList.add('revealed');
-
-        if (cell.mine) {
-            // Game over - hit mine
-            MinesApp.gameOver = true;
-            cellEl?.classList.add('mine');
-            MinesApp.revealAllMines();
-            MinesApp.setFace(Icons.statusDead);
-            SoundManager.play('error');
-            clearInterval(MinesApp.timerInterval);
-            
-            setTimeout(() => {
-                MinesApp.showGameOverDialog(false);
-            }, 500);
+        if (hit) {
+            M.lose(hit[0], hit[1]);
             return;
         }
+        if (M.revealed === M.gridWidth * M.gridHeight - M.mineCount) M.win_();
+    },
 
-        // Show number or empty
-        if (cell.adjacentMines > 0) {
-            cellEl.textContent = cell.adjacentMines;
-            cellEl.dataset.value = cell.adjacentMines;
-        } else {
-            // Reveal adjacent cells for empty cell
-            for (let dy = -1; dy <= 1; dy++) {
-                for (let dx = -1; dx <= 1; dx++) {
-                    MinesApp.revealCell(x + dx, y + dy);
-                }
-            }
-        }
+    // Reveal around a number once the right amount of flags is around it
+    chord(x, y) {
+        const M = MinesApp;
+        if (M.gameOver) return;
+        const cell = M.grid[y]?.[x];
+        if (!cell || !cell.revealed || cell.adjacentMines === 0) return;
+        const around = M.neighbours(x, y);
+        const flags = around.filter(([nx, ny]) => M.grid[ny][nx].flagged).length;
+        if (flags !== cell.adjacentMines) return;
+        around.forEach(([nx, ny]) => M.revealCell(nx, ny));
+    },
 
-        // Check win condition
-        const totalSafe = (MinesApp.gridWidth * MinesApp.gridHeight) - MinesApp.mineCount;
-        if (MinesApp.revealed === totalSafe) {
-            MinesApp.gameOver = true;
-            MinesApp.setFace(Icons.statusCool);
-            SoundManager.play('chord');
-            clearInterval(MinesApp.timerInterval);
-            
-            setTimeout(() => {
-                MinesApp.showGameOverDialog(true);
-            }, 500);
-        }
+    // Touch long-press and the contextmenu event can both fire, flag only once
+    flagOnce(x, y) {
+        const now = Date.now();
+        if (now - MinesApp.flagStamp < 700) return;
+        MinesApp.flagStamp = now;
+        MinesApp.toggleFlag(x, y);
     },
 
     toggleFlag(x, y) {
-        if (MinesApp.gameOver) return;
-        
-        const cell = MinesApp.grid[y]?.[x];
+        const M = MinesApp;
+        if (M.gameOver) return;
+        const cell = M.grid[y]?.[x];
         if (!cell || cell.revealed) return;
 
         cell.flagged = !cell.flagged;
-        MinesApp.flagCount += cell.flagged ? 1 : -1;
-
-        const cellEl = MinesApp.getCellElement(x, y);
-        cellEl?.classList.toggle('flagged', cell.flagged);
-
-        // Update counter
-        const counter = document.querySelector('#window-mines .mines-counter');
-        if (counter) {
-            const remaining = MinesApp.mineCount - MinesApp.flagCount;
-            counter.textContent = String(Math.max(0, remaining)).padStart(3, '0');
-        }
-
+        M.flagCount += cell.flagged ? 1 : -1;
+        M.paint(x, y);
+        M.updateCounter();
         SoundManager.play('click');
     },
 
-    getCellElement(x, y) {
-        return document.querySelector(`#window-mines .mine-cell[data-x="${x}"][data-y="${y}"]`);
-    },
+    lose(hitX, hitY) {
+        const M = MinesApp;
+        M.gameOver = true;
+        clearInterval(M.timerInterval);
+        M.timerInterval = null;
 
-    setFace(icon) {
-        const face = document.querySelector('#window-mines .mines-face');
-        if (face) face.innerHTML = icon;
-    },
-
-    revealAllMines() {
-        for (let y = 0; y < MinesApp.gridSize; y++) {
-            for (let x = 0; x < MinesApp.gridSize; x++) {
-                if (MinesApp.grid[y][x].mine) {
-                    const cellEl = MinesApp.getCellElement(x, y);
-                    cellEl?.classList.add('revealed', 'mine');
+        for (let y = 0; y < M.gridHeight; y++) {
+            for (let x = 0; x < M.gridWidth; x++) {
+                const cell = M.grid[y][x];
+                if (cell.mine && !cell.flagged) {
+                    cell.revealed = true;
+                    M.paint(x, y);
+                } else if (!cell.mine && cell.flagged) {
+                    M.paint(x, y, true);
                 }
             }
         }
+        M.getCellElement(hitX, hitY)?.classList.add('boom');
+        M.setFace(Icons.statusDead);
+        SoundManager.play('error');
+    },
+
+    win_() {
+        const M = MinesApp;
+        M.gameOver = true;
+        clearInterval(M.timerInterval);
+        M.timerInterval = null;
+
+        // Flag whatever mines are left, like the original
+        for (let y = 0; y < M.gridHeight; y++) {
+            for (let x = 0; x < M.gridWidth; x++) {
+                const cell = M.grid[y][x];
+                if (cell.mine && !cell.flagged) {
+                    cell.flagged = true;
+                    M.paint(x, y);
+                }
+            }
+        }
+        M.flagCount = M.mineCount;
+        M.updateCounter();
+        M.setFace(Icons.statusCool);
+        SoundManager.play('chord');
+
+        const times = JSON.parse(localStorage.getItem('minesweeperBestTimes') || '{}');
+        const best = times[M.currentDifficulty];
+        const record = !best || M.time < best;
+        if (record) {
+            times[M.currentDifficulty] = M.time;
+            localStorage.setItem('minesweeperBestTimes', JSON.stringify(times));
+        }
+
+        const game = `mines-${M.currentDifficulty}`;
+        const time = M.time;
+        setTimeout(() => {
+            import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
+                DialogManager.alert(
+                    `You won in ${time} seconds!${record ? ' New best time!' : ''}\n\nSecret code: WIN31-${time}`,
+                    'Congratulations!'
+                ).then(() => Leaderboard.offer(game, time));
+            });
+        }, 600);
+    },
+
+    // Redraw one cell from its state
+    paint(x, y, wrongFlag = false) {
+        const M = MinesApp;
+        const el = M.getCellElement(x, y);
+        const cell = M.grid[y]?.[x];
+        if (!el || !cell) return;
+
+        el.className = 'mine-cell';
+        el.removeAttribute('data-value');
+        el.replaceChildren();
+
+        if (wrongFlag) {
+            el.classList.add('revealed', 'wrong');
+            el.insertAdjacentHTML('beforeend', WRONG_SVG);
+        } else if (cell.revealed) {
+            el.classList.add('revealed');
+            if (cell.mine) {
+                el.classList.add('mine');
+                el.insertAdjacentHTML('beforeend', MINE_SVG);
+            } else if (cell.adjacentMines > 0) {
+                el.textContent = cell.adjacentMines;
+                el.dataset.value = cell.adjacentMines;
+            }
+        } else if (cell.flagged) {
+            el.classList.add('flagged');
+            el.insertAdjacentHTML('beforeend', FLAG_SVG);
+        }
+    },
+
+    getCellElement(x, y) {
+        return MinesApp.win?.querySelector(`.mine-cell[data-x="${x}"][data-y="${y}"]`);
+    },
+
+    setFace(icon) {
+        const face = MinesApp.win?.querySelector('.mines-face');
+        if (!face) return;
+        face.replaceChildren();
+        face.insertAdjacentHTML('beforeend', icon);
+    },
+
+    updateCounter() {
+        const counter = MinesApp.win?.querySelector('.mines-counter');
+        if (counter) counter.textContent = counterText(MinesApp.mineCount - MinesApp.flagCount);
     },
 
     startTimer() {
-        MinesApp.timerInterval = setInterval(() => {
-            MinesApp.time++;
-            const timer = document.querySelector('#window-mines .mines-timer');
-            if (timer) {
-                timer.textContent = String(Math.min(999, MinesApp.time)).padStart(3, '0');
-            }
+        const M = MinesApp;
+        clearInterval(M.timerInterval);
+        M.timerInterval = setInterval(() => {
+            M.time++;
+            const timer = M.win?.querySelector('.mines-timer');
+            if (timer) timer.textContent = counterText(M.time);
         }, 1000);
     },
 
-    showGameOverDialog(won) {
-        if (won) {
-            // Save best time
-            const times = JSON.parse(localStorage.getItem('minesweeperBestTimes') || '{}');
-            const currentBest = times[MinesApp.currentDifficulty];
-            if (!currentBest || MinesApp.time < currentBest) {
-                times[MinesApp.currentDifficulty] = MinesApp.time;
-                localStorage.setItem('minesweeperBestTimes', JSON.stringify(times));
-            }
-        }
-
-        const overlay = document.createElement('div');
-        overlay.className = 'dialog-overlay';
-        overlay.innerHTML = `
-            <div class="dialog-box">
-                <div class="dialog-title-bar">
-                    <span class="dialog-title-text">${won ? 'Congratulations!' : 'Game Over'}</span>
-                    <button class="dialog-close-btn" data-action="close">×</button>
-                </div>
-                <div class="dialog-content">
-                    <div class="dialog-icon-text">
-                        <span class="dialog-question-icon">${won ? Icons.statusTrophy : Icons.statusBomb}</span>
-                        <div class="dialog-message">
-                            ${won 
-                                ? `You won in ${MinesApp.time} seconds!<br><br>Secret code: WIN31-${MinesApp.time}` 
-                                : 'You hit a mine!<br><br>Better luck next time.'}
-                        </div>
-                    </div>
-                </div>
-                <div class="dialog-buttons">
-                    <button class="win-btn primary" data-action="ok">Play Again</button>
-                </div>
-            </div>
-        `;
-
-        overlay.querySelectorAll('[data-action]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                overlay.remove();
-                MinesApp.initGame();
-            });
-        });
-
-        document.body.appendChild(overlay);
-        SoundManager.play(won ? 'chord' : 'error');
-    },
-
     onClose() {
-        clearInterval(MinesApp.timerInterval);
+        const M = MinesApp;
+        clearInterval(M.timerInterval);
+        M.timerInterval = null;
+        clearTimeout(M.pressTimer);
+        document.removeEventListener('keydown', M.keyHandler);
+        M.win = null;
     }
 };
 

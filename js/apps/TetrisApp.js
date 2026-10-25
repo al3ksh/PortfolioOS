@@ -6,6 +6,7 @@
 
 import { Icons } from '../icons.js?v=15';
 import { SoundManager } from '../managers/SoundManager.js?v=15';
+import { Leaderboard } from '../leaderboard.js?v=15';
 
 const COLS = 10;
 const VISIBLE = 20;
@@ -123,6 +124,8 @@ export const TetrisApp = {
             { label: 'New Game', action: 'newGame', shortcut: 'F2' },
             { label: 'Pause', action: 'pause', shortcut: 'P' },
             { divider: true },
+            { label: 'Leaderboard...', action: 'leaderboard' },
+            { divider: true },
             { label: 'Exit', action: 'close', shortcut: 'Alt+F4' }
         ],
         'Help': [
@@ -139,6 +142,9 @@ export const TetrisApp = {
                 break;
             case 'pause':
                 TetrisApp.togglePause();
+                break;
+            case 'leaderboard':
+                Leaderboard.show('tetris');
                 break;
             case 'howToPlay':
                 import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
@@ -735,6 +741,7 @@ export const TetrisApp = {
             <p>Level: ${T.level}</p>
             <p>Press SPACE to play again</p>
         `);
+        Leaderboard.offer('tetris', T.score, () => T.gameOver);
     },
 
     showOverlay(html) {

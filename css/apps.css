@@ -420,33 +420,43 @@
    ============================================ */
 
 .mines-container {
+    --mine-size: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: var(--space-md);
-    overflow: hidden;
+    overflow: auto;
 }
 
 .mines-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
-    max-width: 200px;
+    box-sizing: border-box;
+    width: calc(var(--cols, 9) * var(--mine-size) + 6px);
     margin-bottom: var(--space-md);
-    padding: var(--space-sm);
-    background: var(--win-black);
+    padding: 4px;
+    background: var(--win-gray);
+    border: 2px solid var(--win-white);
+    border-top-color: var(--win-dark-gray);
+    border-left-color: var(--win-dark-gray);
 }
 
 .mines-counter,
 .mines-timer {
     font-family: var(--font-mono);
-    font-size: var(--font-size-lg);
-    color: var(--accent-red);
-    background: var(--accent-red);
-    padding: 2px 6px;
-    min-width: 45px;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1;
+    letter-spacing: 2px;
+    color: #FF0000;
+    background: #000000;
+    padding: 3px 4px;
+    min-width: 44px;
     text-align: center;
+    border: 1px solid var(--win-white);
+    border-top-color: var(--win-dark-gray);
+    border-left-color: var(--win-dark-gray);
 }
 
 .mines-face {
@@ -473,67 +483,70 @@
 .mines-grid {
     display: grid;
     gap: 0;
-    border: 3px solid var(--win-dark-gray);
+    border: 3px solid var(--win-white);
     border-top-color: var(--win-shadow);
     border-left-color: var(--win-shadow);
-}
-
-.mines-grid.size-9 {
-    grid-template-columns: repeat(9, 20px);
-}
-
-.mines-grid.size-16 {
-    grid-template-columns: repeat(16, 20px);
-}
-
-.mines-grid.size-30 {
-    grid-template-columns: repeat(30, 20px);
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
 }
 
 .mine-cell {
-    width: 20px;
-    height: 20px;
+    box-sizing: border-box;
+    width: var(--mine-size);
+    height: var(--mine-size);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-family: var(--font-mono);
+    font-size: 13px;
     font-weight: bold;
+    line-height: 1;
     cursor: pointer;
-    
+
     background: var(--win-gray);
     border: var(--border-normal) solid var(--win-dark-gray);
     border-top-color: var(--win-white);
     border-left-color: var(--win-white);
 }
 
+/* Unopened cells sink while pressed */
+.mine-cell:not(.revealed):not(.flagged):active,
 .mine-cell.revealed {
     border: 1px solid var(--win-dark-gray);
-    background: var(--win-gray);
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+}
+
+.mine-cell.revealed {
     cursor: default;
 }
 
-.mine-cell.flagged::after {
-    content: '🚩';
-    font-size: 12px;
+.mine-cell svg {
+    width: 70%;
+    height: 70%;
+    display: block;
+    pointer-events: none;
 }
 
-.mine-cell.mine.revealed {
-    background: var(--accent-red);
-    opacity: 0.3;
-}
-
-.mine-cell.mine.revealed::after {
-    content: '💣';
+.mine-cell.boom {
+    background: #FF0000;
 }
 
 .mine-cell[data-value="1"] { color: #0000FF; }
 .mine-cell[data-value="2"] { color: #008000; }
 .mine-cell[data-value="3"] { color: #FF0000; }
-.mine-cell[data-value="4"] {     color: var(--simple-accent); }
+.mine-cell[data-value="4"] { color: #000080; }
 .mine-cell[data-value="5"] { color: #800000; }
 .mine-cell[data-value="6"] { color: #008080; }
 .mine-cell[data-value="7"] { color: #000000; }
 .mine-cell[data-value="8"] { color: #808080; }
+
+@media (pointer: coarse) {
+    .mines-container {
+        --mine-size: 26px;
+    }
+}
 
 /* ============================================
    TUNES APP (SPOTIFY PLAYER)
@@ -993,10 +1006,10 @@
    ============================================ */
 
 .readme-content {
-    font-family: var(--font-mono);
-    font-size: var(--font-size-sm);
-    line-height: 1.8;
-    padding: var(--space-md);
+    font-family: var(--font-main);
+    font-size: var(--font-size-base);
+    line-height: 1.5;
+    padding: var(--space-md) var(--space-lg) var(--space-lg);
     background: var(--content-bg);
     color: var(--content-text);
     min-height: 200px;
@@ -1009,20 +1022,173 @@
 }
 
 .readme-content p {
+    margin: 0 0 var(--space-sm);
+}
+
+.rm-hero {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--win-blue);
+    color: var(--win-text-white);
+}
+
+.rm-hero h2 {
+    margin: 0;
+    font-size: var(--font-size-xl);
+    letter-spacing: 1px;
+}
+
+.rm-hero p {
+    margin: 2px 0 0;
+    font-size: var(--font-size-sm);
+}
+
+.rm-hero-icon svg {
+    display: block;
+    width: 44px;
+    height: 44px;
+}
+
+.rm-tip {
+    margin: var(--space-sm) 0 0;
+    color: var(--content-dim);
+    font-size: var(--font-size-sm);
+}
+
+.rm-section h3 {
+    margin: var(--space-lg) 0 var(--space-sm);
+    padding-bottom: 3px;
+    font-size: var(--font-size-lg);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--win-dark-gray);
+    box-shadow: 0 1px 0 var(--win-white);
+}
+
+.rm-section h4 {
+    margin: var(--space-md) 0 var(--space-xs);
+    font-size: var(--font-size-sm);
+    color: var(--content-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.rm-list {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 4px var(--space-md);
+    margin: 0 0 var(--space-sm);
+}
+
+.rm-list dt {
+    font-weight: bold;
+}
+
+.rm-list dd {
+    margin: 0;
+}
+
+.rm-apps {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--space-xs);
+}
+
+.rm-app {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    column-gap: var(--space-sm);
+    align-items: center;
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--win-gray);
+    color: var(--win-black);
+    border: var(--border-normal) solid var(--win-white);
+    border-right-color: var(--win-shadow);
+    border-bottom-color: var(--win-shadow);
+}
+
+.rm-app-icon {
+    grid-row: span 2;
+}
+
+.rm-app-icon svg {
+    display: block;
+    width: 26px;
+    height: 26px;
+}
+
+.rm-app-name {
+    font-family: var(--font-mono);
+    font-weight: bold;
+    font-size: var(--font-size-sm);
+}
+
+.rm-app-desc {
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+.readme-content .rm-note {
+    margin-top: var(--space-sm);
+    color: var(--content-dim);
+    font-size: var(--font-size-sm);
+}
+
+.rm-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
     margin-bottom: var(--space-sm);
 }
 
-.readme-content .highlight {
-    background: var(--win-blue);
-    color: var(--win-text-white);
-    padding: 0 4px;
+.rm-chip {
+    padding: 1px var(--space-sm);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    background: var(--win-light-gray);
+    color: var(--win-black);
+    border: var(--border-normal) solid var(--win-shadow);
+    border-right-color: var(--win-white);
+    border-bottom-color: var(--win-white);
+}
+
+.readme-content kbd {
+    display: inline-block;
+    min-width: 18px;
+    padding: 0 6px;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    text-align: center;
+    background: var(--win-gray);
+    color: var(--win-black);
+    border: var(--border-normal) solid var(--win-white);
+    border-right-color: var(--win-shadow);
+    border-bottom-color: var(--win-shadow);
+}
+
+.rm-keys dt {
+    white-space: nowrap;
+}
+
+.rm-footer {
+    margin-top: var(--space-lg);
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--win-dark-gray);
+    color: var(--content-dim);
+    font-size: var(--font-size-sm);
+    text-align: center;
+}
+
+.rm-footer a {
+    color: inherit;
 }
 
 /* README Spoiler Section */
 .readme-spoiler {
-    margin: var(--space-md) 0;
+    margin: var(--space-lg) 0 0;
     border: 2px dashed var(--win-dark-gray);
-    background: var(--win-light-gray);
 }
 
 .readme-spoiler summary {
@@ -1030,27 +1196,33 @@
     cursor: pointer;
     font-weight: bold;
     background: var(--win-gray);
-    border-bottom: 1px solid var(--win-dark-gray);
+    color: var(--win-black);
     user-select: none;
 }
 
-.readme-spoiler summary:hover {
-    background: var(--win-blue);
-    color: var(--win-white);
-}
-
+.readme-spoiler summary:hover,
 .readme-spoiler[open] summary {
     background: var(--win-blue);
-    color: var(--win-white);
+    color: var(--win-text-white);
 }
 
 .readme-spoiler .spoiler-content {
-    padding: var(--space-sm) var(--space-md);
-    background: var(--win-white);
+    padding: var(--space-md);
 }
 
-.readme-spoiler .spoiler-content p {
-    margin-bottom: 2px;
+@media (max-width: 620px) {
+    .readme-content {
+        padding: var(--space-sm) var(--space-md) var(--space-md);
+    }
+
+    .rm-list {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .rm-list dd {
+        margin-bottom: var(--space-sm);
+    }
 }
 
 /* ============================================
@@ -2175,6 +2347,7 @@
     display: block;
     background: var(--canvas-grid);
     touch-action: none;
+    image-rendering: pixelated;
 }
 
 .snake-overlay {
@@ -2199,6 +2372,15 @@
 .snake-message p {
     margin: 5px 0;
     color: var(--accent-green);
+}
+
+.snake-message p.snake-hint {
+    font-size: 11px;
+    color: #aaa;
+}
+
+.snake-overlay {
+    cursor: pointer;
 }
 
 .snake-controls {
@@ -3125,28 +3307,6 @@
 
     /* Notepad */
     .notepad-textarea {
-        background: var(--content-bg);
-        color: var(--content-text);
-    }
-
-    /* README */
-    .readme-content {
-        background: var(--content-bg);
-        color: var(--content-text);
-    }
-
-    .readme-spoiler {
-        border-color: var(--win-dark-gray);
-        background: var(--win-gray);
-    }
-
-    .readme-spoiler summary {
-        background: var(--win-gray);
-        color: var(--content-text);
-        border-color: var(--win-dark-gray);
-    }
-
-    .readme-spoiler .spoiler-content {
         background: var(--content-bg);
         color: var(--content-text);
     }
@@ -4154,3 +4314,18 @@
     .retro-marquee span, .retro-title { animation: none; }
     .retro-marquee span { padding-left: 0; }
 }
+
+/* Game leaderboards (dialogs) */
+.lb-box { display: flex; flex-direction: column; gap: var(--space-sm); min-width: 280px; max-width: 360px; max-height: calc(100vh - 200px); min-height: 0; overflow-y: auto; }
+.lb-box p { margin: 0; line-height: 1.4; }
+.lb-empty { text-align: center; padding: var(--space-md) 0; }
+.lb-error { color: #C00000; font-weight: bold; }
+.lb-turnstile { min-height: 65px; display: flex; justify-content: center; }
+.lb-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 12px; background: var(--win-white); color: #000; border: 2px inset var(--win-gray); }
+.lb-table td { padding: 3px 6px; border-bottom: 1px solid #D0D0D0; white-space: nowrap; }
+.lb-rank { width: 28px; text-align: right; }
+.lb-name { width: 100%; max-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: bold; }
+.lb-score { text-align: right; }
+.lb-date { color: #606060; font-size: 11px; }
+.lb-mine td { background: #000080; color: #FFF; }
+.lb-mine .lb-date { color: #C0C0C0; }
