@@ -10,10 +10,10 @@ import { SoundManager } from './managers/SoundManager.js?v=15';
 const BOARDS = {
     'snake-solid': { title: 'Snake - Solid walls', unit: '' },
     'snake-wrap': { title: 'Snake - Wrap-around', unit: '' },
-    'mines-beginner': { title: 'Minesweeper - Beginner', unit: 's' },
-    'mines-intermediate': { title: 'Minesweeper - Intermediate', unit: 's' },
-    'mines-expert': { title: 'Minesweeper - Expert', unit: 's' },
-    'tetris': { title: 'Tetris', unit: '' }
+    'mines-beginner': { title: 'Mines - Beginner', unit: 's' },
+    'mines-intermediate': { title: 'Mines - Intermediate', unit: 's' },
+    'mines-expert': { title: 'Mines - Expert', unit: 's' },
+    'tetris': { title: 'Blocks', unit: '' }
 };
 
 const NAME_KEY = 'leaderboardName';

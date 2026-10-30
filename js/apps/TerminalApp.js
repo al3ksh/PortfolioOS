@@ -7,6 +7,69 @@ import { WindowManager } from '../managers/WindowManager.js?v=15';
 import { SoundManager } from '../managers/SoundManager.js?v=15';
 import { Profile, githubUrl } from '../config.js?v=15';
 
+const SEP = '\\';
+const ROOT = `C:${SEP}`;
+const FILE_DATE = '01-31-26  12:00a';
+
+const dosName = name => name.toUpperCase().replace(/[^A-Z0-9._-]+/g, '_');
+const file = (size, content, extra = {}) => ({ type: 'file', size, content, ...extra });
+const folder = children => ({ type: 'dir', children });
+
+/** Small virtual disk built from the profile, so cd/dir/type/tree agree with each other. */
+function buildDisk() {
+    const projects = {};
+    Profile.projects.forEach(project => {
+        const text = [project.description, project.tech || project.language, project.url].filter(Boolean).join('\n');
+        projects[`${dosName(project.name)}.URL`] = file(text.length, text, { url: project.url });
+    });
+    const skills = {};
+    Profile.skills.forEach(skill => {
+        skills[`${dosName(skill)}.SKL`] = file(64, `Skill: ${skill}`);
+    });
+    return folder({
+        PORTFOLIO: folder({
+            PROJECTS: folder(projects),
+            SKILLS: folder(skills),
+            'README.TXT': file(1337, `${Profile.name}\nPortfolio built as a desktop. Projects are in the PROJECTS folder,\ntype HELP to see what this terminal can do.`),
+            'RESUME.PDF': file(42069, 'Binary file. Use Download CV in Portfolio.exe to get it.'),
+            'SECRET.DAT': file(0, 'Nothing in here. The Konami code might do something though.', { hidden: true })
+        }),
+        WINDOWS: folder({ 'WIN.INI': file(512, '[windows]\nload=\nrun=') }),
+        'AUTOEXEC.BAT': file(128, '@ECHO OFF\nPROMPT $p$g\nPATH C:\\PORTFOLIO'),
+        'CONFIG.SYS': file(96, 'DEVICE=C:\\WINDOWS\\HIMEM.SYS\nFILES=40')
+    });
+}
+
+const ALIASES = { ls: 'dir', cat: 'type', pwd: 'cd', man: 'help', '?': 'help' };
+
+const splitPath = text => text.replace(/[/]/g, SEP).split(SEP).filter(Boolean);
+const matchChild = (node, name) => Object.keys(node.children).find(key => key.toUpperCase() === name.toUpperCase());
+
+/** Resolve a DOS-style path against the current directory. Returns { node, parts } or null. */
+function resolvePath(disk, cwd, input) {
+    const raw = (input || '').trim().replace(/[/]/g, SEP);
+    const absolute = /^([a-z]:)?[\\]/i.test(raw) || /^[a-z]:$/i.test(raw);
+    const parts = absolute ? [] : splitPath(cwd.slice(ROOT.length));
+    for (const segment of splitPath(raw.replace(/^[a-z]:/i, ''))) {
+        if (segment === '.') continue;
+        if (segment === '..') parts.pop();
+        else parts.push(segment);
+    }
+    let node = disk;
+    const real = [];
+    for (const segment of parts) {
+        if (node.type !== 'dir') return null;
+        const key = matchChild(node, segment);
+        if (!key) return null;
+        node = node.children[key];
+        real.push(key);
+    }
+    return { node, parts: real };
+}
+
+const pathOf = parts => ROOT + parts.join(SEP);
+const pad = (text, width) => String(text).padEnd(width, ' ');
+
 export const TerminalApp = {
     id: 'terminal',
     title: 'Command Prompt',
@@ -37,6 +100,7 @@ export const TerminalApp = {
   ver       - Show OS version
   cd        - Change directory
   type      - Display file contents
+  tree      - Show the folder tree
   color     - Change text color
   matrix    - ???
   bios      - Reboot into BIOS setup
@@ -45,21 +109,54 @@ export const TerminalApp = {
   ping girlfriend - Test your luck
   sl        - Steam locomotive
   fortune   - Print a random fortune
-  exit      - Close terminal`,
+  exit      - Close terminal
 
-        dir: (app) => `
- Volume in drive C is PORTFOLIO
- Directory of ${app.currentDir}
+Tips: Tab completes, Up/Down browse history, Ctrl+L clears, Ctrl+C cancels.
+Aliases: ls = dir, cat = type, pwd = cd, man = help`,
 
-.              <DIR>         01-31-26  12:00a
-..             <DIR>         01-31-26  12:00a
-PROJECTS       <DIR>         01-31-26  12:00a
-SKILLS         <DIR>         01-31-26  12:00a
-README.TXT          1,337    01-31-26  12:00a
-RESUME.PDF         42,069    01-31-26  12:00a
-SECRET.DAT            ???    ??-??-??  ??:??a
-        3 file(s)         43,406 bytes
-        3 dir(s)     640,000 bytes free`,
+        dir: (app, args) => {
+            const target = app.resolve(args.find(arg => !arg.startsWith('-')) || '');
+            if (!target) return 'File Not Found';
+            if (target.node.type === 'file') {
+                const name = target.parts[target.parts.length - 1];
+                return `\n Directory of ${pathOf(target.parts.slice(0, -1))}\n\n${pad(name, 18)}${target.node.size.toLocaleString('en-US').padStart(10)}    ${FILE_DATE}`;
+            }
+            const entries = Object.entries(target.node.children);
+            const byName = ([a], [b]) => a.localeCompare(b);
+            const dirs = entries.filter(([, node]) => node.type === 'dir').sort(byName);
+            const files = entries.filter(([, node]) => node.type === 'file').sort(byName);
+            const lines = ['', ' Volume in drive C is PORTFOLIO', ` Directory of ${pathOf(target.parts)}`, ''];
+            if (target.parts.length) {
+                lines.push(`${pad('.', 18)}<DIR>         ${FILE_DATE}`, `${pad('..', 18)}<DIR>         ${FILE_DATE}`);
+            }
+            dirs.forEach(([name]) => lines.push(`${pad(name, 18)}<DIR>         ${FILE_DATE}`));
+            files.forEach(([name, node]) => {
+                const size = node.hidden ? '???' : node.size.toLocaleString('en-US');
+                lines.push(`${pad(name, 18)}${size.padStart(10)}    ${node.hidden ? '??-??-??  ??:??a' : FILE_DATE}`);
+            });
+            const total = files.reduce((sum, [, node]) => sum + node.size, 0);
+            lines.push(`${String(files.length).padStart(9)} file(s) ${total.toLocaleString('en-US').padStart(14)} bytes`);
+            lines.push(`${String(dirs.length).padStart(9)} dir(s)  ${'640,000'.padStart(14)} bytes free`);
+            return lines.join('\n');
+        },
+
+        tree: (app, args) => {
+            const target = app.resolve(args.find(arg => !arg.startsWith('-')) || '');
+            if (!target || target.node.type !== 'dir') return 'Invalid path';
+            const lines = [pathOf(target.parts)];
+            const walk = (node, prefix) => {
+                const kids = node.children;
+                const names = Object.keys(kids).filter(name => !kids[name].hidden)
+                    .sort((a, b) => (kids[b].type === 'dir') - (kids[a].type === 'dir') || a.localeCompare(b));
+                names.forEach((name, index) => {
+                    const last = index === names.length - 1;
+                    lines.push(`${prefix}${last ? '\\---' : '+---'}${name}`);
+                    if (kids[name].type === 'dir') walk(kids[name], `${prefix}${last ? '    ' : '|   '}`);
+                });
+            };
+            walk(target.node, '');
+            return lines.join('\n');
+        },
 
         neofetch: () => {
             const cores = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} cores` : 'cores not reported';
@@ -103,29 +200,20 @@ Portfolio OS [Version 1.0.2026]
 (c) 2026 Portfolio Corporation. All rights reserved.`,
 
         cd: (app, args) => {
-            if (!args[0]) return app.currentDir;
-            if (args[0] === '..') {
-                app.currentDir = 'C:\\';
-            } else if (args[0].toUpperCase() === 'PROJECTS') {
-                app.currentDir = 'C:\\PORTFOLIO\\PROJECTS';
-            } else if (args[0].toUpperCase() === 'SKILLS') {
-                app.currentDir = 'C:\\PORTFOLIO\\SKILLS';
-            } else {
-                return `The system cannot find the path specified.`;
-            }
+            if (!args.length) return app.currentDir;
+            const target = app.resolve(args.join(' '));
+            if (!target) return 'The system cannot find the path specified.';
+            if (target.node.type !== 'dir') return 'The directory name is invalid.';
+            app.currentDir = pathOf(target.parts);
             return '';
         },
 
         type: (app, args) => {
-            const file = (args[0] || '').toUpperCase();
-            if (file === 'README.TXT') {
-                return `Welcome to my Portfolio OS!
-I'm a Full-Stack Developer passionate about creating
-amazing web experiences. Check out my projects!`;
-            } else if (file === 'SECRET.DAT') {
-                return `ACCESS DENIED - Try the Konami Code! ;)`;
-            }
-            return `File not found - ${args[0] || '(no file specified)'}`;
+            if (!args.length) return 'The syntax of the command is incorrect.';
+            const target = app.resolve(args.join(' '));
+            if (!target) return `File not found - ${args.join(' ')}`;
+            if (target.node.type === 'dir') return 'Access is denied.';
+            return target.node.content;
         },
 
         color: (app, args) => {
@@ -167,11 +255,22 @@ amazing web experiences. Check out my projects!`;
             return 'Goodbye!';
         },
 
+        doom: async () => {
+            try {
+                const { playDoomIntro } = await import('../doomIntro.js?v=15');
+                playDoomIntro(() => document.querySelector('#window-terminal #terminalInput')?.focus());
+            } catch (err) {
+                console.error('DOOM failed to load:', err);
+                return 'Bad command or file name.';
+            }
+            return 'DOS/4GW Protected Mode Run-time  Version 1.97';
+        },
+
         // Easter eggs
         sudo: (app, args) => args.join(' ').toLowerCase().includes('rm -rf')
             ? 'Permission denied: PortfolioOS protects the root directory.'
-            : 'Nice try, but this is Windows!',
-        rm: () => 'This is not Linux! Use DEL instead... just kidding, don\'t delete anything!',
+            : 'Nice try, but this is PortfolioOS!',
+        rm: () => 'No rm here! Use DEL instead... just kidding, don\'t delete anything!',
         hack: (app, args) => args.join(' ').toLowerCase() === 'nasa'
             ? 'Connecting to NASA... ACCESS DENIED. Try building something first.'
             : 'HACKING THE MAINFRAME... just kidding, that\'s not how it works!',
@@ -295,7 +394,11 @@ Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
         
         input?.focus();
 
+        let lastTab = '';
+        const scrollDown = () => { output.scrollTop = output.scrollHeight; };
+
         input?.addEventListener('keydown', (e) => {
+            if (e.key !== 'Tab') lastTab = '';
             if (e.key === 'Enter') {
                 const cmd = input.value.trim();
                 if (cmd) {
@@ -304,6 +407,25 @@ Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
                     TerminalApp.executeCommand(cmd, output, input);
                 }
                 input.value = '';
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                const { value, options } = TerminalApp.complete(input.value);
+                input.value = value;
+                if (options.length > 1) {
+                    if (lastTab === value) {
+                        TerminalApp.addLine(output, options.join('  '));
+                        scrollDown();
+                    }
+                    lastTab = value;
+                }
+            } else if (e.ctrlKey && e.key.toLowerCase() === 'l') {
+                e.preventDefault();
+                output.innerHTML = '';
+            } else if (e.ctrlKey && e.key.toLowerCase() === 'c' && input.selectionStart === input.selectionEnd) {
+                e.preventDefault();
+                TerminalApp.addLine(output, `${window.querySelector('.terminal-prompt')?.textContent || ''} ${input.value}^C`);
+                input.value = '';
+                scrollDown();
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
                 if (TerminalApp.historyIndex > 0) {
@@ -326,6 +448,57 @@ Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
         window.querySelector('.terminal-container')?.addEventListener('click', () => {
             input?.focus();
         });
+    },
+
+    resolve(path) {
+        return resolvePath(buildDisk(), TerminalApp.currentDir, path);
+    },
+
+    /** Tab completion: command names first, then paths (and open targets) for the last word. */
+    complete(text) {
+        const trailing = /\s$/.test(text);
+        const words = text.split(/\s+/).filter(Boolean);
+        if (words.length === 0 || (words.length === 1 && !trailing)) {
+            const prefix = (words[0] || '').toLowerCase();
+            const names = [...new Set([...Object.keys(TerminalApp.commands), ...Object.keys(ALIASES)])].sort();
+            return TerminalApp.finish('', prefix, names.filter(name => name.startsWith(prefix)), '');
+        }
+        const cmd = words[0].toLowerCase();
+        const last = trailing ? '' : words[words.length - 1];
+        const head = text.slice(0, text.length - last.length);
+        const cut = Math.max(last.lastIndexOf(SEP), last.lastIndexOf('/'));
+        const dirPart = cut >= 0 ? last.slice(0, cut + 1) : '';
+        const namePart = last.slice(cut + 1);
+        const base = TerminalApp.resolve(dirPart || '.');
+        let options = [];
+        if (base && base.node.type === 'dir' && ['cd', 'dir', 'ls', 'type', 'cat', 'tree', 'open'].includes(cmd)) {
+            options = Object.entries(base.node.children)
+                .filter(([name, node]) => !node.hidden && name.toUpperCase().startsWith(namePart.toUpperCase()) && (cmd !== 'cd' || node.type === 'dir'))
+                .map(([name, node]) => name + (node.type === 'dir' ? SEP : ''));
+        }
+        if (cmd === 'open' && !dirPart) {
+            options.push(...TerminalApp.openNames().filter(name => name.startsWith(namePart.toLowerCase())));
+        }
+        return TerminalApp.finish(head, namePart, options, dirPart);
+    },
+
+    finish(head, typed, options, dirPart) {
+        if (!options.length) return { value: head + dirPart + typed, options: [] };
+        let common = options[0];
+        options.forEach(option => {
+            while (!option.toUpperCase().startsWith(common.toUpperCase())) common = common.slice(0, -1);
+        });
+        const filled = common.length >= typed.length ? common : typed;
+        const single = options.length === 1 && !filled.endsWith(SEP);
+        return { value: `${head}${dirPart}${filled}${single ? ' ' : ''}`, options };
+    },
+
+    openNames() {
+        return [...new Set([
+            'github', 'projects', 'paint', 'terminal', 'sysinfo', 'internet', 'browser',
+            ...Profile.projects.map(project => project.name.toLowerCase()),
+            ...Object.keys(Profile.links)
+        ])];
     },
 
     getUptime() {
@@ -356,6 +529,11 @@ Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
             browser: 'browser'
         };
 
+        const found = normalized ? TerminalApp.resolve(target) : null;
+        if (found?.node.type === 'file' && found.node.url) {
+            window.open(found.node.url, '_blank', 'noopener,noreferrer');
+            return `Opening ${found.node.url}...`;
+        }
         if (links[normalized]) {
             window.open(links[normalized], '_blank', 'noopener,noreferrer');
             return `Opening ${links[normalized]}...`;
@@ -368,8 +546,8 @@ Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
     },
 
     executeCommand(cmdLine, output, input) {
-        const parts = cmdLine.trim().split(/\s+/);
-        const cmd = parts[0].toLowerCase();
+        const parts = cmdLine.trim().replace(/^(cd)(?=[.\\/])/i, '$1 ').split(/\s+/);
+        const cmd = ALIASES[parts[0].toLowerCase()] || parts[0].toLowerCase();
         const args = parts.slice(1);
 
         // Add command to output
@@ -382,11 +560,18 @@ Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
         
         if (handler) {
             result = handler(TerminalApp, args);
+            if (result instanceof Promise) {
+                result.then(text => TerminalApp.showResult(output, text, prompt));
+                return;
+            }
         } else if (cmd) {
             result = `'${cmd}' is not recognized as an internal or external command.`;
         }
 
-        // Handle result
+        TerminalApp.showResult(output, result, prompt);
+    },
+
+    showResult(output, result, prompt) {
         if (result === '__CLEAR__') {
             output.innerHTML = '';
         } else if (result) {

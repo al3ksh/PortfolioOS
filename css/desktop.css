@@ -17,7 +17,9 @@
 /* Clouds background pattern */
 [data-theme="clouds"] .desktop {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='180' viewBox='0 0 320 180'%3E%3Crect width='320' height='180' fill='%236B8E9F'/%3E%3Ccircle cx='258' cy='42' r='22' fill='%23F7D774'/%3E%3Cpath d='M0 142 70 92 124 130 184 76 320 146V180H0Z' fill='%23577F67'/%3E%3Cpath d='M0 156 76 112 140 150 216 104 320 158V180H0Z' fill='%233E6755' opacity='.8'/%3E%3Cpath d='M38 66c0-15 12-27 27-27 8 0 15 3 20 9 4-3 9-5 15-5 13 0 24 10 24 23H38Z' fill='%23FFF' opacity='.88'/%3E%3Cpath d='M188 92c0-12 10-22 22-22 7 0 13 3 17 8 4-3 8-4 13-4 11 0 20 8 20 18h-72Z' fill='%23FFF' opacity='.75'/%3E%3C/svg%3E");
-    background-size: 640px 360px;
+    background-size: cover;
+    background-position: center bottom;
+    background-repeat: no-repeat;
 }
 
 /* Desktop Icons Container */
@@ -40,7 +42,7 @@
     align-items: center;
     width: 90px;
     cursor: pointer;
-    padding: 4px;
+    padding: 4px 2px;
     pointer-events: auto;
     user-select: none;
 }
@@ -101,7 +103,7 @@
     color: var(--win-text-white);
     font-weight: 600;
     text-align: center;
-    padding: 2px 4px;
+    padding: 2px;
     line-height: 1.2;
     text-shadow: 1px 1px 0 var(--win-black), -1px -1px 0 rgba(0,0,0,0.45);
     word-break: break-word;
@@ -112,6 +114,11 @@
 [data-theme="dark"] .icon-label {
     color: #ffffff;
     text-shadow: 1px 1px 2px #000, -1px -1px 2px #000, 0 0 5px rgba(0, 0, 0, 0.8);
+}
+
+/* White clouds sit behind some labels, so give them a full outline */
+[data-theme="clouds"] .icon-label {
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
 }
 
 [data-theme="matrix"] .icon-label {

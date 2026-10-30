@@ -666,7 +666,7 @@ function createDesktopIcons() {
         { appId: 'tunes', title: 'Tunes.exe', icon: Icons.tunes },
         { appId: 'mines', title: 'Mines.exe', icon: Icons.mines },
         { appId: 'snake', title: 'Snake.exe', icon: Icons.snake },
-        { appId: 'tetris', title: 'Tetris.exe', icon: Icons.tetris },
+        { appId: 'tetris', title: 'Blocks.exe', icon: Icons.tetris },
         { appId: 'sysinfo', title: 'System Info', icon: Icons.sysinfo },
         { appId: 'taskmgr', title: 'Task Manager', icon: Icons.taskmgr },
         { appId: 'control', title: 'Control.cpl', icon: Icons.control }

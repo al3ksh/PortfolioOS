@@ -1,5 +1,5 @@
 /**
- * Minesweeper App - Classic game with safe first click, chording and touch flagging
+ * Mines App - Classic game with safe first click, chording and touch flagging
  */
 
 import { Icons } from '../icons.js?v=15';
@@ -69,7 +69,7 @@ const counterText = (n) => (n < 0 ? '-' + String(Math.min(99, -n)).padStart(2, '
 
 export const MinesApp = {
     id: 'mines',
-    title: 'Minesweeper',
+    title: 'Mines',
     icon: Icons.mines,
     width: 250,
     height: 350,
@@ -108,7 +108,7 @@ export const MinesApp = {
         'Help': [
             { label: 'How to Play', action: 'howToPlay', shortcut: 'F1' },
             { divider: true },
-            { label: 'About Minesweeper', action: 'about' }
+            { label: 'About Mines', action: 'about' }
         ]
     },
 

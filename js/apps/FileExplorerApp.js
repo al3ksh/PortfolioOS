@@ -8,6 +8,18 @@ import { loc } from '../i18n.js?v=15';
 import { SoundManager } from '../managers/SoundManager.js?v=15';
 import { WindowManager } from '../managers/WindowManager.js?v=15';
 
+const BS = String.fromCharCode(92);
+// Deleting anything under these paths takes the whole system down
+const SYSTEM_PATHS = ['c:' + BS + 'windows', 'c:' + BS + 'program files' + BS + 'portfolio os' + BS + 'portfolio.exe'];
+const cloneTree = (tree) => {
+    const copy = {};
+    Object.entries(tree).forEach(([name, item]) => {
+        copy[name] = { ...item };
+        if (item.children) copy[name].children = cloneTree(item.children);
+    });
+    return copy;
+};
+
 export const FileExplorerApp = {
     id: 'explorer',
     title: 'File Explorer',
@@ -34,6 +46,8 @@ export const FileExplorerApp = {
             { label: 'Cut', action: 'cut', shortcut: 'Ctrl+X', disabled: true },
             { label: 'Copy', action: 'copy', shortcut: 'Ctrl+C', disabled: true },
             { label: 'Paste', action: 'paste', shortcut: 'Ctrl+V', disabled: true },
+            { divider: true },
+            { label: 'Delete', action: 'delete', shortcut: 'Del' },
             { divider: true },
             { label: 'Select All', action: 'selectAll', shortcut: 'Ctrl+A' },
             { label: 'Invert Selection', action: 'invertSelection' }
@@ -63,6 +77,9 @@ export const FileExplorerApp = {
             case 'openSelected':
                 const selected = window.querySelector('.explorer-item.selected');
                 selected?.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+                break;
+            case 'delete':
+                FileExplorerApp.deleteSelected(window);
                 break;
             case 'selectAll':
                 window.querySelectorAll('.explorer-item').forEach(item => item.classList.add('selected'));
@@ -238,15 +255,15 @@ export const FileExplorerApp = {
                                 'portfolio.exe': { type: 'file', size: '2.1 MB', icon: Icons.fileExe, action: 'portfolio' },
                                 'readme.txt': { type: 'file', size: '4 KB', icon: Icons.fileText, action: 'readme' },
                                 'contact.exe': { type: 'file', size: '512 KB', icon: Icons.fileExe, action: 'contact' },
-                                'simple.exe': { type: 'file', size: '128 KB', icon: Icons.fileText, action: 'simplemode' }
+                                'simple.exe': { type: 'file', size: '128 KB', icon: Icons.smSimple, action: 'simplemode' }
                             }
                         },
                         'Accessories': {
                             type: 'folder',
                             children: {
-                                'notepad.exe': { type: 'file', size: '64 KB', icon: Icons.fileText, action: 'notepad' },
-                                'calc.exe': { type: 'file', size: '48 KB', icon: Icons.fileText, action: 'calc' },
-                                'paint.exe': { type: 'file', size: '256 KB', icon: Icons.fileText, action: 'paint' },
+                                'notepad.exe': { type: 'file', size: '64 KB', icon: Icons.smNotepad, action: 'notepad' },
+                                'calc.exe': { type: 'file', size: '48 KB', icon: Icons.smCalc, action: 'calc' },
+                                'paint.exe': { type: 'file', size: '256 KB', icon: Icons.smPaint, action: 'paint' },
                                 'terminal.exe': { type: 'file', size: '96 KB', icon: Icons.smTerminal, action: 'terminal' }
                             }
                         },
@@ -259,7 +276,7 @@ export const FileExplorerApp = {
                         'Games': {
                             type: 'folder',
                             children: {
-                                'minesweeper.exe': { type: 'file', size: '180 KB', icon: Icons.smMines, action: 'minesweeper' },
+                                'mines.exe': { type: 'file', size: '180 KB', icon: Icons.smMines, action: 'mines' },
                                 'snake.exe': { type: 'file', size: '96 KB', icon: Icons.fileExe, action: 'snake' }
                             }
                         }
@@ -336,48 +353,27 @@ export const FileExplorerApp = {
 
     // File contents for special files
     fileContents: {
-        'config.sys': `; Portfolio OS Configuration File
-; Last modified: 2026-02-01
-
-DEVICE=HIMEM.SYS
-DEVICE=EMM386.EXE NOEMS
+        'config.sys': `DEVICE=C:${BS}WINDOWS${BS}HIMEM.SYS
+DEVICE=C:${BS}WINDOWS${BS}EMM386.EXE NOEMS
 DOS=HIGH,UMB
 FILES=40
 BUFFERS=20
-STACKS=9,256
-
-[SYSTEM]
-VERSION=1.0.2026
-AUTHOR=${Profile.name}
-MODE=PRODUCTION
-
-; Hint: Konami code works here`,
+STACKS=9,256`,
 
         'autoexec.bat': `@ECHO OFF
-REM Portfolio OS Startup Script
+PROMPT $P$G
+SET PATH=C:${BS}WINDOWS;C:${BS}WINDOWS${BS}SYSTEM32
+SET TEMP=C:${BS}WINDOWS${BS}TEMP
+LH C:${BS}WINDOWS${BS}MOUSE.COM`,
 
-ECHO Initializing Portfolio OS...
-ECHO.
-
-SET PATH=C:\\WINDOWS;C:\\WINDOWS\\SYSTEM32
-SET PROMPT=$P$G
-SET DEVELOPER=${Profile.name}
-
-ECHO System ready.
-ECHO.
-ECHO Type 'help' in terminal for available commands.`,
-
-        'win.ini': `; Portfolio OS Configuration
-[windows]
-load=portfolio.exe
+        'win.ini': `[windows]
+load=
 run=
 NullPort=None
 
 [Desktop]
 Wallpaper=(None)
 TileWallpaper=0
-WallpaperStyle=0
-Pattern=(None)
 
 [fonts]
 MS Sans Serif=SSERIFE.FON
@@ -387,103 +383,256 @@ Symbol=SYMBOLE.FON
 [mci extensions]
 wav=waveaudio
 mid=sequencer
-avi=AVIVideo
-
-[Portfolio]
-Developer=${Profile.name}
-Theme=teal
-Sound=ON`,
+avi=AVIVideo`,
 
         get cv() {
-            return `CURRICULUM VITAE
-================
-
-${Profile.name}
+            return `${Profile.name}
 ${loc(Profile.title)}
 
-CONTACT:
-- Email: ${Profile.contact.email}
-- GitHub: github.com/${Profile.contact.github}
-- Discord: ${Profile.contact.discord}
-- Location: ${loc(Profile.location)}
+Email:    ${Profile.contact.email}
+GitHub:   github.com/${Profile.contact.github}
+Discord:  ${Profile.contact.discord}
+Location: ${loc(Profile.location)}
 
-EDUCATION:
-${Profile.education.map(edu => `- ${loc(edu.school)} (${loc(edu.date)})\n  ${loc(edu.degree)}`).join('\n')}
+EDUCATION
+${Profile.education.map(edu => `${loc(edu.date)}  ${loc(edu.school)}\n          ${loc(edu.degree)}`).join('\n')}
 
-EXPERIENCE:
-${Profile.experience.map(job => `- ${loc(job.company)} (${loc(job.date)}) - ${loc(job.role)}`).join('\n')}
+EXPERIENCE
+${Profile.experience.map(job => `${loc(job.date)}  ${loc(job.role)}, ${loc(job.company)}`).join('\n')}
 
-SKILLS:
-${Profile.skills.join(', ')}
-
-[Use File > Print Portfolio in Portfolio.exe for full CV]`;
+SKILLS
+${Profile.skills.join(', ')}`;
         },
 
-        'projects': `MY PROJECTS
-===========
+        get projects() {
+            return `PROJECTS
 
-1. Portfolio OS (This!)
-   A Windows 3.1 styled portfolio website
-   Tech: HTML, CSS, JavaScript
-   Features: Working apps, games, easter eggs
+${Profile.projects.map(project => `${project.name}${project.tech ? ` (${project.tech})` : ''}\n${project.description}\n${project.url}`).join('\n\n')}`;
+        },
 
-2. Web Applications
-   Various full-stack projects
-   Tech: React, Node.js, PostgreSQL
+        'notes': `TODO
 
-3. Backend Systems
-   APIs and server applications
-   Tech: Python, Express, Docker
+- update the CV
+- add screenshots to the project READMEs
+- back up the server
+- reply to recruiters`,
 
-4. Open Source Contributions
-   GitHub: github.com/${Profile.contact.github}
+        'easter_egg': `Hidden file, nothing sensitive in here.
 
-Check out Portfolio.exe for more details!`,
+If you like poking around, try the Konami code
+and the Terminal.
 
-        'notes': `Notes
-=====
+${Profile.initials}`,
 
-TODO:
-[x] Finish Portfolio OS
-[x] Add hidden features
-[ ] Deploy
+        get project_readme() {
+            return `PortfolioOS
 
-IDEAS:
-- Music player
-- Video player
-- More themes
+A portfolio built as a Windows 3.1 / 95 style desktop.
+Vanilla JavaScript, no frameworks.
 
-Keyboard shortcuts:
-- Konami code
-- Terminal commands`,
+github.com/${Profile.contact.github}/PortfolioOS`;
+        }
+    },
 
-        'easter_egg': `You found a hidden file.
+    /** Children of a folder in the virtual disk (the current folder by default). */
+    getItems(path = FileExplorerApp.currentPath) {
+        let node = { children: FileExplorerApp.fileSystem };
+        for (const segment of path) {
+            node = node.children?.[segment];
+            if (!node) return null;
+        }
+        return node.children || null;
+    },
 
-There are a few secrets scattered
-around this portfolio. This is one
-of them.
+    /** Name of the system file that makes deleting `name` fatal, or null for harmless items. */
+    systemCulprit(name) {
+        const target = [...FileExplorerApp.currentPath, name].join(BS).toLowerCase();
+        for (const system of SYSTEM_PATHS) {
+            if (target === system || target.startsWith(system + BS)) return name;
+            if (system.startsWith(target + BS)) return system.split(BS).pop();
+        }
+        return null;
+    },
 
-Try the Konami code or explore
-the terminal for more.
+    collectFiles(name, item, out = []) {
+        if (item.type === 'file') {
+            out.push(name);
+        } else {
+            Object.entries(item.children || {}).forEach(([childName, child]) => FileExplorerApp.collectFiles(childName, child, out));
+        }
+        return out;
+    },
 
-- ${Profile.initials}`,
+    async deleteSelected(container) {
+        const names = [...container.querySelectorAll('.explorer-item.selected')].map(el => el.dataset.name);
+        const items = FileExplorerApp.getItems();
+        if (!names.length || !items) return;
 
-        'project_readme': `Portfolio OS
-============
+        const { DialogManager } = await import('../managers/DialogManager.js?v=15');
+        const first = items[names[0]];
+        let message;
+        let title;
+        if (names.length > 1) {
+            message = `Are you sure you want to delete these ${names.length} items?`;
+            title = 'Confirm Multiple File Delete';
+        } else if (first?.type === 'file') {
+            message = `Are you sure you want to delete "${names[0]}"?`;
+            title = 'Confirm File Delete';
+        } else {
+            message = `Are you sure you want to delete the folder "${names[0]}" and all its contents?`;
+            title = 'Confirm Folder Delete';
+        }
+        if (!await DialogManager.confirm(message, title)) return;
 
-Windows 3.1 inspired portfolio website.
+        const doomed = names.filter(name => items[name]);
+        const culprit = doomed.map(name => FileExplorerApp.systemCulprit(name)).find(Boolean);
 
-Features:
-- Retro UI
-- Working applications
-- Games
-- Multiple themes
+        if (culprit) {
+            const files = doomed.flatMap(name => FileExplorerApp.collectFiles(name, items[name]));
+            await FileExplorerApp.playDeleteProgress(files);
+            FileExplorerApp.showBlueScreen(culprit);
+            return;
+        }
 
-Built with HTML, CSS, JavaScript.
-No frameworks.
+        doomed.forEach(name => delete items[name]);
+        FileExplorerApp.renderTree(container);
+        FileExplorerApp.navigateTo(container, FileExplorerApp.currentPath);
+        SoundManager.play('close');
+    },
 
-by ${Profile.name}
-v1.0.2026`
+    /** "Deleting..." dialog that gets as far as the first few system files, then gives up. */
+    playDeleteProgress(files) {
+        return new Promise(async resolve => {
+            const { DialogManager } = await import('../managers/DialogManager.js?v=15');
+            const dialog = DialogManager.createDialog({
+                title: 'Deleting',
+                content: `
+                    <div class="delete-progress">
+                        <div class="delete-file"></div>
+                        <div class="delete-bar"><div class="delete-fill"></div></div>
+                        <div class="delete-from"></div>
+                    </div>`,
+                buttons: []
+            });
+            dialog.querySelector('.dialog-close-btn')?.remove();
+            DialogManager.show(dialog);
+
+            const fileEl = dialog.querySelector('.delete-file');
+            const fillEl = dialog.querySelector('.delete-fill');
+            dialog.querySelector('.delete-from').textContent = `from ${FileExplorerApp.currentPath.join(BS)}${BS}`;
+
+            const steps = 20;
+            const failAt = 12;
+            let step = 0;
+            const timer = setInterval(() => {
+                fileEl.textContent = files[step % files.length] || '';
+                fillEl.style.width = `${Math.round((step / steps) * 100)}%`;
+                if (step++ >= failAt) {
+                    clearInterval(timer);
+                    if (dialog.isConnected) DialogManager.close(dialog);
+                    resolve();
+                }
+            }, 110);
+        });
+    },
+
+    showBlueScreen(culprit) {
+        const bsod = document.getElementById('bsodScreen');
+        if (!bsod) return;
+        const message = bsod.querySelector('.bsod-message');
+        const original = message?.textContent;
+        if (message) {
+            message.textContent = `FATAL_ERROR: Deleted_${culprit.replace(/[^A-Za-z0-9.]+/g, '_')}`;
+        }
+        bsod.classList.remove('hidden');
+        SoundManager.play('error');
+
+        const dismiss = () => {
+            bsod.classList.add('hidden');
+            if (message) message.textContent = original;
+            document.removeEventListener('keydown', dismiss);
+            document.removeEventListener('click', dismiss);
+            FileExplorerApp.restoreDisk();
+        };
+        // Short grace period so the click that started the delete does not close it at once
+        setTimeout(() => {
+            document.addEventListener('keydown', dismiss, { once: true });
+            document.addEventListener('click', dismiss, { once: true });
+        }, 500);
+    },
+
+    /** After a crash the disk comes back as it was ("restored from backup"). */
+    restoreDisk() {
+        FileExplorerApp.fileSystem = cloneTree(FileExplorerApp.pristine);
+        FileExplorerApp.currentPath = ['C:'];
+        FileExplorerApp.selectedItem = null;
+        const container = document.querySelector('#window-explorer');
+        if (container) {
+            FileExplorerApp.renderTree(container);
+            FileExplorerApp.navigateTo(container, ['C:']);
+        }
+    },
+
+    closeContextMenu() {},
+
+    showContextMenu(x, y, entries) {
+        FileExplorerApp.closeContextMenu();
+
+        const menu = document.createElement('div');
+        menu.className = 'icon-context-menu';
+        menu.setAttribute('role', 'menu');
+        menu.style.cssText = `position: fixed; left: ${x}px; top: ${y}px; padding: 2px; z-index: 10000;`;
+
+        const close = () => {
+            menu.remove();
+            document.removeEventListener('mousedown', onOutside, true);
+            FileExplorerApp.closeContextMenu = () => {};
+        };
+        const onOutside = (event) => {
+            if (!menu.contains(event.target)) close();
+        };
+
+        entries.forEach(entry => {
+            if (entry.divider) {
+                const divider = document.createElement('div');
+                divider.className = 'menu-divider';
+                divider.setAttribute('role', 'separator');
+                menu.appendChild(divider);
+                return;
+            }
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'menu-item';
+            button.setAttribute('role', 'menuitem');
+            button.innerHTML = `<span class="context-menu-icon" aria-hidden="true">${entry.icon || ''}</span><span>${entry.label}</span>`;
+            button.addEventListener('click', () => {
+                close();
+                entry.action();
+            });
+            menu.appendChild(button);
+        });
+
+        menu.addEventListener('keydown', (event) => {
+            const buttons = [...menu.querySelectorAll('.menu-item')];
+            const index = buttons.indexOf(document.activeElement);
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                close();
+            } else if (['ArrowDown', 'ArrowUp', 'Tab'].includes(event.key)) {
+                event.preventDefault();
+                const step = event.key === 'ArrowUp' || (event.key === 'Tab' && event.shiftKey) ? -1 : 1;
+                buttons[(index + step + buttons.length) % buttons.length]?.focus({ preventScroll: true });
+            }
+        });
+
+        document.body.appendChild(menu);
+        const rect = menu.getBoundingClientRect();
+        menu.style.left = `${Math.max(0, Math.min(x, window.innerWidth - rect.width - 2))}px`;
+        menu.style.top = `${Math.max(0, Math.min(y, window.innerHeight - rect.height - 2))}px`;
+        menu.querySelector('.menu-item')?.focus({ preventScroll: true });
+
+        document.addEventListener('mousedown', onOutside, true);
+        FileExplorerApp.closeContextMenu = close;
     },
 
     currentPath: ['C:'],
@@ -548,9 +697,51 @@ v1.0.2026`
             SoundManager.play('click');
         });
 
+        // Right-click menu
+        container.querySelector('#fileContent')?.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+            FileExplorerApp.openContextMenu(container, event);
+        });
+
+        // Del key deletes the selection while this window is the active one
+        FileExplorerApp.keyHandler = (event) => {
+            if (event.key !== 'Delete' || !container.isConnected || !container.classList.contains('active')) return;
+            if (document.querySelector('.dialog-overlay') || event.target.closest?.('input, textarea')) return;
+            FileExplorerApp.deleteSelected(container);
+        };
+        document.addEventListener('keydown', FileExplorerApp.keyHandler);
+
         // Render initial view
         FileExplorerApp.renderTree(container);
         FileExplorerApp.navigateTo(container, ['C:']);
+    },
+
+    onClose() {
+        document.removeEventListener('keydown', FileExplorerApp.keyHandler);
+        FileExplorerApp.closeContextMenu();
+    },
+
+    openContextMenu(container, event) {
+        const itemEl = event.target.closest('.explorer-item');
+        if (itemEl) {
+            if (!itemEl.classList.contains('selected')) itemEl.click();
+            FileExplorerApp.showContextMenu(event.clientX, event.clientY, [
+                { label: 'Open', icon: Icons.ctxOpen, action: () => itemEl.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })) },
+                { divider: true },
+                { label: 'Delete', icon: Icons.actTrash, action: () => FileExplorerApp.deleteSelected(container) },
+                { divider: true },
+                { label: 'Properties', icon: Icons.ctxProps, action: () => FileExplorerApp.showProperties(container) }
+            ]);
+        } else {
+            container.querySelectorAll('.explorer-item.selected').forEach(el => el.classList.remove('selected'));
+            FileExplorerApp.selectedItem = null;
+            FileExplorerApp.showContextMenu(event.clientX, event.clientY, [
+                { label: 'Refresh', icon: Icons.ctxRefresh, action: () => FileExplorerApp.navigateTo(container, FileExplorerApp.currentPath) },
+                { label: 'New Folder', icon: Icons.smFolder, action: () => FileExplorerApp.createNewFolder(container) },
+                { divider: true },
+                { label: 'Properties', icon: Icons.ctxProps, action: () => FileExplorerApp.showProperties(container) }
+            ]);
+        }
     },
 
     renderTree(container) {
@@ -813,5 +1004,7 @@ v1.0.2026`
         SoundManager.play('open');
     }
 };
+
+FileExplorerApp.pristine = cloneTree(FileExplorerApp.fileSystem);
 
 export default FileExplorerApp;

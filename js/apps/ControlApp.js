@@ -58,21 +58,17 @@ export const ControlApp = {
                             <div class="theme-preview clouds"></div>
                             <span class="theme-name">Clouds</span>
                         </div>
-                        <div class="theme-option ${ControlApp.currentTheme === 'win95' ? 'selected' : ''}" data-theme-option="win95">
-                            <div class="theme-preview win95"></div>
-                            <span class="theme-name">Win 95</span>
-                        </div>
                         <div class="theme-option ${ControlApp.currentTheme === 'win98' ? 'selected' : ''}" data-theme-option="win98">
                             <div class="theme-preview win98"></div>
-                            <span class="theme-name">Win 98</span>
+                            <span class="theme-name">Steel</span>
                         </div>
                         <div class="theme-option ${ControlApp.currentTheme === 'macos' ? 'selected' : ''}" data-theme-option="macos">
                             <div class="theme-preview macos"></div>
-                            <span class="theme-name">Classic Mac</span>
+                            <span class="theme-name">Dither</span>
                         </div>
                         <div class="theme-option ${ControlApp.currentTheme === 'ubuntu' ? 'selected' : ''}" data-theme-option="ubuntu">
                             <div class="theme-preview ubuntu"></div>
-                            <span class="theme-name">Ubuntu</span>
+                            <span class="theme-name">Aubergine</span>
                         </div>
                     </div>
                 </div>
@@ -283,7 +279,8 @@ export const ControlApp = {
         if (ControlApp.autoTheme) {
             ControlApp.applyAutoTheme();
         } else {
-            const saved = getSetting('portfolio-theme');
+            let saved = getSetting('portfolio-theme');
+            if (saved === 'win95') saved = 'default'; // theme removed, it was identical to Teal
             if (saved) {
                 ControlApp.currentTheme = saved;
                 ControlApp.setTheme(saved);

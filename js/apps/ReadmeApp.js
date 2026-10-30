@@ -9,11 +9,11 @@ import { Profile, githubUrl } from '../config.js?v=15';
 const GROUPS = [
     { title: 'readme.group.about', apps: [['portfolio', 'Portfolio.exe'], ['projects', 'Projects.exe'], ['network', 'Network.exe'], ['contact', 'Contact.exe'], ['simplemode', 'Simple View']] },
     { title: 'readme.group.tools', apps: [['browser', 'Internet.exe'], ['notepad', 'Notepad.exe'], ['paint', 'Paint.exe'], ['calc', 'Calc.exe'], ['terminal', 'Terminal.exe'], ['explorer', 'Explorer.exe'], ['tunes', 'Tunes.exe']] },
-    { title: 'readme.group.games', apps: [['mines', 'Mines.exe'], ['snake', 'Snake.exe'], ['tetris', 'Tetris.exe']], note: 'readme.gamesNote' },
+    { title: 'readme.group.games', apps: [['mines', 'Mines.exe'], ['snake', 'Snake.exe'], ['tetris', 'Blocks.exe']], note: 'readme.gamesNote' },
     { title: 'readme.group.system', apps: [['control', 'Control.cpl'], ['sysinfo', 'System Info'], ['taskmgr', 'Task Manager']] }
 ];
 
-const THEMES = ['Teal', 'Dark', 'Hot Dog', 'Matrix', 'Clouds', 'Win 95', 'Win 98', 'macOS', 'Ubuntu'];
+const THEMES = ['Teal', 'Dark', 'Hot Dog', 'Matrix', 'Clouds', 'Steel', 'Dither', 'Aubergine'];
 const COMMANDS = ['help', 'neofetch', 'matrix', 'hack', 'fortune', 'cowsay', 'sl', 'party', 'leet', 'coffee', 'sudo', 'format'];
 
 const pairs = key => t(key).map(([term, text]) => `<dt>${term}</dt><dd>${text}</dd>`).join('');

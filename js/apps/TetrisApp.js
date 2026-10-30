@@ -1,5 +1,5 @@
 /**
- * Tetris - falling blocks, Guideline style:
+ * Blocks - falling blocks, Guideline style:
  * SRS rotation with wall kicks, 7-bag randomizer, lock delay, DAS/ARR and a ghost piece.
  * The board scales to the window height, so nothing is cut off on short screens.
  */
@@ -79,7 +79,7 @@ const KICKS_I = {
 
 export const TetrisApp = {
     id: 'tetris',
-    title: 'Tetris',
+    title: 'Blocks',
     icon: Icons.tetris,
     width: 380,
     height: 610,
@@ -131,7 +131,7 @@ export const TetrisApp = {
         'Help': [
             { label: 'How to Play', action: 'howToPlay' },
             { divider: true },
-            { label: 'About Tetris', action: 'about' }
+            { label: 'About Blocks', action: 'about' }
         ]
     },
 
@@ -149,7 +149,7 @@ export const TetrisApp = {
             case 'howToPlay':
                 import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
                     DialogManager.alert(
-                        'How to Play Tetris:\n\n' +
+                        'How to Play Blocks:\n\n' +
                         '• ← → (or A D) move, hold to slide\n' +
                         '• ↑ or X rotate clockwise\n' +
                         '• Z rotate counter-clockwise\n' +
@@ -174,7 +174,7 @@ export const TetrisApp = {
                         <canvas id="tetrisCanvas" width="200" height="400"></canvas>
                         <div class="tetris-overlay" id="tetrisOverlay">
                             <div class="tetris-message">
-                                <h3>TETRIS</h3>
+                                <h3>BLOCKS</h3>
                                 <p>Press SPACE, tap or click to start</p>
                             </div>
                         </div>

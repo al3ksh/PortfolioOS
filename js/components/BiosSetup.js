@@ -10,7 +10,7 @@ import { SCREENSAVERS } from '../screensavers.js?v=15';
 import { getSetting, setSetting } from '../settings.js?v=15';
 
 const ON_OFF = [['true', 'Enabled'], ['false', 'Disabled']];
-const THEMES = [['default', 'Teal'], ['dark', 'Dark'], ['hotdog', 'Hot Dog'], ['matrix', 'Matrix'], ['clouds', 'Clouds'], ['win95', 'Win 95'], ['win98', 'Win 98'], ['macos', 'Classic Mac'], ['ubuntu', 'Ubuntu']];
+const THEMES = [['default', 'Teal'], ['dark', 'Dark'], ['hotdog', 'Hot Dog'], ['matrix', 'Matrix'], ['clouds', 'Clouds'], ['win98', 'Steel'], ['macos', 'Dither'], ['ubuntu', 'Aubergine']];
 
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -23,7 +23,7 @@ const dateText = now => `[${pad(now.getMonth() + 1)}/${pad(now.getDate())}/${now
 function readValues() {
     return {
         autoTheme: getSetting('autoTheme') === 'false' ? 'false' : 'true',
-        theme: getSetting('portfolio-theme') || 'default',
+        theme: THEMES.some(([id]) => id === getSetting('portfolio-theme')) ? getSetting('portfolio-theme') : 'default',
         crt: getSetting('crtEffect') === 'true' ? 'true' : 'false',
         sound: String(SoundManager.enabled),
         language: lang,

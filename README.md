@@ -5,7 +5,7 @@
 **A retro desktop that doubles as your developer portfolio.**<br>
 Windows 3.1 / 95 look, built with plain HTML, CSS and JavaScript. No frameworks, no bundler.
 
-![Version](https://img.shields.io/badge/version-1.3.2-0a246a?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.3.3-0a246a?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-2e7d32?style=flat-square)
 ![Vanilla JS](https://img.shields.io/badge/vanilla-JavaScript-f7df1e?style=flat-square&logo=javascript&logoColor=black)
 ![Dependencies](https://img.shields.io/badge/frontend%20dependencies-0-808080?style=flat-square)
@@ -22,7 +22,7 @@ Windows 3.1 / 95 look, built with plain HTML, CSS and JavaScript. No frameworks,
 
 <table>
   <tr>
-    <td width="72%"><img src="docs/screenshots/apps.png" alt="Minesweeper, Snake, Tetris and a Command Prompt in the Dark theme"></td>
+    <td width="72%"><img src="docs/screenshots/apps.png" alt="Mines, Snake, Blocks and a Command Prompt in the Dark theme"></td>
     <td width="28%"><img src="docs/screenshots/mobile.png" alt="Portfolio OS on a phone"></td>
   </tr>
   <tr>
@@ -39,7 +39,7 @@ Windows 3.1 / 95 look, built with plain HTML, CSS and JavaScript. No frameworks,
 | --- | --- |
 | **Windows** | Draggable, resizable, minimizable, with a taskbar, Start menu and a clock with a calendar popup |
 | **Desktop icons** | Snap to a grid; right-click menu with Refresh, Auto Arrange and Sort |
-| **Themes** | Teal, Dark, Hot Dog Stand, Matrix, Clouds, Windows 95, Windows 98, macOS and Ubuntu, plus automatic dark mode |
+| **Themes** | Teal, Dark, Hot Dog, Matrix, Clouds, Steel, Dither and Aubergine, plus automatic dark mode |
 | **Screen savers** | Matrix, Starfield, Flying logos, 3D Pipes and Mystify |
 | **BIOS setup** | Press `DEL` during the memory test (or type `bios` in the Terminal) for theme, sound, language, quick boot and screen saver |
 | **Languages** | English and Polish, switched with the flag button in the taskbar |
@@ -66,9 +66,9 @@ Windows 3.1 / 95 look, built with plain HTML, CSS and JavaScript. No frameworks,
 
 | Game | Highlights |
 | --- | --- |
-| **Minesweeper** | Three difficulties, safe first click, chording, best times, touch flagging |
+| **Mines** | Three difficulties, safe first click, chording, best times, touch flagging |
 | **Snake** | Speed levels, golden bonus apples, solid or wrap-around walls, touch controls |
-| **Tetris** | SRS rotation with wall kicks, 7-bag randomizer, ghost piece, soft and hard drop, swipe and hold controls on touch screens |
+| **Blocks** | SRS rotation with wall kicks, 7-bag randomizer, ghost piece, soft and hard drop, swipe and hold controls on touch screens |
 
 All three have **top-10 leaderboards** per mode. They are optional and need the backend (see [Leaderboards](#leaderboards)).
 
@@ -183,7 +183,7 @@ The backend uses Helmet security headers, input validation, HTML escaping, a hon
 
 ### Leaderboards
 
-When a game ends with a top-10 result, the player is asked for a nickname. The backend keeps one board per mode (Snake solid / wrap, Minesweeper beginner / intermediate / expert, Tetris) in a single JSON file on the `portfolio-data` Docker volume, so it survives rebuilds.
+When a game ends with a top-10 result, the player is asked for a nickname. The backend keeps one board per mode (Snake solid / wrap, Mines beginner / intermediate / expert, Blocks) in a single JSON file on the `portfolio-data` Docker volume, so it survives rebuilds.
 
 - Only the nickname, score and date are stored. IP addresses are used in memory for rate limiting (20 submissions per 15 minutes) and never written down.
 - Nicknames go through a profanity filter and scores through sanity limits. With Turnstile enabled, every submission needs the check too.

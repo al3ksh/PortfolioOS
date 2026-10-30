@@ -985,10 +985,9 @@
 .theme-preview.dark { background: linear-gradient(135deg, #1a1a2e 50%, #4a4a8a 50%); }
 .theme-preview.hotdog { background: linear-gradient(#FF0000 50%, #FFFF00 50%); }
 .theme-preview.matrix { background: linear-gradient(180deg, #000000 0%, #003300 100%); }
-.theme-preview.clouds { background: #6B8E9F; }
-.theme-preview.win95 { background: #008080; }
-.theme-preview.win98 { background: #3A6EA5; }
-.theme-preview.macos { background: #336699; }
+.theme-preview.clouds { background: linear-gradient(160deg, #6B8E9F 55%, #577F67 55%); }
+.theme-preview.win98 { background: linear-gradient(#0A246A, #A6CAF0 32%, #3A6EA5 32%); }
+.theme-preview.macos { background: linear-gradient(#fff, #b8b8b8 32%, transparent 32%), repeating-conic-gradient(#7f8fa6 0 25%, #a3b1c4 0 50%) 0 0 / 4px 4px; }
 .theme-preview.ubuntu { background: linear-gradient(135deg, #2C001E 50%, #E95420 50%); }
 
 .theme-name {
@@ -1369,6 +1368,143 @@
 .calc-btn.equals:hover {
     background: var(--calc-btn-equals);
 }
+
+.calc-container { container-type: inline-size; }
+
+.calc-tape {
+    min-height: 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    text-align: right;
+    color: var(--win-shadow);
+    padding: 0 4px 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.calc-screen-wrap { position: relative; }
+
+.calc-mem {
+    position: absolute;
+    left: 6px;
+    top: 3px;
+    z-index: 1;
+    font: bold 10px 'Courier New', monospace;
+    color: var(--calc-screen-fg);
+    pointer-events: none;
+}
+
+.calc-memrow {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.calc-btn.mem {
+    min-height: 26px;
+    padding: 2px;
+    font-size: 12px;
+}
+
+.calc-btn.mem:active { padding-top: 3px; padding-left: 3px; }
+
+.calc-btn.sci-toggle[aria-pressed="true"] {
+    border-top-color: var(--win-dark-gray);
+    border-left-color: var(--win-dark-gray);
+    border-bottom-color: var(--win-white);
+    border-right-color: var(--win-white);
+    box-shadow: inset 1px 1px 0 var(--win-shadow);
+    background: var(--win-light-gray);
+}
+
+.calc-body {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    min-height: 0;
+}
+
+.calc-sci {
+    display: none;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 4px;
+    flex: 1;
+}
+
+.calc-container.sci .calc-sci { display: grid; }
+.calc-body .calc-buttons { flex: 1; }
+.calc-container.sci .calc-body .calc-buttons { flex: 0 0 min(284px, 50%); }
+
+.calc-btn.sci {
+    padding: 4px;
+    font-size: 13px;
+    min-height: 0;
+}
+
+.calc-btn.sci sup { font-size: 9px; line-height: 0; }
+.calc-btn[data-action="pi"], .calc-btn[data-action="cbrt"] { font: bold 18px 'Times New Roman', serif; }
+
+@container (max-width: 480px) {
+    .calc-container.sci .calc-body { flex-direction: column; overflow-y: auto; }
+    .calc-container.sci .calc-sci { grid-auto-rows: 32px; flex: none; }
+    .calc-container.sci .calc-body .calc-buttons { flex: 1 0 auto; }
+}
+
+/* DOOM intro easter egg (Calculator: IDDQD, Terminal: doom) */
+.doom-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: default;
+}
+
+.doom-canvas {
+    width: min(100vw, 160vh);
+    height: min(62.5vw, 100vh);
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+.doom-dos {
+    display: none;
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 16px 20px;
+    background: #000;
+    color: #c0c0c0;
+    font: 16px/1.25 'Lucida Console', 'Courier New', monospace;
+    white-space: pre-wrap;
+    overflow: hidden;
+}
+
+.doom-screen.dos .doom-dos { display: block; }
+.doom-screen.dos .doom-canvas { visibility: hidden; }
+.doom-cursor { animation: doom-blink 1s steps(1) infinite; }
+@keyframes doom-blink { 50% { opacity: 0; } }
+
+.doom-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    color: #777;
+    border: 1px solid #333;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.doom-close:hover, .doom-close:focus-visible { color: #fff; border-color: #888; outline: none; }
 
 /* ============================================
    TASK MANAGER APP
@@ -1973,8 +2109,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 70px;
-    padding: 8px;
+    width: 84px;
+    padding: 8px 4px;
     cursor: pointer;
     text-align: center;
 }
@@ -2004,7 +2140,7 @@
 
 .explorer-item .item-name {
     font-size: 11px;
-    word-break: break-all;
+    overflow-wrap: anywhere;
     line-height: 1.2;
 }
 
@@ -2279,23 +2415,6 @@
 
 .theme-option {
     text-align: center;
-}
-
-/* New theme previews */
-.theme-preview.win95 {
-    background: #008080;
-}
-
-.theme-preview.win98 {
-    background: linear-gradient(135deg, #1084d0 0%, #2ca2ff 50%, #1084d0 100%);
-}
-
-.theme-preview.macos {
-    background: linear-gradient(180deg, #8e8e93 0%, #c7c7cc 50%, #8e8e93 100%);
-}
-
-.theme-preview.ubuntu {
-    background: linear-gradient(135deg, #5e2750 0%, #dd4814 100%);
 }
 
 /* Paint toggleable elements */
@@ -4329,3 +4448,30 @@
 .lb-date { color: #606060; font-size: 11px; }
 .lb-mine td { background: #000080; color: #FFF; }
 .lb-mine .lb-date { color: #C0C0C0; }
+
+/* File Explorer: delete progress */
+.delete-progress {
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.delete-progress .delete-file {
+    min-height: 16px;
+    font-weight: bold;
+}
+
+.delete-progress .delete-bar {
+    height: 18px;
+    padding: 2px;
+    background: var(--win-white, #fff);
+    border: var(--border-sunken);
+}
+
+.delete-progress .delete-fill {
+    height: 100%;
+    width: 0;
+    background: var(--win-blue, #000080);
+}

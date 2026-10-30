@@ -112,7 +112,7 @@
     --z-boot: 9999;
 }
 
-/* Theme: Hot Dog Stand */
+/* Theme: Hot Dog */
 [data-theme="hotdog"] {
     --bg-desktop: #FF0000;
     --win-gray: #FFFF00;
@@ -283,17 +283,6 @@
     --bg-desktop: #6B8E9F;
 }
 
-/* Theme: Windows 95 */
-[data-theme="win95"] {
-    --bg-desktop: #008080;
-    --win-gray: #C0C0C0;
-    --win-blue: #000080;
-    --win-black: #000000;
-    --win-white: #FFFFFF;
-    --win-dark-gray: #808080;
-    --win-light-gray: #DFDFDF;
-}
-
 /* Theme: Windows 98 */
 [data-theme="win98"] {
     --bg-desktop: #3A6EA5;
@@ -305,7 +294,7 @@
     --win-light-gray: #ECECEC;
 }
 
-/* Theme: Classic Mac */
+/* Theme: Dither (id macos) */
 [data-theme="macos"] {
     --bg-desktop: #336699;
     --win-gray: #DDDDDD;
@@ -316,7 +305,7 @@
     --win-light-gray: #EEEEEE;
 }
 
-/* Theme: Ubuntu */
+/* Theme: Aubergine (id ubuntu) */
 [data-theme="ubuntu"] {
     --bg-desktop: #2C001E;
     --win-gray: #3C3C3C;
@@ -357,4 +346,37 @@
     --profile-dark: #220015;
     --ascii-color: #E95420;
     --digital-color: #E95420;
+}
+
+/* Theme chrome: Steel gradient title bars, Dither dotted desktop and pinstripe title bars */
+[data-theme="win98"] .title-bar {
+    background: linear-gradient(90deg, #0A246A, #A6CAF0);
+}
+
+[data-theme="win98"] .window:not(.active) .title-bar {
+    background: linear-gradient(90deg, #808080, #C0C0C0);
+}
+
+[data-theme="macos"] .desktop {
+    background: repeating-conic-gradient(#7f8fa6 0 25%, #a3b1c4 0 50%) 0 0 / 4px 4px;
+}
+
+[data-theme="macos"] .title-bar {
+    background: repeating-linear-gradient(0deg, #FFFFFF 0 1px, #B8B8B8 1px 2px);
+    border-bottom: 1px solid #000;
+}
+
+[data-theme="macos"] .title-bar-text {
+    color: #000;
+    text-align: center;
+    text-shadow: 0 0 3px #FFF, 0 0 3px #FFF;
+}
+
+[data-theme="macos"] .window:not(.active) .title-bar {
+    background: #DDDDDD;
+}
+
+[data-theme="macos"] .window:not(.active) .title-bar-text {
+    color: #777;
+    text-shadow: none;
 }
