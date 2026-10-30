@@ -7,6 +7,7 @@ import { WindowManager } from '../managers/WindowManager.js?v=15';
 import { Profile, githubUrl, featuredProjects } from '../config.js?v=15';
 import { t, loc, lang } from '../i18n.js?v=15';
 import { openCv } from './PrinterApp.js?v=15';
+import { mountFace } from '../face.js?v=15';
 
 export const PortfolioApp = {
     id: 'portfolio',
@@ -194,6 +195,10 @@ export const PortfolioApp = {
     },
 
     onInit() {
+        // The face reacts to the time of day, idling and clicks
+        const faceEl = document.querySelector('#window-portfolio .ascii-art');
+        if (faceEl) PortfolioApp.face = mountFace(faceEl);
+
         // Download CV button
         const cvBtn = document.querySelector('#downloadCvBtn');
         if (cvBtn) {
@@ -227,6 +232,8 @@ export const PortfolioApp = {
     },
 
     onClose() {
+        PortfolioApp.face?.destroy();
+        PortfolioApp.face = null;
         if (this.clockInterval) {
             clearInterval(this.clockInterval);
         }

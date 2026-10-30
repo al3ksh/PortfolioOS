@@ -30,6 +30,8 @@ services:
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
       - STATUS_SERVICES=${STATUS_SERVICES:-}
       - STATUS_HOST_LABEL=${STATUS_HOST_LABEL:-}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - GITHUB_USER=${GITHUB_USER:-}
     volumes:
       - portfolio-data:/data
     networks:

@@ -190,6 +190,8 @@
     color: var(--ascii-color);
     white-space: pre;
     line-height: 1.1;
+    cursor: pointer;
+    user-select: none;
 }
 
 .profile-info {

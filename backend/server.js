@@ -140,6 +140,51 @@ app.get('/status', async (req, res) => {
     }
 });
 
+// Pinned repositories for Projects.exe. GitHub's REST API does not expose pins,
+// so they come from GraphQL, which needs a token (read-only, public data is enough).
+// Without GITHUB_TOKEN the endpoint answers 404 and the site keeps its config flags.
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
+const GITHUB_USER = process.env.GITHUB_USER || '';
+const PINNED_TTL = 15 * 60 * 1000;
+let pinnedCache = null;
+
+async function fetchPinned() {
+    const response = await fetch('https://api.github.com/graphql', {
+        method: 'POST',
+        signal: AbortSignal.timeout(8000),
+        headers: {
+            Authorization: `bearer ${GITHUB_TOKEN}`,
+            'Content-Type': 'application/json',
+            'User-Agent': 'PortfolioOS-Pinned/1.0'
+        },
+        body: JSON.stringify({
+            query: 'query($login:String!){user(login:$login){pinnedItems(first:6,types:REPOSITORY){nodes{... on Repository{name}}}}}',
+            variables: { login: GITHUB_USER }
+        })
+    });
+    if (!response.ok) throw new Error(`GitHub responded with ${response.status}`);
+    const body = await response.json();
+    const nodes = body?.data?.user?.pinnedItems?.nodes;
+    if (!Array.isArray(nodes)) throw new Error('unexpected GraphQL response');
+    return nodes.map(node => node?.name).filter(name => typeof name === 'string');
+}
+
+app.get('/pinned', async (req, res) => {
+    if (!GITHUB_TOKEN || !GITHUB_USER) return res.status(404).json({ error: 'Pinned repositories are not configured.' });
+    try {
+        if (!pinnedCache || Date.now() - pinnedCache.time > PINNED_TTL) {
+            pinnedCache = { time: Date.now(), names: await fetchPinned() };
+        }
+        res.set('Cache-Control', 'public, max-age=300');
+        res.json({ pinned: pinnedCache.names });
+    } catch (error) {
+        console.error('Pinned repositories:', error.message);
+        // Serve the last good answer for a while instead of failing the page
+        if (pinnedCache && Date.now() - pinnedCache.time < PINNED_TTL * 8) return res.json({ pinned: pinnedCache.names });
+        res.status(502).json({ error: 'Could not load pinned repositories.' });
+    }
+});
+
 // Contact form endpoint
 app.post('/contact', contactLimiter, async (req, res) => {
     try {

@@ -3,7 +3,8 @@
  *
  * The list is loaded live from the GitHub API when the window opens
  * (disable with Profile.githubSync = false). Profile.projects is the
- * offline fallback and decides which repositories are featured.
+ * offline fallback. Featured follows the repositories pinned on GitHub when the
+ * backend has a GITHUB_TOKEN, otherwise the flags in Profile.projects.
  */
 
 import { Icons } from '../icons.js?v=15';
@@ -42,10 +43,25 @@ const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
 
 const formatDate = iso => new Date(iso).toLocaleDateString(lang === 'pl' ? 'pl-PL' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
+// Names pinned on the GitHub profile (needs GITHUB_TOKEN on the backend); null if unknown
+async function fetchPinned() {
+    try {
+        const response = await fetch('/api/pinned', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(6000) });
+        if (!response.ok) return null;
+        const { pinned } = await response.json();
+        return Array.isArray(pinned) && pinned.length ? new Set(pinned.map(name => String(name).toLowerCase())) : null;
+    } catch {
+        return null;
+    }
+}
+
 async function fetchGithubRepositories() {
-    const response = await fetch(`https://api.github.com/users/${encodeURIComponent(Profile.contact.github)}/repos?per_page=100&sort=pushed`, {
-        headers: { Accept: 'application/vnd.github+json' }
-    });
+    const [response, pinned] = await Promise.all([
+        fetch(`https://api.github.com/users/${encodeURIComponent(Profile.contact.github)}/repos?per_page=100&sort=pushed`, {
+            headers: { Accept: 'application/vnd.github+json' }
+        }),
+        fetchPinned()
+    ]);
     if (!response.ok) throw new Error(`GitHub API responded with ${response.status}`);
 
     const publicRepositories = (await response.json()).filter(repo => !repo.fork);
@@ -64,6 +80,8 @@ async function fetchGithubRepositories() {
                 stars: repo.stargazers_count,
                 license: license && license !== 'NOASSERTION' ? license : local.license,
                 updated: formatDate(repo.pushed_at),
+                // Pins on GitHub win; without them the config flags decide
+                featured: pinned ? pinned.has(repo.name.toLowerCase()) : Boolean(local.featured),
                 url: repo.html_url
             };
         });

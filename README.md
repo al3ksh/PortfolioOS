@@ -5,7 +5,7 @@
 **A retro desktop that doubles as your developer portfolio.**<br>
 Windows 3.1 / 95 look, built with plain HTML, CSS and JavaScript. No frameworks, no bundler.
 
-![Version](https://img.shields.io/badge/version-1.3.3-0a246a?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.3.4-0a246a?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-2e7d32?style=flat-square)
 ![Vanilla JS](https://img.shields.io/badge/vanilla-JavaScript-f7df1e?style=flat-square&logo=javascript&logoColor=black)
 ![Dependencies](https://img.shields.io/badge/frontend%20dependencies-0-808080?style=flat-square)
@@ -173,6 +173,7 @@ The site is then available on port 80 (`FRONTEND_PORT` changes it).
 | `CONTACT_EMAIL` | Where contact form messages are delivered | `SMTP_USER` |
 | `STATUS_SERVICES` | Services shown in Network.exe as `Name\|https://url` pairs separated by commas; without it the app reports that status is unavailable | none |
 | `STATUS_HOST_LABEL` | Name shown for the server running the backend | hostname |
+| `GITHUB_USER`, `GITHUB_TOKEN` | GitHub login and a read-only token; Projects.exe then marks the repositories pinned on your profile as featured (cached 15 min). Without them the `featured` flags in `js/config.js` apply | none |
 | `TURNSTILE_SECRET` | Cloudflare Turnstile secret; when set, the contact form and leaderboard submissions require the check | none |
 | `CORS_ORIGIN` | Allowed origin for the API | `*` |
 | `SCORES_FILE` | Where the leaderboards are stored | `/data/scores.json` in Docker |
