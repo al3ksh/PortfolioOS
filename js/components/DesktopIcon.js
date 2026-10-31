@@ -2,10 +2,13 @@
  * Desktop Icon Component - Grid-based with drag & drop
  */
 
-import { WindowManager } from '../managers/WindowManager.js?v=15';
-import { SoundManager } from '../managers/SoundManager.js?v=15';
-import { DesktopGridManager } from '../managers/DesktopGridManager.js?v=15';
-import { Icons } from '../icons.js?v=15';
+import { WindowManager } from '../managers/WindowManager.js?v=16';
+import { SoundManager } from '../managers/SoundManager.js?v=16';
+import { DesktopGridManager } from '../managers/DesktopGridManager.js?v=16';
+import { Icons } from '../icons.js?v=16';
+import { t } from '../i18n.js?v=16';
+
+const RECYCLE_ID = 'icon-recycle';
 
 export class DesktopIcon {
     constructor(config) {
@@ -148,7 +151,10 @@ export class DesktopIcon {
 
                 // Show drop preview
                 const cell = DesktopGridManager.getCellFromPosition(e.clientX, e.clientY);
-                DesktopGridManager.showDropPreview(cell.row, cell.col);
+                const overBin = this.isRecycleCell(cell);
+                document.querySelector(`[data-icon-id="${RECYCLE_ID}"]`)?.classList.toggle('drop-target', overBin);
+                if (overBin) DesktopGridManager.hideDropPreview();
+                else DesktopGridManager.showDropPreview(cell.row, cell.col);
             }
         };
 
@@ -167,6 +173,11 @@ export class DesktopIcon {
             if (hasMoved) {
                 // Calculate target cell
                 const cell = DesktopGridManager.getCellFromPosition(e.clientX, e.clientY);
+                document.querySelector(`[data-icon-id="${RECYCLE_ID}"]`)?.classList.remove('drop-target');
+                if (this.isRecycleCell(cell)) {
+                    this.refuseRecycle();
+                    return;
+                }
                 DesktopGridManager.placeIcon(this.id, cell.row, cell.col);
                 SoundManager.play('click');
             }
@@ -188,6 +199,37 @@ export class DesktopIcon {
         this.element.addEventListener('touchend', (e) => {
             const touch = e.changedTouches[0];
             onMouseUp({ clientX: touch.clientX, clientY: touch.clientY });
+        });
+    }
+
+    isRecycleCell(cell) {
+        return this.id !== RECYCLE_ID && DesktopGridManager.grid[cell.row]?.[cell.col] === RECYCLE_ID;
+    }
+
+    // Nothing on this desktop can be thrown away: the icon jumps back and complains.
+    refuseRecycle() {
+        SoundManager.play('error');
+        this.element.classList.remove('recycle-refused');
+        void this.element.offsetWidth;
+        this.element.classList.add('recycle-refused');
+        setTimeout(() => this.element.classList.remove('recycle-refused'), 600);
+
+        const bin = document.querySelector(`[data-icon-id="${RECYCLE_ID}"]`);
+        bin?.classList.add('recycle-bump');
+        setTimeout(() => bin?.classList.remove('recycle-bump'), 600);
+
+        const refused = Number(sessionStorage.getItem('recycleRefused') || 0) + 1;
+        sessionStorage.setItem('recycleRefused', String(refused));
+
+        const lines = t('recycle.refuse');
+        const line = Array.isArray(lines) ? lines[(refused - 1) % lines.length] : String(lines);
+        const message = line.replace(/\{name\}/g, this.title);
+
+        document.dispatchEvent(new CustomEvent('face:react', {
+            detail: { mood: 'surprised', text: t('face.say.recycle', { name: this.title }) }
+        }));
+        import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
+            DialogManager.alert(message, t('recycle.dialogTitle'));
         });
     }
 
@@ -267,9 +309,9 @@ export class DesktopIcon {
     }
 
     showProperties() {
-        import('../apps/index.js?v=15').then(module => {
+        import('../apps/index.js?v=16').then(module => {
             const app = module.Apps[this.appId];
-            import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
                 DialogManager.info({
                     'Name': this.title,
                     'Type': 'Application',

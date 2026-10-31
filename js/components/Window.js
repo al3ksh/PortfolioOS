@@ -2,9 +2,9 @@
  * Window Component - Draggable, resizable window
  */
 
-import { Icons } from '../icons.js?v=15';
-import { WindowManager } from '../managers/WindowManager.js?v=15';
-import { SoundManager } from '../managers/SoundManager.js?v=15';
+import { Icons } from '../icons.js?v=16';
+import { WindowManager } from '../managers/WindowManager.js?v=16';
+import { SoundManager } from '../managers/SoundManager.js?v=16';
 
 export class Window {
     constructor(config) {
@@ -525,19 +525,59 @@ export class Window {
         };
     }
 
-    minimize() {
-        this.isMinimized = true;
-        // Animate then hide
-        this.element.style.animation = 'minimize-out 0.15s ease-in forwards';
-        setTimeout(() => {
-            this.element.classList.add('minimized');
-            this.element.style.animation = '';
-        }, 150);
+    /**
+     * Zooms the window between its own box and rect (the icon or taskbar button it belongs to).
+     * Returns the animation, or null when there is nothing to fly to or motion is reduced.
+     */
+    fly(rect, { toRect = false, duration = 220 } = {}) {
+        this.flight?.cancel();
+        this.flight = null;
+        if (!rect || !this.element.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
+        // The CSS open/restore animations scale the box, so drop them before measuring
+        this.element.classList.remove('opening', 'restoring');
+        const box = this.element.getBoundingClientRect();
+        if (!box.width || !box.height) return null;
+        const away = {
+            transformOrigin: '0 0',
+            transform: `translate(${rect.left - box.left}px, ${rect.top - box.top}px) scale(${rect.width / box.width}, ${rect.height / box.height})`,
+            opacity: 0.3
+        };
+        const home = { transformOrigin: '0 0', transform: 'none', opacity: 1 };
+        this.flight = this.element.animate(toRect ? [home, away] : [away, home], {
+            duration,
+            easing: toRect ? 'cubic-bezier(0.5, 0, 0.9, 0.6)' : 'cubic-bezier(0.1, 0.4, 0.5, 1)',
+            fill: toRect ? 'forwards' : 'none'
+        });
+        return this.flight;
     }
 
-    restore() {
+    minimize(targetRect) {
+        this.isMinimized = true;
+        const hide = () => {
+            if (!this.isMinimized) return;
+            this.element.classList.add('minimized');
+            this.element.style.animation = '';
+            this.flight?.cancel();
+            this.flight = null;
+        };
+        const flight = this.fly(targetRect, { toRect: true });
+        if (flight) {
+            flight.onfinish = hide;
+            // Animations stall in background tabs; still hide the window
+            setTimeout(() => { if (this.flight === flight) hide(); }, 400);
+        } else if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            hide();
+        } else {
+            this.element.style.animation = 'minimize-out 0.15s ease-in forwards';
+            setTimeout(hide, 150);
+        }
+    }
+
+    restore(fromRect) {
         this.isMinimized = false;
+        this.element.style.animation = '';
         this.element.classList.remove('minimized');
+        if (this.fly(fromRect)) return;
         this.element.classList.add('restoring');
         setTimeout(() => {
             this.element.classList.remove('restoring');

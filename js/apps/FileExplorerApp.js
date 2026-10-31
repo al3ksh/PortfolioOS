@@ -2,23 +2,15 @@
  * File Explorer App - Virtual file browser
  */
 
-import { Icons } from '../icons.js?v=15';
-import { Profile, githubUrl } from '../config.js?v=15';
-import { loc } from '../i18n.js?v=15';
-import { SoundManager } from '../managers/SoundManager.js?v=15';
-import { WindowManager } from '../managers/WindowManager.js?v=15';
+import { Icons } from '../icons.js?v=16';
+import { SoundManager } from '../managers/SoundManager.js?v=16';
+import { WindowManager } from '../managers/WindowManager.js?v=16';
+import { VFS } from '../vfs.js?v=16';
+import { NotepadApp } from './NotepadApp.js?v=16';
+import { printText } from './PrinterApp.js?v=16';
 
 const BS = String.fromCharCode(92);
-// Deleting anything under these paths takes the whole system down
-const SYSTEM_PATHS = ['c:' + BS + 'windows', 'c:' + BS + 'program files' + BS + 'portfolio os' + BS + 'portfolio.exe'];
-const cloneTree = (tree) => {
-    const copy = {};
-    Object.entries(tree).forEach(([name, item]) => {
-        copy[name] = { ...item };
-        if (item.children) copy[name].children = cloneTree(item.children);
-    });
-    return copy;
-};
+const escapeHtml = value => String(value).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]);
 
 export const FileExplorerApp = {
     id: 'explorer',
@@ -130,33 +122,20 @@ export const FileExplorerApp = {
     },
 
     async createNewFolder(container) {
-        const { DialogManager } = await import('../managers/DialogManager.js?v=15');
-        const name = await DialogManager.prompt('Enter folder name:', '', 'New Folder');
+        const { DialogManager } = await import('../managers/DialogManager.js?v=16');
+        const name = (await DialogManager.prompt('Enter folder name:', 'New Folder', 'New Folder'))?.replace(/[\\/:*?"<>|]+/g, '').trim();
         if (!name) return;
-        
-        // Get current folder
-        let current = FileExplorerApp.fileSystem;
-        for (const segment of FileExplorerApp.currentPath) {
-            if (current[segment]) {
-                current = current[segment].children || current[segment];
-            } else if (current.children && current.children[segment]) {
-                current = current.children[segment].children || {};
-            }
+
+        if (!VFS.mkdir([...FileExplorerApp.currentPath, name])) {
+            SoundManager.play('error');
+            await DialogManager.alert(`Cannot create folder "${name}".\nA file or folder with that name already exists.`, 'Error');
+            return;
         }
-        
-        // Add new folder (in memory only)
-        if (current.children) {
-            current.children[name] = { type: 'folder', children: {} };
-        } else {
-            current[name] = { type: 'folder', children: {} };
-        }
-        
-        FileExplorerApp.navigateTo(container, FileExplorerApp.currentPath);
         SoundManager.play('chord');
     },
 
     async showProperties(container) {
-        const { DialogManager } = await import('../managers/DialogManager.js?v=15');
+        const { DialogManager } = await import('../managers/DialogManager.js?v=16');
         const selected = FileExplorerApp.selectedItem;
         
         if (!selected) {
@@ -168,23 +147,12 @@ export const FileExplorerApp = {
                 'Items': container.querySelectorAll('.explorer-item').length
             }, 'Folder Properties');
         } else {
-            // Show file properties
-            let current = FileExplorerApp.fileSystem;
-            for (const segment of FileExplorerApp.currentPath) {
-                if (current[segment]) {
-                    current = current[segment].children || current[segment];
-                } else if (current.children && current.children[segment]) {
-                    current = current.children[segment].children || {};
-                }
-            }
-            const items = current.children || current;
-            const item = items[selected];
-            
+            const item = FileExplorerApp.getItems()?.[selected];
             if (item) {
                 await DialogManager.info({
                     'Name': selected,
                     'Type': item.type.charAt(0).toUpperCase() + item.type.slice(1),
-                    'Size': item.size || 'Unknown',
+                    'Size': VFS.sizeLabel(item) || 'Unknown',
                     'Location': FileExplorerApp.currentPath.join('\\')
                 }, 'File Properties');
             }
@@ -211,247 +179,9 @@ export const FileExplorerApp = {
         SoundManager.play('click');
     },
 
-    // Virtual file system
-    fileSystem: {
-        'C:': {
-            type: 'drive',
-            children: {
-                'Windows': {
-                    type: 'folder',
-                    children: {
-                        'System32': {
-                            type: 'folder',
-                            children: {
-                                'config.sys': { type: 'file', size: '512 B', icon: Icons.fileConfig, content: 'config.sys' },
-                                'autoexec.bat': { type: 'file', size: '256 B', icon: Icons.fileText, content: 'autoexec.bat' },
-                                'win.ini': { type: 'file', size: '1 KB', icon: Icons.fileConfig, content: 'win.ini' },
-                                'secrets.dll': { type: 'file', size: '???', icon: Icons.fileLock, hidden: true }
-                            }
-                        },
-                        'Fonts': {
-                            type: 'folder',
-                            children: {
-                                'Arial.ttf': { type: 'file', size: '150 KB', icon: Icons.fileFont },
-                                'Times.ttf': { type: 'file', size: '180 KB', icon: Icons.fileFont },
-                                'MSSerif.ttf': { type: 'file', size: '120 KB', icon: Icons.fileFont }
-                            }
-                        },
-                        'Media': {
-                            type: 'folder',
-                            children: {
-                                'startup.wav': { type: 'file', size: '420 KB', icon: Icons.fileAudio },
-                                'chord.wav': { type: 'file', size: '24 KB', icon: Icons.fileAudio },
-                                'ding.wav': { type: 'file', size: '12 KB', icon: Icons.fileAudio }
-                            }
-                        }
-                    }
-                },
-                'Program Files': {
-                    type: 'folder',
-                    children: {
-                        'Portfolio OS': {
-                            type: 'folder',
-                            children: {
-                                'portfolio.exe': { type: 'file', size: '2.1 MB', icon: Icons.fileExe, action: 'portfolio' },
-                                'readme.txt': { type: 'file', size: '4 KB', icon: Icons.fileText, action: 'readme' },
-                                'contact.exe': { type: 'file', size: '512 KB', icon: Icons.fileExe, action: 'contact' },
-                                'simple.exe': { type: 'file', size: '128 KB', icon: Icons.smSimple, action: 'simplemode' }
-                            }
-                        },
-                        'Accessories': {
-                            type: 'folder',
-                            children: {
-                                'notepad.exe': { type: 'file', size: '64 KB', icon: Icons.smNotepad, action: 'notepad' },
-                                'calc.exe': { type: 'file', size: '48 KB', icon: Icons.smCalc, action: 'calc' },
-                                'paint.exe': { type: 'file', size: '256 KB', icon: Icons.smPaint, action: 'paint' },
-                                'terminal.exe': { type: 'file', size: '96 KB', icon: Icons.smTerminal, action: 'terminal' }
-                            }
-                        },
-                        'Internet': {
-                            type: 'folder',
-                            children: {
-                                'internet.exe': { type: 'file', size: '1.2 MB', icon: Icons.smBrowser, action: 'browser' }
-                            }
-                        },
-                        'Games': {
-                            type: 'folder',
-                            children: {
-                                'mines.exe': { type: 'file', size: '180 KB', icon: Icons.smMines, action: 'mines' },
-                                'snake.exe': { type: 'file', size: '96 KB', icon: Icons.fileExe, action: 'snake' }
-                            }
-                        }
-                    }
-                },
-                'Users': {
-                    type: 'folder',
-                    children: {
-                        [Profile.firstName]: {
-                            type: 'folder',
-                            children: {
-                                'Desktop': {
-                                    type: 'folder',
-                                    children: {
-                                        'Portfolio.lnk': { type: 'file', size: '1 KB', icon: Icons.fileLink, action: 'portfolio' },
-                                        'README.txt': { type: 'file', size: '2 KB', icon: Icons.fileText, action: 'readme' }
-                                    }
-                                },
-                                'Documents': {
-                                    type: 'folder',
-                                    children: {
-                                         'cv.txt': { type: 'file', size: '8 KB', icon: Icons.fileText, content: 'cv' },
-                                         'projects.txt': { type: 'file', size: '4 KB', icon: Icons.fileText, content: 'projects' },
-                                         'notes.txt': { type: 'file', size: '1 KB', icon: Icons.fileText, content: 'notes' }
-                                    }
-                                },
-                                'Pictures': {
-                                    type: 'folder',
-                                    children: {
-                                         'avatar.png': { type: 'file', size: '128 KB', icon: Icons.fileImage },
-                                         'screenshot.png': { type: 'file', size: '512 KB', icon: Icons.fileImage }
-                                    }
-                                },
-                                '.secret': {
-                                    type: 'folder',
-                                    hidden: true,
-                                    children: {
-                                         'easter_egg.txt': { type: 'file', size: '???', icon: Icons.fileText, content: 'easter_egg' }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        'D:': {
-            type: 'drive',
-            children: {
-                'Projects': {
-                    type: 'folder',
-                    children: {
-                        'portfolio-os': {
-                            type: 'folder',
-                            children: {
-                                'index.html': { type: 'file', size: '12 KB', icon: Icons.smBrowser },
-                                'style.css': { type: 'file', size: '24 KB', icon: Icons.fileText },
-                                'main.js': { type: 'file', size: '48 KB', icon: Icons.fileText },
-                                'README.md': { type: 'file', size: '3 KB', icon: Icons.fileText, content: 'project_readme' }
-                            }
-                        }
-                    }
-                },
-                'Backup': {
-                    type: 'folder',
-                    children: {
-                        'important.zip': { type: 'file', size: '15 MB', icon: Icons.fileZip },
-                        'memories.zip': { type: 'file', size: '2.3 GB', icon: Icons.fileZip }
-                    }
-                }
-            }
-        }
-    },
-
-    // File contents for special files
-    fileContents: {
-        'config.sys': `DEVICE=C:${BS}WINDOWS${BS}HIMEM.SYS
-DEVICE=C:${BS}WINDOWS${BS}EMM386.EXE NOEMS
-DOS=HIGH,UMB
-FILES=40
-BUFFERS=20
-STACKS=9,256`,
-
-        'autoexec.bat': `@ECHO OFF
-PROMPT $P$G
-SET PATH=C:${BS}WINDOWS;C:${BS}WINDOWS${BS}SYSTEM32
-SET TEMP=C:${BS}WINDOWS${BS}TEMP
-LH C:${BS}WINDOWS${BS}MOUSE.COM`,
-
-        'win.ini': `[windows]
-load=
-run=
-NullPort=None
-
-[Desktop]
-Wallpaper=(None)
-TileWallpaper=0
-
-[fonts]
-MS Sans Serif=SSERIFE.FON
-Courier=COURE.FON
-Symbol=SYMBOLE.FON
-
-[mci extensions]
-wav=waveaudio
-mid=sequencer
-avi=AVIVideo`,
-
-        get cv() {
-            return `${Profile.name}
-${loc(Profile.title)}
-
-Email:    ${Profile.contact.email}
-GitHub:   github.com/${Profile.contact.github}
-Discord:  ${Profile.contact.discord}
-Location: ${loc(Profile.location)}
-
-EDUCATION
-${Profile.education.map(edu => `${loc(edu.date)}  ${loc(edu.school)}\n          ${loc(edu.degree)}`).join('\n')}
-
-EXPERIENCE
-${Profile.experience.map(job => `${loc(job.date)}  ${loc(job.role)}, ${loc(job.company)}`).join('\n')}
-
-SKILLS
-${Profile.skills.join(', ')}`;
-        },
-
-        get projects() {
-            return `PROJECTS
-
-${Profile.projects.map(project => `${project.name}${project.tech ? ` (${project.tech})` : ''}\n${project.description}\n${project.url}`).join('\n\n')}`;
-        },
-
-        'notes': `TODO
-
-- update the CV
-- add screenshots to the project READMEs
-- back up the server
-- reply to recruiters`,
-
-        'easter_egg': `Hidden file, nothing sensitive in here.
-
-If you like poking around, try the Konami code
-and the Terminal.
-
-${Profile.initials}`,
-
-        get project_readme() {
-            return `PortfolioOS
-
-A portfolio built as a Windows 3.1 / 95 style desktop.
-Vanilla JavaScript, no frameworks.
-
-github.com/${Profile.contact.github}/PortfolioOS`;
-        }
-    },
-
     /** Children of a folder in the virtual disk (the current folder by default). */
     getItems(path = FileExplorerApp.currentPath) {
-        let node = { children: FileExplorerApp.fileSystem };
-        for (const segment of path) {
-            node = node.children?.[segment];
-            if (!node) return null;
-        }
-        return node.children || null;
-    },
-
-    /** Name of the system file that makes deleting `name` fatal, or null for harmless items. */
-    systemCulprit(name) {
-        const target = [...FileExplorerApp.currentPath, name].join(BS).toLowerCase();
-        for (const system of SYSTEM_PATHS) {
-            if (target === system || target.startsWith(system + BS)) return name;
-            if (system.startsWith(target + BS)) return system.split(BS).pop();
-        }
-        return null;
+        return VFS.list(path);
     },
 
     collectFiles(name, item, out = []) {
@@ -468,7 +198,7 @@ github.com/${Profile.contact.github}/PortfolioOS`;
         const items = FileExplorerApp.getItems();
         if (!names.length || !items) return;
 
-        const { DialogManager } = await import('../managers/DialogManager.js?v=15');
+        const { DialogManager } = await import('../managers/DialogManager.js?v=16');
         const first = items[names[0]];
         let message;
         let title;
@@ -485,7 +215,7 @@ github.com/${Profile.contact.github}/PortfolioOS`;
         if (!await DialogManager.confirm(message, title)) return;
 
         const doomed = names.filter(name => items[name]);
-        const culprit = doomed.map(name => FileExplorerApp.systemCulprit(name)).find(Boolean);
+        const culprit = doomed.map(name => VFS.systemCulprit([...FileExplorerApp.currentPath, name])).find(Boolean);
 
         if (culprit) {
             const files = doomed.flatMap(name => FileExplorerApp.collectFiles(name, items[name]));
@@ -494,16 +224,14 @@ github.com/${Profile.contact.github}/PortfolioOS`;
             return;
         }
 
-        doomed.forEach(name => delete items[name]);
-        FileExplorerApp.renderTree(container);
-        FileExplorerApp.navigateTo(container, FileExplorerApp.currentPath);
+        doomed.forEach(name => VFS.remove([...FileExplorerApp.currentPath, name]));
         SoundManager.play('close');
     },
 
     /** "Deleting..." dialog that gets as far as the first few system files, then gives up. */
     playDeleteProgress(files) {
         return new Promise(async resolve => {
-            const { DialogManager } = await import('../managers/DialogManager.js?v=15');
+            const { DialogManager } = await import('../managers/DialogManager.js?v=16');
             const dialog = DialogManager.createDialog({
                 title: 'Deleting',
                 content: `
@@ -563,8 +291,8 @@ github.com/${Profile.contact.github}/PortfolioOS`;
 
     /** After a crash the disk comes back as it was ("restored from backup"). */
     restoreDisk() {
-        FileExplorerApp.fileSystem = cloneTree(FileExplorerApp.pristine);
         FileExplorerApp.currentPath = ['C:'];
+        VFS.reset();
         FileExplorerApp.selectedItem = null;
         const container = document.querySelector('#window-explorer');
         if (container) {
@@ -711,6 +439,13 @@ github.com/${Profile.contact.github}/PortfolioOS`;
         };
         document.addEventListener('keydown', FileExplorerApp.keyHandler);
 
+        // Notepad, the Terminal or a delete changed the disk: redraw what is on screen
+        FileExplorerApp.diskHandler = () => {
+            FileExplorerApp.renderTree(container);
+            FileExplorerApp.navigateTo(container, FileExplorerApp.currentPath, { keepSelection: true });
+        };
+        window.addEventListener('vfs-change', FileExplorerApp.diskHandler);
+
         // Render initial view
         FileExplorerApp.renderTree(container);
         FileExplorerApp.navigateTo(container, ['C:']);
@@ -718,6 +453,7 @@ github.com/${Profile.contact.github}/PortfolioOS`;
 
     onClose() {
         document.removeEventListener('keydown', FileExplorerApp.keyHandler);
+        window.removeEventListener('vfs-change', FileExplorerApp.diskHandler);
         FileExplorerApp.closeContextMenu();
     },
 
@@ -725,8 +461,14 @@ github.com/${Profile.contact.github}/PortfolioOS`;
         const itemEl = event.target.closest('.explorer-item');
         if (itemEl) {
             if (!itemEl.classList.contains('selected')) itemEl.click();
+            const path = [...FileExplorerApp.currentPath, itemEl.dataset.name];
+            const isText = VFS.isText(VFS.get(path));
             FileExplorerApp.showContextMenu(event.clientX, event.clientY, [
                 { label: 'Open', icon: Icons.ctxOpen, action: () => itemEl.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })) },
+                ...(isText ? [
+                    { label: 'Edit', icon: Icons.notepad, action: () => NotepadApp.openPath(path) },
+                    { label: 'Print', icon: Icons.actPrint, action: () => printText(itemEl.dataset.name, VFS.read(path)) }
+                ] : []),
                 { divider: true },
                 { label: 'Delete', icon: Icons.actTrash, action: () => FileExplorerApp.deleteSelected(container) },
                 { divider: true },
@@ -750,7 +492,7 @@ github.com/${Profile.contact.github}/PortfolioOS`;
 
         tree.innerHTML = '';
         
-        Object.keys(FileExplorerApp.fileSystem).forEach(drive => {
+        Object.keys(VFS.root.children).forEach(drive => {
             const driveEl = document.createElement('div');
             driveEl.className = 'tree-item drive';
             driveEl.innerHTML = `<span class="tree-icon">${Icons.fileDrive}</span><span>${drive}</span>`;
@@ -761,14 +503,14 @@ github.com/${Profile.contact.github}/PortfolioOS`;
             tree.appendChild(driveEl);
 
             // Add first level folders
-            const driveData = FileExplorerApp.fileSystem[drive];
+            const driveData = VFS.root.children[drive];
             if (driveData.children) {
                 Object.keys(driveData.children).forEach(folder => {
                     const item = driveData.children[folder];
                     if (item.type === 'folder') {
                         const folderEl = document.createElement('div');
                         folderEl.className = 'tree-item folder';
-                        folderEl.innerHTML = `<span class="tree-icon">${Icons.smFolder}</span><span>${folder}</span>`;
+                        folderEl.innerHTML = `<span class="tree-icon">${Icons.smFolder}</span><span>${escapeHtml(folder)}</span>`;
                         folderEl.addEventListener('click', () => {
                             FileExplorerApp.navigateTo(container, [drive, folder]);
                             SoundManager.play('click');
@@ -780,7 +522,14 @@ github.com/${Profile.contact.github}/PortfolioOS`;
         });
     },
 
-    navigateTo(container, path) {
+    navigateTo(container, path, { keepSelection = false } = {}) {
+        // A folder deleted from elsewhere sends the view up to the nearest one that still exists
+        const target = [...path];
+        while (target.length > 1 && !VFS.isDir(VFS.get(target))) target.pop();
+        const reselect = keepSelection && target.length === path.length
+            ? [...container.querySelectorAll('.explorer-item.selected')].map(el => el.dataset.name)
+            : [];
+        path = target;
         FileExplorerApp.currentPath = [...path];
         FileExplorerApp.selectedItem = null;
 
@@ -790,15 +539,7 @@ github.com/${Profile.contact.github}/PortfolioOS`;
             addressBar.value = path.join('\\') + '\\';
         }
 
-        // Get current folder content
-        let current = FileExplorerApp.fileSystem;
-        for (const segment of path) {
-            if (current[segment]) {
-                current = current[segment].children || current[segment];
-            } else if (current.children && current.children[segment]) {
-                current = current.children[segment].children || {};
-            }
-        }
+        const current = VFS.list(path);
 
         // Render content
         const content = container.querySelector('#fileContent');
@@ -807,9 +548,9 @@ github.com/${Profile.contact.github}/PortfolioOS`;
         content.innerHTML = '';
         let itemCount = 0;
 
-        if (typeof current === 'object') {
-            const items = current.children || current;
-            
+        if (current) {
+            const items = current;
+
             Object.keys(items).forEach(name => {
                 const item = items[name];
                 if (!item) return;
@@ -824,15 +565,11 @@ github.com/${Profile.contact.github}/PortfolioOS`;
                 el.dataset.name = name;
                 el.dataset.type = item.type;
 
-                let icon = Icons.fileText;
-                if (item.type === 'drive') icon = Icons.fileDrive;
-                else if (item.type === 'folder') icon = Icons.smFolder;
-                else if (item.icon) icon = item.icon;
-
+                const size = VFS.sizeLabel(item);
                 el.innerHTML = `
-                    <div class="item-icon">${icon}</div>
-                    <div class="item-name">${name}</div>
-                    ${item.size ? `<div class="item-size">${item.size}</div>` : ''}
+                    <div class="item-icon">${VFS.iconOf(name, item)}</div>
+                    <div class="item-name">${escapeHtml(name)}</div>
+                    ${size ? `<div class="item-size">${size}</div>` : ''}
                 `;
 
                 el.addEventListener('click', () => {
@@ -842,7 +579,7 @@ github.com/${Profile.contact.github}/PortfolioOS`;
                     
                     const info = container.querySelector('#selectedInfo');
                     if (info) {
-                        info.textContent = item.size ? `${name} - ${item.size}` : name;
+                        info.textContent = size ? `${name} - ${size}` : name;
                     }
                     SoundManager.play('click');
                 });
@@ -858,6 +595,10 @@ github.com/${Profile.contact.github}/PortfolioOS`;
                 });
 
                 content.appendChild(el);
+                if (reselect.includes(name)) {
+                    el.classList.add('selected');
+                    FileExplorerApp.selectedItem = name;
+                }
             });
         }
 
@@ -881,130 +622,41 @@ github.com/${Profile.contact.github}/PortfolioOS`;
             return;
         }
 
-        // If file has content, show it in a dialog or notepad
-        if (item.content && FileExplorerApp.fileContents[item.content]) {
-            const content = FileExplorerApp.fileContents[item.content];
-            FileExplorerApp.showFileContent(name, content);
+        // Text files open in Notepad, straight from the shared disk
+        if (VFS.isText(item)) {
+            NotepadApp.openPath([...FileExplorerApp.currentPath, name]);
             return;
         }
 
-        // Map file extensions to apps
         const ext = name.split('.').pop().toLowerCase();
-        
-        const appMap = {
-            'txt': 'notepad',
-            'md': 'notepad',
-            'ini': 'notepad',
-            'bat': 'notepad',
-            'sys': 'notepad',
-            'exe': null, // Show error
-            'pdf': null,
-            'png': null,
-            'jpg': null,
-            'wav': null,
-            'zip': null,
-            'dll': null,
-            'ttf': null
-        };
 
-        if (appMap[ext] === 'notepad') {
-            WindowManager.createWindow('notepad');
-            SoundManager.play('open');
+        if (VFS.canHoldText(name)) {
+            NotepadApp.openPath([...FileExplorerApp.currentPath, name]);
         } else if (ext === 'wav') {
             SoundManager.play('chord');
-            import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
                 DialogManager.alert('♪ Playing sound... ♪\n(Not really, but imagine it!)', 'Media Player');
             });
         } else if (ext === 'zip') {
             SoundManager.play('error');
-            import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
                 DialogManager.alert('Cannot extract archive.\nWinZIP not installed.', 'Error');
             });
         } else if (ext === 'dll') {
             SoundManager.play('error');
-            import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
                 DialogManager.alert('This is a system file.\nIt cannot be opened directly.', 'Error');
             });
         } else {
             SoundManager.play('error');
-            import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
                 DialogManager.alert(
                     `Cannot open "${name}"\n\nNo application associated with this file type.`,
                     'Error'
                 );
             });
         }
-    },
-
-    async showFileContent(filename, content) {
-        const { DialogManager } = await import('../managers/DialogManager.js?v=15');
-        
-        // Create a custom modal for file content
-        const modal = document.createElement('div');
-        modal.className = 'file-viewer-modal';
-        modal.innerHTML = `
-            <div class="file-viewer-window">
-                <div class="file-viewer-titlebar">
-                    <span>${Icons.fileText} ${filename}</span>
-                    <button class="file-viewer-close">×</button>
-                </div>
-                <div class="file-viewer-content">
-                    <pre>${content}</pre>
-                </div>
-                <div class="file-viewer-statusbar">
-                    <span>Read-only</span>
-                </div>
-            </div>
-        `;
-        
-        modal.style.cssText = `
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); display: flex;
-            align-items: center; justify-content: center; z-index: 99999;
-        `;
-        
-        const win = modal.querySelector('.file-viewer-window');
-        win.style.cssText = `
-            background: var(--win-gray); width: 500px; max-width: 90%;
-            border: var(--border-raised); box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
-        `;
-        
-        const titlebar = modal.querySelector('.file-viewer-titlebar');
-        titlebar.style.cssText = `
-            background: var(--win-blue); color: white; padding: 4px 8px;
-            display: flex; justify-content: space-between; align-items: center;
-            font-weight: bold;
-        `;
-        
-        const closeBtn = modal.querySelector('.file-viewer-close');
-        closeBtn.style.cssText = `
-            background: var(--win-gray); border: var(--border-raised);
-            width: 20px; height: 20px; cursor: pointer; font-weight: bold;
-        `;
-        
-        const contentDiv = modal.querySelector('.file-viewer-content');
-        contentDiv.style.cssText = `
-            background: white; margin: 8px; padding: 12px; height: 350px;
-            overflow: auto; font-family: 'Courier New', monospace; font-size: 12px;
-            border: 2px inset #808080; white-space: pre-wrap; word-wrap: break-word;
-        `;
-        
-        const statusbar = modal.querySelector('.file-viewer-statusbar');
-        statusbar.style.cssText = `
-            background: var(--win-gray); padding: 4px 8px; font-size: 11px;
-            border-top: 1px solid var(--win-dark-gray);
-        `;
-        
-        closeBtn.addEventListener('click', () => modal.remove());
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.remove();
-        });
-        
-        document.body.appendChild(modal);
-        SoundManager.play('open');
     }
 };
-
-FileExplorerApp.pristine = cloneTree(FileExplorerApp.fileSystem);
 
 export default FileExplorerApp;

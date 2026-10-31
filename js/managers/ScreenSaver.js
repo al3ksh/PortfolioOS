@@ -3,10 +3,10 @@
  * Type and delay come from settings (Control Panel or BIOS setup).
  */
 
-import { SCREENSAVERS } from '../screensavers.js?v=15';
-import { getSetting } from '../settings.js?v=15';
+import { SCREENSAVERS } from '../screensavers.js?v=16';
+import { getSetting } from '../settings.js?v=16';
 
-const ACTIVITY_EVENTS = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
+const ACTIVITY_EVENTS = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'wheel', 'scroll'];
 
 export const ScreenSaver = {
     timer: null,
@@ -22,7 +22,7 @@ export const ScreenSaver = {
         ScreenSaver.ctx = ScreenSaver.canvas?.getContext('2d') ?? null;
         ScreenSaver.resize();
         window.addEventListener('resize', ScreenSaver.resize);
-        ACTIVITY_EVENTS.forEach(event => document.addEventListener(event, ScreenSaver.onActivity, { passive: true }));
+        ACTIVITY_EVENTS.forEach(event => document.addEventListener(event, ScreenSaver.onActivity, { passive: true, capture: true }));
         document.querySelector('.screen-saver')?.addEventListener('click', () => ScreenSaver.deactivate());
         ScreenSaver.resetTimer();
     },

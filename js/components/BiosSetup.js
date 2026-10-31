@@ -3,11 +3,11 @@
  * Settings are real: theme, CRT, sound, language, quick boot and screen saver.
  */
 
-import { Profile } from '../config.js?v=15';
-import { lang, setLanguage } from '../i18n.js?v=15';
-import { SoundManager } from '../managers/SoundManager.js?v=15';
-import { SCREENSAVERS } from '../screensavers.js?v=15';
-import { getSetting, setSetting } from '../settings.js?v=15';
+import { Profile } from '../config.js?v=16';
+import { lang, setLanguage } from '../i18n.js?v=16';
+import { SoundManager } from '../managers/SoundManager.js?v=16';
+import { SCREENSAVERS } from '../screensavers.js?v=16';
+import { getSetting, setSetting, DEFAULTS } from '../settings.js?v=16';
 
 const ON_OFF = [['true', 'Enabled'], ['false', 'Disabled']];
 const THEMES = [['default', 'Teal'], ['dark', 'Dark'], ['hotdog', 'Hot Dog'], ['matrix', 'Matrix'], ['clouds', 'Clouds'], ['win98', 'Steel'], ['macos', 'Dither'], ['ubuntu', 'Aubergine']];
@@ -36,7 +36,7 @@ function readValues() {
 
 const DEFAULT_VALUES = {
     autoTheme: 'true', theme: 'default', crt: 'false', sound: 'false',
-    quickBoot: 'false', screensaver: 'matrix', screensaverDelay: '1', bootDevice: 'hdd'
+    quickBoot: 'false', screensaver: DEFAULTS.screensaver, screensaverDelay: DEFAULTS.screensaverDelay, bootDevice: 'hdd'
 };
 
 function infoItems() {

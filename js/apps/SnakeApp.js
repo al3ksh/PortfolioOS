@@ -2,10 +2,10 @@
  * Snake Game App - Smooth snake with speed levels, bonus food and optional wrap-around walls
  */
 
-import { Icons } from '../icons.js?v=15';
-import { SoundManager } from '../managers/SoundManager.js?v=15';
-import { WindowManager } from '../managers/WindowManager.js?v=15';
-import { Leaderboard } from '../leaderboard.js?v=15';
+import { Icons } from '../icons.js?v=16';
+import { SoundManager } from '../managers/SoundManager.js?v=16';
+import { WindowManager } from '../managers/WindowManager.js?v=16';
+import { Leaderboard } from '../leaderboard.js?v=16';
 
 const getThemeColor = (varName) => getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || '';
 
@@ -140,7 +140,7 @@ export const SnakeApp = {
                 Leaderboard.show(SnakeApp.boardId());
                 break;
             case 'howToPlay':
-                import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
+                import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
                     DialogManager.alert(
                         'How to Play Snake:\n\n' +
                         '• Arrow Keys / WASD to move (turns are buffered)\n' +

@@ -281,7 +281,8 @@ app.post('/contact', contactLimiter, async (req, res) => {
 
         await transporter.sendMail(mailOptions);
 
-        console.log(`✅ Contact email sent from ${name} <${email}>`);
+        // No name or address here: the message itself is in the mailbox, the log stays free of personal data
+        console.log('✅ Contact email sent');
         reply(req, res, 200, { success: true, message: 'Message sent successfully!' });
 
     } catch (error) {

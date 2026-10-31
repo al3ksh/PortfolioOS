@@ -4,9 +4,9 @@
  * The board scales to the window height, so nothing is cut off on short screens.
  */
 
-import { Icons } from '../icons.js?v=15';
-import { SoundManager } from '../managers/SoundManager.js?v=15';
-import { Leaderboard } from '../leaderboard.js?v=15';
+import { Icons } from '../icons.js?v=16';
+import { SoundManager } from '../managers/SoundManager.js?v=16';
+import { Leaderboard } from '../leaderboard.js?v=16';
 
 const COLS = 10;
 const VISIBLE = 20;
@@ -147,7 +147,7 @@ export const TetrisApp = {
                 Leaderboard.show('tetris');
                 break;
             case 'howToPlay':
-                import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
+                import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
                     DialogManager.alert(
                         'How to Play Blocks:\n\n' +
                         '• ← → (or A D) move, hold to slide\n' +

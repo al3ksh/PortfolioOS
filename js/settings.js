@@ -4,9 +4,12 @@
  * and to sessionStorage, so a change always lasts at least for this visit.
  */
 
+// Phones have no mouse to move while reading, so the saver starts off there
+const touchOnly = typeof matchMedia === 'function' && matchMedia('(hover: none) and (pointer: coarse)').matches;
+
 export const DEFAULTS = {
-    screensaver: 'matrix',
-    screensaverDelay: '1',
+    screensaver: touchOnly ? 'none' : 'defrag',
+    screensaverDelay: '3',
     quickBoot: 'false'
 };
 

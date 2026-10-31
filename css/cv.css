@@ -172,6 +172,33 @@ a { color: inherit; text-decoration: none; }
     font-size: 8.5pt;
 }
 
+.cv-skill-group + .cv-skill-group { margin-top: 2.6mm; }
+
+.cv-skill-group h3 {
+    margin-bottom: 1.2mm;
+    color: var(--cv-muted);
+    font-size: 8pt;
+    font-weight: 700;
+}
+
+.cv-languages {
+    list-style: none;
+    display: grid;
+    gap: 1.6mm;
+    font-size: 9pt;
+}
+
+.cv-languages li {
+    display: flex;
+    justify-content: space-between;
+    gap: 2mm;
+}
+
+.cv-level {
+    color: var(--cv-accent);
+    font-weight: 600;
+}
+
 .cv-interests {
     list-style: none;
     display: grid;

@@ -2,7 +2,7 @@
  * Tunes App - Windows 98 inspired Spotify player.
  */
 
-import { Icons } from '../icons.js?v=15';
+import { Icons } from '../icons.js?v=16';
 
 const TRACK = {
     uri: 'spotify:track:3GFUIOx4qdGwFxKXgfy7ap',
@@ -13,11 +13,11 @@ const TRACK = {
 };
 
 const playerIcons = {
-    restart: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7H4v-4M4.5 7.2A9 9 0 1 1 3 15"/><path d="M4 7l4-4"/></svg>',
-    back: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 6 4 12l7 6V6Zm9 0-7 6 7 6V6Z"/></svg>',
-    play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="icon-fill" d="m8 5 11 7-11 7V5Z"/></svg>',
-    pause: '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="icon-fill" d="M7 5h4v14H7V5Zm6 0h4v14h-4V5Z"/></svg>',
-    forward: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 6 7 6-7 6V6Zm9 0 7 6-7 6V6Z"/></svg>',
+    restart: '<svg viewBox="0 0 16 16" class="pixel-icon" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="3" width="2" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="11" y="3" width="1" height="1"/><rect x="3" y="4" width="2" height="1"/><rect x="6" y="4" width="2" height="1"/><rect x="10" y="4" width="2" height="1"/><rect x="3" y="5" width="5" height="1"/><rect x="9" y="5" width="3" height="1"/><rect x="3" y="6" width="9" height="1"/><rect x="3" y="7" width="9" height="1"/><rect x="3" y="8" width="9" height="1"/><rect x="3" y="9" width="9" height="1"/><rect x="3" y="10" width="5" height="1"/><rect x="9" y="10" width="3" height="1"/><rect x="3" y="11" width="2" height="1"/><rect x="6" y="11" width="2" height="1"/><rect x="10" y="11" width="2" height="1"/><rect x="3" y="12" width="2" height="1"/><rect x="7" y="12" width="1" height="1"/><rect x="11" y="12" width="1" height="1"/></svg>',
+    back: '<svg viewBox="0 0 16 16" class="pixel-icon" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="3" width="1" height="1"/><rect x="12" y="3" width="1" height="1"/><rect x="6" y="4" width="2" height="1"/><rect x="11" y="4" width="2" height="1"/><rect x="5" y="5" width="3" height="1"/><rect x="10" y="5" width="3" height="1"/><rect x="4" y="6" width="4" height="1"/><rect x="9" y="6" width="4" height="1"/><rect x="3" y="7" width="10" height="1"/><rect x="3" y="8" width="10" height="1"/><rect x="4" y="9" width="4" height="1"/><rect x="9" y="9" width="4" height="1"/><rect x="5" y="10" width="3" height="1"/><rect x="10" y="10" width="3" height="1"/><rect x="6" y="11" width="2" height="1"/><rect x="11" y="11" width="2" height="1"/><rect x="7" y="12" width="1" height="1"/><rect x="12" y="12" width="1" height="1"/></svg>',
+    play: '<svg viewBox="0 0 16 16" class="pixel-icon" shape-rendering="crispEdges" aria-hidden="true"><rect x="5" y="2" width="1" height="1"/><rect x="5" y="3" width="2" height="1"/><rect x="5" y="4" width="3" height="1"/><rect x="5" y="5" width="4" height="1"/><rect x="5" y="6" width="5" height="1"/><rect x="5" y="7" width="6" height="1"/><rect x="5" y="8" width="6" height="1"/><rect x="5" y="9" width="5" height="1"/><rect x="5" y="10" width="4" height="1"/><rect x="5" y="11" width="3" height="1"/><rect x="5" y="12" width="2" height="1"/><rect x="5" y="13" width="1" height="1"/></svg>',
+    pause: '<svg viewBox="0 0 16 16" class="pixel-icon" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="3" width="3" height="1"/><rect x="9" y="3" width="3" height="1"/><rect x="4" y="4" width="3" height="1"/><rect x="9" y="4" width="3" height="1"/><rect x="4" y="5" width="3" height="1"/><rect x="9" y="5" width="3" height="1"/><rect x="4" y="6" width="3" height="1"/><rect x="9" y="6" width="3" height="1"/><rect x="4" y="7" width="3" height="1"/><rect x="9" y="7" width="3" height="1"/><rect x="4" y="8" width="3" height="1"/><rect x="9" y="8" width="3" height="1"/><rect x="4" y="9" width="3" height="1"/><rect x="9" y="9" width="3" height="1"/><rect x="4" y="10" width="3" height="1"/><rect x="9" y="10" width="3" height="1"/><rect x="4" y="11" width="3" height="1"/><rect x="9" y="11" width="3" height="1"/><rect x="4" y="12" width="3" height="1"/><rect x="9" y="12" width="3" height="1"/></svg>',
+    forward: '<svg viewBox="0 0 16 16" class="pixel-icon" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="3" y="4" width="2" height="1"/><rect x="8" y="4" width="2" height="1"/><rect x="3" y="5" width="3" height="1"/><rect x="8" y="5" width="3" height="1"/><rect x="3" y="6" width="4" height="1"/><rect x="8" y="6" width="4" height="1"/><rect x="3" y="7" width="10" height="1"/><rect x="3" y="8" width="10" height="1"/><rect x="3" y="9" width="4" height="1"/><rect x="8" y="9" width="4" height="1"/><rect x="3" y="10" width="3" height="1"/><rect x="8" y="10" width="3" height="1"/><rect x="3" y="11" width="2" height="1"/><rect x="8" y="11" width="2" height="1"/><rect x="3" y="12" width="1" height="1"/><rect x="8" y="12" width="1" height="1"/></svg>',
     spotify: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" class="icon-fill"/><path class="spotify-wave" d="M6.5 9.2c3.7-1 7.8-.7 11.1 1M7.2 12.4c3.1-.8 6.8-.5 9.6.9M8 15.3c2.5-.6 5.3-.3 7.7.7"/></svg>'
 };
 
@@ -221,6 +221,16 @@ export const TunesApp = {
         }
         if (current) current.textContent = formatTime(TunesApp.playbackPosition);
         if (duration) duration.textContent = formatTime(TunesApp.playbackDuration);
+        TunesApp.setMusicState(!isPaused);
+    },
+
+    // Lets the profile face put its headphones on while something plays.
+    setMusicState(playing) {
+        const root = document.documentElement;
+        if ((root.dataset.music === 'playing') === playing) return;
+        if (playing) root.dataset.music = 'playing';
+        else delete root.dataset.music;
+        document.dispatchEvent(new CustomEvent('tunes:playback', { detail: { playing } }));
     },
 
     renderFallbackEmbed(windowEl) {
@@ -242,6 +252,7 @@ export const TunesApp = {
     onClose() {
         TunesApp.controller?.destroy?.();
         TunesApp.controller = null;
+        TunesApp.setMusicState(false);
         TunesApp.playbackPosition = 0;
         TunesApp.playbackDuration = 0;
     }

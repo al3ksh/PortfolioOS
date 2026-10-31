@@ -2,13 +2,13 @@
  * Control Panel App - Settings / Theme switcher
  */
 
-import { Icons } from '../icons.js?v=15';
-import { Profile, githubUrl } from '../config.js?v=15';
-import { SoundManager } from '../managers/SoundManager.js?v=15';
-import { ScreenSaver } from '../managers/ScreenSaver.js?v=15';
-import { SCREENSAVERS } from '../screensavers.js?v=15';
-import { getSetting, setSetting } from '../settings.js?v=15';
-import { WindowManager } from '../managers/WindowManager.js?v=15';
+import { Icons } from '../icons.js?v=16';
+import { Profile, githubUrl } from '../config.js?v=16';
+import { SoundManager } from '../managers/SoundManager.js?v=16';
+import { ScreenSaver } from '../managers/ScreenSaver.js?v=16';
+import { SCREENSAVERS } from '../screensavers.js?v=16';
+import { getSetting, setSetting } from '../settings.js?v=16';
+import { WindowManager } from '../managers/WindowManager.js?v=16';
 
 export const ControlApp = {
     id: 'control',
@@ -210,7 +210,7 @@ export const ControlApp = {
         });
         window.querySelector('#screensaverPreview')?.addEventListener('click', () => {
             const type = saverSelect?.value;
-            ScreenSaver.activate(type === 'none' ? 'matrix' : type, { preview: true });
+            ScreenSaver.activate(type === 'none' ? 'defrag' : type, { preview: true });
         });
 
         // Volume slider
@@ -222,7 +222,7 @@ export const ControlApp = {
         // Clear session button
         const clearBtn = window.querySelector('#clearSessionBtn');
         clearBtn?.addEventListener('click', async () => {
-            const { DialogManager } = await import('../managers/DialogManager.js?v=15');
+            const { DialogManager } = await import('../managers/DialogManager.js?v=16');
             const confirmed = await DialogManager.confirm(
                 'Clear all saved window positions and session data?\n\nThis will reset to default on next refresh.',
                 'Clear Session Data'

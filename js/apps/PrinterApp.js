@@ -2,16 +2,19 @@
  * Printer App - "prints" the CV on a dot-matrix printer next to the opened cv.html.
  * Opened by Download CV in Portfolio.exe and Print in Simple View; the CV itself
  * opens straight away, the printer is only decoration.
+ * printText() sends any text file from the shared disk (Notepad, Explorer, Terminal).
  */
 
-import { Icons } from '../icons.js?v=15';
-import { Profile, featuredProjects } from '../config.js?v=15';
-import { t, loc, lang } from '../i18n.js?v=15';
-import { SoundManager } from '../managers/SoundManager.js?v=15';
+import { Icons } from '../icons.js?v=16';
+import { Profile, featuredProjects } from '../config.js?v=16';
+import { t, loc, lang } from '../i18n.js?v=16';
+import { SoundManager } from '../managers/SoundManager.js?v=16';
+import { WindowManager } from '../managers/WindowManager.js?v=16';
 
 const WIDTH = 58;
 const CHARS_PER_TICK = 6;
 const TICK_MS = 16;
+const MAX_LINES = 400;
 
 function wrap(text, indent = '') {
     const lines = [];
@@ -32,27 +35,36 @@ const heading = text => ['', text.toUpperCase(), '-'.repeat(text.length)];
 const row = (left, right) => `${left}${' '.repeat(Math.max(1, WIDTH - left.length - right.length))}${right}`;
 
 function cvLines() {
+    const cv = Profile.cv || {};
     const lines = [
         center(Profile.name.toUpperCase()),
-        center(loc(Profile.title)),
+        center(loc(cv.title || Profile.title)),
         '='.repeat(WIDTH),
         center(`${Profile.contact.email}  |  github.com/${Profile.contact.github}`),
         ...heading(t('cv.profile')),
-        ...wrap(loc(Profile.about)),
+        ...wrap(loc(cv.profile || Profile.about)),
         ...heading(t('section.experience'))
     ];
     Profile.experience.forEach((job) => {
         lines.push(row(`* ${loc(job.role)}`, loc(job.date)), `  ${loc(job.company)}`, ...wrap(loc(job.description), '  '));
     });
     lines.push(...heading(t('section.projects')));
-    featuredProjects().forEach((project) => {
+    featuredProjects().map(project => ({ ...project, ...cv.projects?.[project.name] })).forEach((project) => {
         lines.push(`* ${project.name} (${project.tech || project.language})`, ...wrap(loc(project.description), '  '));
     });
     lines.push(...heading(t('section.education')));
     Profile.education.forEach((edu) => {
         lines.push(row(`* ${loc(edu.degree)}`, loc(edu.date)), `  ${loc(edu.school)}`);
     });
-    lines.push(...heading(t('section.skills')), ...wrap(Profile.skills.map(loc).join(', ')));
+    lines.push(...heading(t('section.skills')));
+    if (cv.skills) {
+        cv.skills.forEach(group => lines.push(...wrap(`${loc(group.group)}: ${group.items.map(loc).join(', ')}`)));
+    } else {
+        lines.push(...wrap(Profile.skills.map(loc).join(', ')));
+    }
+    if (cv.languages?.length) {
+        lines.push(...heading(t('cv.languages')), ...cv.languages.map(item => `- ${loc(item.name)}: ${loc(item.level)}`));
+    }
     if (Profile.interests?.length) {
         lines.push(...heading(t('section.interests')), ...Profile.interests.flatMap((item) => {
             const lines = wrap(loc(item), '  ');
@@ -87,6 +99,25 @@ function printSound() {
     source.start();
 }
 
+// Text as typed: long lines are cut at the paper width, not reflowed
+function fileLines(title, body) {
+    const lines = String(body).replace(/\t/g, '    ').split(/\r?\n/)
+        .flatMap(line => (line.length > WIDTH ? line.match(new RegExp(`.{1,${WIDTH}}`, 'g')) : [line]));
+    const cut = lines.length > MAX_LINES;
+    return [center(title), '='.repeat(WIDTH), ...lines.slice(0, MAX_LINES), ...(cut ? ['', center('[...]')] : [])];
+}
+
+/** Print a text file: restarts the printer window with this job. */
+export function printText(title, body) {
+    PrinterApp.job = { title, text: body ?? '' };
+    if (WindowManager.getWindowInstance('printer')) {
+        WindowManager.closeWindow('printer');
+        setTimeout(() => WindowManager.createWindow('printer'), 200);
+    } else {
+        WindowManager.createWindow('printer');
+    }
+}
+
 export function openCv() {
     window.open(lang === 'pl' ? 'cv.pl.html' : 'cv.html', '_blank', 'noopener');
 }
@@ -101,6 +132,7 @@ export const PrinterApp = {
     minHeight: 420,
     hasMenu: false,
     timer: null,
+    job: null,
 
     render() {
         return `
@@ -139,7 +171,10 @@ export const PrinterApp = {
         const bar = windowEl.querySelector('.printer-progress i');
         const openButton = windowEl.querySelector('[data-printer="open"]');
         const cancelButton = windowEl.querySelector('[data-printer="cancel"]');
-        const document_ = `${cvLines().join('\n')}\n`;
+        const job = PrinterApp.job;
+        PrinterApp.job = null;
+        if (job) openButton.textContent = t('printer.close');
+        const document_ = `${(job ? fileLines(job.title, job.text) : cvLines()).join('\n')}\n`;
         const totalLines = document_.split('\n').length;
         let printed = 0;
         let lastLine = 0;
@@ -170,7 +205,7 @@ export const PrinterApp = {
             show(document_.length);
             feed(totalLines + 1);
             bar.style.width = '100%';
-            finish(t('printer.done'));
+            finish(t(job ? 'printer.doneFile' : 'printer.done'));
             openButton.focus();
         };
 
@@ -191,7 +226,8 @@ export const PrinterApp = {
 
         windowEl.querySelector('.printer-actions').addEventListener('click', (event) => {
             const action = event.target.closest('[data-printer]')?.dataset.printer;
-            if (action === 'open') openCv();
+            if (action === 'open' && job) WindowManager.closeWindow('printer');
+            else if (action === 'open') openCv();
             if (action === 'cancel') finish(t('printer.cancelled'));
         });
     },

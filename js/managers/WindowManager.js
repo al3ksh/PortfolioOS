@@ -2,8 +2,12 @@
  * Window Manager - Handles multiple windows, z-index, focus
  */
 
-import { Window } from '../components/Window.js?v=15';
-import { Apps } from '../apps/index.js?v=15';
+import { Window } from '../components/Window.js?v=16';
+import { Apps } from '../apps/index.js?v=16';
+import { SoundManager } from './SoundManager.js?v=16';
+
+// How long after a click a window still counts as opened by it (covers the double-click delay)
+const ORIGIN_TTL = 1500;
 
 class WindowManagerClass {
     constructor() {
@@ -11,7 +15,6 @@ class WindowManagerClass {
         this.zIndexCounter = 100;
         this.activeWindowId = null;
         this.container = null;
-        this.minimizedTray = null;
         this.closeAttempts = 0; // For BSOD easter egg
         this.onWindowChange = null; // Callback for taskbar updates
     }
@@ -29,8 +32,14 @@ class WindowManagerClass {
 
     init() {
         this.container = document.getElementById('windowsContainer');
-        this.minimizedTray = document.getElementById('minimizedTray');
-        
+
+        // Remember what was clicked last, so a window can grow out of the icon that opened it
+        document.addEventListener('pointerdown', (e) => {
+            const source = e.target.closest?.('.desktop-icon, .start-item, .start-menu-item, .file-item, .taskbar-window-btn, button');
+            const rect = source?.getBoundingClientRect() ?? new DOMRect(e.clientX - 16, e.clientY - 16, 32, 32);
+            this.lastPointer = { rect, time: performance.now() };
+        }, { capture: true, passive: true });
+
         // Click on desktop to deactivate windows
         document.getElementById('desktop').addEventListener('mousedown', (e) => {
             if (e.target.id === 'desktop' || e.target.classList.contains('desktop-icons')) {
@@ -48,6 +57,19 @@ class WindowManagerClass {
         }
     }
 
+    /** Rect of the element clicked just now, or null if the action did not come from a click. */
+    clickOrigin() {
+        const p = this.lastPointer;
+        return p && performance.now() - p.time < ORIGIN_TTL ? p.rect : null;
+    }
+
+    /** Where a minimized window goes: its taskbar button. */
+    taskbarRect(windowId) {
+        const btn = document.querySelector(`.taskbar-window-btn[data-window-id="${windowId}"]`);
+        const rect = btn?.getBoundingClientRect();
+        return rect?.width ? rect : null;
+    }
+
     /**
      * Create and open a new window
      */
@@ -56,8 +78,7 @@ class WindowManagerClass {
         if (this.windows.has(appId) && !options.allowMultiple) {
             const existingWindow = this.windows.get(appId);
             if (existingWindow.isMinimized) {
-                // Use restoreWindow to properly remove from minimized tray
-                this.restoreWindow(appId);
+                        this.restoreWindow(appId);
             } else {
                 this.bringToFront(appId);
             }
@@ -108,7 +129,8 @@ class WindowManagerClass {
         const window = new Window(windowConfig);
         this.windows.set(windowConfig.id, window);
         this.container.appendChild(window.element);
-        
+        window.fly(this.clickOrigin(), { duration: 240 });
+
         window.onInit?.();
         this.bringToFront(windowConfig.id);
         this.notifyChange();
@@ -134,17 +156,16 @@ class WindowManagerClass {
         }
 
         window.onClose?.();
-        
+        SoundManager.play('close');
+
         // Animate close
+        window.flight?.cancel();
         window.element.style.animation = 'window-close 0.15s ease-in forwards';
         setTimeout(() => {
             window.element.remove();
         }, 150);
         
         this.windows.delete(windowId);
-        
-        // Remove from minimized tray if present
-        this.removeFromTray(windowId);
 
         // Activate next window
         if (this.activeWindowId === windowId) {
@@ -169,8 +190,9 @@ class WindowManagerClass {
         const window = this.windows.get(windowId);
         if (!window) return;
 
-        window.minimize();
-        this.addToTray(windowId, window);
+        if (window.isMinimized) return;
+        window.minimize(this.taskbarRect(windowId));
+        SoundManager.play('minimize');
         
         // Deactivate
         if (this.activeWindowId === windowId) {
@@ -189,8 +211,9 @@ class WindowManagerClass {
         const window = this.windows.get(windowId);
         if (!window) return;
 
-        window.restore();
-        this.removeFromTray(windowId);
+        // Grow back out of whatever was clicked (taskbar button, desktop icon), else the taskbar button
+        window.restore(this.clickOrigin() ?? this.taskbarRect(windowId));
+        SoundManager.play('restore');
         this.bringToFront(windowId);
         this.notifyChange();
         this.saveOpenWindows();
@@ -240,33 +263,6 @@ class WindowManagerClass {
             window.element.classList.remove('active');
         });
         this.activeWindowId = null;
-    }
-
-    /**
-     * Add minimized window to tray
-     */
-    addToTray(windowId, window) {
-        const trayIcon = document.createElement('button');
-        trayIcon.type = 'button';
-        trayIcon.className = 'minimized-icon';
-        trayIcon.dataset.windowId = windowId;
-        trayIcon.setAttribute('aria-label', `Restore ${window.title}`);
-        trayIcon.innerHTML = `
-            <span class="mini-icon">${window.icon || ''}</span>
-            <span class="mini-title">${window.title}</span>
-        `;
-        trayIcon.addEventListener('click', () => this.restoreWindow(windowId));
-        this.minimizedTray.appendChild(trayIcon);
-    }
-
-    /**
-     * Remove from minimized tray
-     */
-    removeFromTray(windowId) {
-        const trayIcon = this.minimizedTray.querySelector(`[data-window-id="${windowId}"]`);
-        if (trayIcon) {
-            trayIcon.remove();
-        }
     }
 
     /**

@@ -36,8 +36,11 @@ class SoundManagerClass {
             click: { frequency: 800, duration: 0.05, type: 'square' },
             open: { frequency: 600, duration: 0.1, type: 'square', frequency2: 800 },
             close: { frequency: 800, duration: 0.1, type: 'square', frequency2: 500 },
+            minimize: { frequency: 660, duration: 0.12, type: 'triangle', frequency2: 440 },
+            restore: { frequency: 440, duration: 0.12, type: 'triangle', frequency2: 660 },
             error: { frequency: 200, duration: 0.3, type: 'square' },
-            chord: { frequencies: [523, 659, 784], duration: 0.5, type: 'sine' }
+            chord: { frequencies: [523, 659, 784], duration: 0.5, type: 'sine' },
+            powerup: { frequencies: [523, 659, 784, 1047, 1319], duration: 0.14, type: 'square', step: 90 }
         };
     }
 
@@ -55,7 +58,7 @@ class SoundManagerClass {
         if (config.frequencies) {
             // Chord - play multiple frequencies
             config.frequencies.forEach((freq, i) => {
-                setTimeout(() => this.playTone(freq, config.duration, config.type), i * 50);
+                setTimeout(() => this.playTone(freq, config.duration, config.type), i * (config.step ?? 50));
             });
         } else if (config.frequency2) {
             // Two-tone sound
@@ -78,8 +81,9 @@ class SoundManagerClass {
         oscillator.type = type;
         oscillator.frequency.value = frequency;
         
-        gainNode.gain.value = this.volume;
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+        // Fade out instead of cutting off, which clicks
+        gainNode.gain.setValueAtTime(this.volume, this.audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, this.audioContext.currentTime + duration);
 
         oscillator.start(this.audioContext.currentTime);
         oscillator.stop(this.audioContext.currentTime + duration);

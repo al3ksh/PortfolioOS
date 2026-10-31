@@ -5,7 +5,7 @@
  * poked. Rendering is plain text in a <pre>, so it keeps the retro look.
  */
 
-import { t } from './i18n.js?v=15';
+import { t } from './i18n.js?v=16';
 
 const WIDTH = 14;
 const EYES_OPEN = '  ◉    ◉  ';
@@ -57,6 +57,15 @@ const MOODS = {
             frame(EYES_OPEN, SMILE, { row: '  ♫  ♪  ♫  ♪', ms: 700 })
         ]
     },
+    // Tunes.exe is playing: headphones on, eyes shut, nodding to the beat
+    listening: {
+        frames: [
+            frame('  ^    ^  ', SMILE, { headset: true, nod: true, row: '  ♪       ♫', ms: 400 }),
+            frame('  ^    ^  ', SMALL_SMILE, { headset: true, row: '    ♫   ♪', ms: 400 }),
+            frame('  ─    ─  ', SMILE, { headset: true, nod: true, row: '   ♫     ♪', ms: 400 }),
+            frame('  ^    ^  ', SMALL_SMILE, { headset: true, row: ' ♪    ♫    ♪', ms: 400 })
+        ]
+    },
     sleepy: {
         frames: [
             frame(CLOSED_EYES, SMALL_SMILE, { row: '      ...', ms: 1700 }),
@@ -79,7 +88,8 @@ const MOODS = {
     love: { reaction: true, frames: [frame('  ♥    ♥  ', SMILE, { row: '    ♥  ♥', ms: 700 }), frame('  ♥    ♥  ', SMILE, { row: '   ♥  ♥  ♥', ms: 700 })] },
     surprised: { reaction: true, frames: [frame('  ◎    ◎  ', '    ○     ', { row: '     !!', ms: 1300 })] },
     dizzy: { reaction: true, frames: [frame('  @    @  ', '   ≈≈≈≈   ', { row: '   * ~ * ~', ms: 450 }), frame('  @    @  ', '   ≈≈≈≈   ', { row: '   ~ * ~ *', ms: 450 }), frame('  @    @  ', '   ≈≈≈≈   ', { row: '   * ~ * ~', ms: 450 })] },
-    angry: { reaction: true, frames: [frame(' \\◉    ◉/ ', '   ╭──╮   ', { row: '    #@!%', ms: 1500 })] }
+    angry: { reaction: true, frames: [frame(' \\◉    ◉/ ', '   ╭──╮   ', { row: '    #@!%', ms: 1500 })] },
+    wow: { reaction: true, frames: [0, 1, 2, 3].map(i => frame(i % 2 ? '  ☆    ☆  ' : '  ★    ★  ', '    ◯     ', { row: i % 2 ? ' * WOW! *' : '*  WOW!  *', ms: 450 })) }
 };
 
 // Which mood fits this moment. Weekends start late and the gaming goes on all day.
@@ -129,6 +139,22 @@ export function mountFace(element) {
         const mood = MOODS[state.reaction || state.mood];
         const current = mood.frames[index % mood.frames.length];
         element.textContent = draw(current, state.blinking && mood.blink);
+        element.classList.toggle('face-nod', Boolean(current.nod));
+    }
+
+    // A Win95 tooltip-style speech bubble next to the face
+    let bubble = null;
+    function say(text, ms = 2600) {
+        const frame = element.closest('.profile-image-frame') || element.parentElement;
+        if (!frame || !text) return;
+        bubble?.remove();
+        bubble = document.createElement('div');
+        bubble.className = 'face-bubble';
+        bubble.setAttribute('role', 'status');
+        bubble.textContent = text;
+        frame.appendChild(bubble);
+        const own = bubble;
+        later(() => { own.remove(); if (bubble === own) bubble = null; }, ms);
     }
 
     function tick() {
@@ -173,8 +199,27 @@ export function mountFace(element) {
         const order = ['gaming', 'evening', 'coding', 'lunch', 'morning', 'idle', 'sleepy', 'sleep'];
         const wanted = stage && order.indexOf(stage) > order.indexOf(natural) ? stage : natural;
         state.base = natural;
-        setMood(wanted);
+        // Music beats every other mood, nobody sleeps through their favourite song
+        setMood(state.music ? 'listening' : wanted);
     }
+
+    // Tunes.exe reports play/pause on the document and in a data attribute
+    state.music = document.documentElement.dataset.music === 'playing';
+    function onMusic(event) {
+        const playing = Boolean(event.detail?.playing);
+        if (playing === state.music) return;
+        state.music = playing;
+        applyBase();
+    }
+    document.addEventListener('tunes:playback', onMusic);
+
+    // Other parts of the OS (Konami code, Recycle Bin) can make the face react
+    function onReact(event) {
+        const { mood, text } = event.detail || {};
+        if (mood) react(mood);
+        if (text) say(text);
+    }
+    document.addEventListener('face:react', onReact);
 
     function blinkLoop() {
         later(() => {
@@ -212,8 +257,8 @@ export function mountFace(element) {
     function poke() {
         const now = Date.now();
         state.pokes = state.pokes.filter(time => now - time < 4000).concat(now);
-        if (state.pokes.length >= 10) { state.pokes = []; react('angry'); }
-        else if (state.pokes.length >= 5) react('dizzy');
+        if (state.pokes.length >= 10) { state.pokes = []; react('angry'); say(t('face.say.angry')); }
+        else if (state.pokes.length >= 5) { react('dizzy'); if (state.pokes.length === 5) say(t('face.say.dizzy')); }
         else if (state.mood === 'sleep') react('surprised', 1400);
         else react(['wink', 'love', 'surprised'][Math.floor(Math.random() * 3)]);
     }
@@ -230,8 +275,12 @@ export function mountFace(element) {
     return {
         set: setMood,
         react,
+        say,
         moods: Object.keys(MOODS),
         destroy() {
+            document.removeEventListener('tunes:playback', onMusic);
+            document.removeEventListener('face:react', onReact);
+            bubble?.remove();
             timers.forEach(clearTimeout);
             timers.clear();
             clearTimeout(idleTimer);

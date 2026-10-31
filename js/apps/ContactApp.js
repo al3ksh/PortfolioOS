@@ -2,10 +2,10 @@
  * Contact App - Contact form with email simulation
  */
 
-import { Icons } from '../icons.js?v=15';
-import { Profile, githubUrl } from '../config.js?v=15';
-import { t } from '../i18n.js?v=15';
-import { SoundManager } from '../managers/SoundManager.js?v=15';
+import { Icons } from '../icons.js?v=16';
+import { Profile, githubUrl } from '../config.js?v=16';
+import { t, lang } from '../i18n.js?v=16';
+import { SoundManager } from '../managers/SoundManager.js?v=16';
 
 const escapeHtml = (value) => {
     const div = document.createElement('div');
@@ -81,6 +81,7 @@ export const ContactApp = {
                             ${Icons.actTrash} ${t('contact.clear')}
                         </button>
                     </div>
+                    <p class="contact-privacy">${t('contact.privacy')} <a href="${lang === 'pl' ? 'privacy.pl.html' : 'privacy.html'}" target="_blank" rel="noopener">${t('contact.privacyLink')}</a></p>
                 </form>
 
                 <div class="contact-links">

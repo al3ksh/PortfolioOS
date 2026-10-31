@@ -3,6 +3,8 @@
  * Each saver has init(ctx, width, height) and draw(ctx, width, height).
  */
 
+import { Profile } from './config.js?v=16';
+
 const MATRIX_CHARS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const random = (min, max) => min + Math.random() * (max - min);
 
@@ -272,6 +274,215 @@ const mystify = {
     }
 };
 
-export const SCREENSAVERS = { matrix, starfield, logos, pipes, mystify };
+// Disk Defragmenter: every public GitHub repository is a file whose clusters
+// (by repo size) are scattered over the disk and moved into place, newest push first.
+const DEFRAG_COLORS = ['#0000A8', '#A80000', '#00A800', '#A800A8', '#A85400', '#00A8A8', '#5454FC', '#FC5454', '#54A854', '#FC54FC', '#545454', '#A8A800'];
+const DEFRAG_CACHE = 'defragRepos';
+let defragFiles = null;
+let defragRequest = null;
+
+function defragFallback() {
+    return Profile.projects.map((project, index) => ({ name: project.name, size: 400 + index * 300 }));
+}
+
+function loadDefragFiles() {
+    if (defragFiles || defragRequest) return;
+    try {
+        const cached = JSON.parse(sessionStorage.getItem(DEFRAG_CACHE) || 'null');
+        if (Array.isArray(cached) && cached.length) {
+            defragFiles = cached;
+            return;
+        }
+    } catch { /* ignore broken cache */ }
+    if (!Profile.githubSync || !Profile.contact.github) return;
+    defragRequest = fetch(`https://api.github.com/users/${encodeURIComponent(Profile.contact.github)}/repos?per_page=100&sort=pushed`, {
+        headers: { Accept: 'application/vnd.github+json' },
+        signal: AbortSignal.timeout(8000)
+    })
+        .then(response => (response.ok ? response.json() : Promise.reject(new Error(response.status))))
+        .then((repos) => {
+            const files = repos.filter(repo => !repo.fork).slice(0, DEFRAG_COLORS.length)
+                .map(repo => ({ name: repo.name, size: repo.size || 1 }));
+            if (!files.length) return;
+            defragFiles = files;
+            sessionStorage.setItem(DEFRAG_CACHE, JSON.stringify(files));
+        })
+        .catch(() => {})
+        .finally(() => { defragRequest = null; });
+}
+
+const defrag = {
+    label: 'Disk Defragmenter',
+    init(ctx, width, height) {
+        loadDefragFiles();
+        this.font = getComputedStyle(document.body).fontFamily || 'sans-serif';
+        this.files = (defragFiles || defragFallback()).slice(0, DEFRAG_COLORS.length);
+        this.layout(width, height);
+        this.fragment();
+        this.paintAll(ctx, width, height);
+    },
+    layout(width, height) {
+        const cellW = 10;
+        const cellH = 13;
+        const winW = Math.min(width - 40, Math.max(320, Math.round(width * 0.7)));
+        const winH = Math.min(height - 40, Math.max(260, Math.round(height * 0.7)));
+        // Shift the window a little on every pass so nothing burns in
+        const x = Math.round((width - winW) / 2 + random(-1, 1) * Math.min(60, (width - winW) / 2));
+        const y = Math.round((height - winH) / 2 + random(-1, 1) * Math.min(40, (height - winH) / 2));
+        const legendH = 26 + Math.ceil(this.files.length / 3) * 16;
+        const grid = { x: x + 14, y: y + 34, w: winW - 28, h: winH - 34 - legendH - 50 };
+        this.cols = Math.max(1, Math.floor(grid.w / cellW));
+        this.rows = Math.max(1, Math.floor(grid.h / cellH));
+        grid.w = this.cols * cellW;
+        grid.h = this.rows * cellH;
+        grid.x = x + Math.round((winW - grid.w) / 2);
+        Object.assign(this, { cellW, cellH, win: { x, y, w: winW, h: winH }, grid });
+    },
+    // Clusters per file grow with the square root of the repo size, filling about 55% of the disk
+    fragment() {
+        const total = this.cols * this.rows;
+        const used = Math.floor(total * 0.55);
+        const weights = this.files.map(file => Math.sqrt(file.size + 1));
+        const sum = weights.reduce((a, b) => a + b, 0);
+        const counts = weights.map(weight => Math.max(2, Math.round((weight / sum) * used)));
+        this.target = [];
+        counts.forEach((count, index) => { for (let i = 0; i < count && this.target.length < total; i++) this.target.push(index); });
+        this.dataCount = this.target.length;
+        while (this.target.length < total) this.target.push(-1);
+        this.cells = this.target.slice();
+        for (let i = this.cells.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.cells[i], this.cells[j]] = [this.cells[j], this.cells[i]];
+        }
+        this.cursor = 0;
+        this.moves = 0;
+        this.reading = -1;
+        this.writing = -1;
+        this.doneAt = 0;
+        this.current = '';
+    },
+    paintCell(ctx, index, color) {
+        const { x, y } = this.grid;
+        const cx = x + (index % this.cols) * this.cellW;
+        const cy = y + Math.floor(index / this.cols) * this.cellH;
+        ctx.fillStyle = '#FFF';
+        ctx.fillRect(cx, cy, this.cellW, this.cellH);
+        const value = this.cells[index];
+        if (value === -1 && !color) return;
+        ctx.fillStyle = color || DEFRAG_COLORS[value];
+        ctx.fillRect(cx + 1, cy + 1, this.cellW - 2, this.cellH - 2);
+        if (!color && index >= this.cursor) {
+            // Not yet optimized: lighter top-left edge like the old fragmented look
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+            ctx.fillRect(cx + 1, cy + 1, this.cellW - 2, 2);
+        }
+    },
+    bevel(ctx, x, y, w, h, raised = true) {
+        ctx.fillStyle = raised ? '#FFF' : '#808080';
+        ctx.fillRect(x, y, w, 1); ctx.fillRect(x, y, 1, h);
+        ctx.fillStyle = raised ? '#808080' : '#FFF';
+        ctx.fillRect(x, y + h - 1, w, 1); ctx.fillRect(x + w - 1, y, 1, h);
+    },
+    paintAll(ctx, width, height) {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, width, height);
+        const { x, y, w, h } = this.win;
+        ctx.fillStyle = '#C0C0C0';
+        ctx.fillRect(x, y, w, h);
+        this.bevel(ctx, x, y, w, h);
+        ctx.fillStyle = '#000080';
+        ctx.fillRect(x + 3, y + 3, w - 6, 20);
+        ctx.fillStyle = '#FFF';
+        ctx.font = `bold 12px ${this.font}`;
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Defragmenting Drive C', x + 10, y + 13);
+        const { grid } = this;
+        this.bevel(ctx, grid.x - 2, grid.y - 2, grid.w + 4, grid.h + 4, false);
+        for (let i = 0; i < this.cells.length; i++) this.paintCell(ctx, i);
+        // Legend: one swatch per repository
+        ctx.font = `11px ${this.font}`;
+        const legendY = grid.y + grid.h + 58;
+        const colW = Math.floor(grid.w / 3);
+        this.files.forEach((file, index) => {
+            const lx = grid.x + (index % 3) * colW;
+            const ly = legendY + Math.floor(index / 3) * 16;
+            ctx.fillStyle = DEFRAG_COLORS[index];
+            ctx.fillRect(lx, ly - 5, 10, 10);
+            ctx.fillStyle = '#000';
+            ctx.fillText(this.fit(ctx, file.name, colW - 18), lx + 16, ly);
+        });
+        this.paintStatus(ctx);
+    },
+    fit(ctx, text, max) {
+        if (ctx.measureText(text).width <= max) return text;
+        let short = text;
+        while (short.length > 1 && ctx.measureText(`${short}…`).width > max) short = short.slice(0, -1);
+        return `${short}…`;
+    },
+    paintStatus(ctx) {
+        const { grid } = this;
+        const top = grid.y + grid.h + 8;
+        ctx.fillStyle = '#C0C0C0';
+        ctx.fillRect(grid.x - 2, top, grid.w + 4, 40);
+        const done = this.dataCount ? Math.min(1, this.cursor / this.dataCount) : 1;
+        ctx.font = `11px ${this.font}`;
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#000';
+        const label = this.doneAt ? 'Defragmentation complete.' : `Moving ${this.current || '...'}`;
+        ctx.fillText(this.fit(ctx, label, grid.w - 50), grid.x, top + 7);
+        const percent = `${Math.floor(done * 100)}%`;
+        ctx.fillText(percent, grid.x + grid.w - ctx.measureText(percent).width, top + 7);
+        // Progress bar
+        const barY = top + 18;
+        this.bevel(ctx, grid.x - 2, barY, grid.w + 4, 18, false);
+        ctx.fillStyle = '#FFF';
+        ctx.fillRect(grid.x - 1, barY + 1, grid.w + 2, 16);
+        ctx.fillStyle = '#000080';
+        const blocks = Math.floor((grid.w - 2) / 10);
+        for (let i = 0; i < Math.floor(blocks * done); i++) ctx.fillRect(grid.x + 1 + i * 10, barY + 3, 8, 12);
+    },
+    step(ctx) {
+        while (this.cursor < this.dataCount && this.cells[this.cursor] === this.target[this.cursor]) {
+            this.paintCell(ctx, this.cursor);
+            this.cursor++;
+        }
+        if (this.cursor >= this.dataCount) return false;
+        const want = this.target[this.cursor];
+        let source = this.cursor + 1;
+        while (source < this.cells.length && this.cells[source] !== want) source++;
+        [this.cells[this.cursor], this.cells[source]] = [this.cells[source], this.cells[this.cursor]];
+        this.reading = source;
+        this.writing = this.cursor;
+        this.current = this.files[want]?.name || '';
+        this.moves++;
+        return true;
+    },
+    draw(ctx, width, height) {
+        if (this.doneAt) {
+            if (performance.now() - this.doneAt > 5000) this.init(ctx, width, height);
+            return;
+        }
+        // Repaint last move's highlighted clusters in their real colours
+        [this.reading, this.writing].forEach(index => index >= 0 && this.paintCell(ctx, index));
+        const perFrame = Math.max(1, Math.ceil(this.dataCount / 1800));
+        let moved = false;
+        for (let i = 0; i < perFrame; i++) {
+            if (!this.step(ctx)) break;
+            moved = true;
+            if (i < perFrame - 1) [this.reading, this.writing].forEach(index => this.paintCell(ctx, index));
+        }
+        if (moved) {
+            this.paintCell(ctx, this.reading, '#00FF00');
+            this.paintCell(ctx, this.writing, '#FF0000');
+        } else {
+            this.reading = this.writing = -1;
+            this.cursor = this.dataCount;
+            this.doneAt = performance.now();
+        }
+        this.paintStatus(ctx);
+    }
+};
+
+export const SCREENSAVERS = { matrix, starfield, logos, pipes, mystify, defrag };
 
 export default SCREENSAVERS;

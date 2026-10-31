@@ -2,7 +2,7 @@
  * Dialog Manager - Custom modal dialogs instead of native JS alerts/confirms/prompts
  */
 
-import { SoundManager } from './SoundManager.js?v=15';
+import { SoundManager } from './SoundManager.js?v=16';
 
 class DialogManagerClass {
     constructor() {

@@ -5,7 +5,7 @@
  * Everything is drawn from scratch on a 320x200 canvas, there are no original assets.
  */
 
-import { SoundManager } from './managers/SoundManager.js?v=15';
+import { SoundManager } from './managers/SoundManager.js?v=16';
 
 const W = 320;
 const H = 200;

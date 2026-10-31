@@ -2,10 +2,10 @@
  * Simple Mode App - Plain HTML view of Portfolio
  */
 
-import { Icons } from '../icons.js?v=15';
-import { PortfolioApp } from './PortfolioApp.js?v=15';
-import { Profile, githubUrl, featuredProjects } from '../config.js?v=15';
-import { t, loc, lang } from '../i18n.js?v=15';
+import { Icons } from '../icons.js?v=16';
+import { PortfolioApp } from './PortfolioApp.js?v=16';
+import { Profile, githubUrl, featuredProjects } from '../config.js?v=16';
+import { t, loc, lang } from '../i18n.js?v=16';
 
 export const SimpleModeApp = {
     id: 'simplemode',

@@ -2,13 +2,13 @@
    WIN 3.1 PORTFOLIO OS - MAIN STYLESHEET
    ============================================ */
 
-@import url('variables.css?v=15');
-@import url('base.css?v=15');
-@import url('boot.css?v=15');
-@import url('desktop.css?v=15');
-@import url('window.css?v=15');
-@import url('components.css?v=15');
-@import url('apps.css?v=15');
+@import url('variables.css?v=16');
+@import url('base.css?v=16');
+@import url('boot.css?v=16');
+@import url('desktop.css?v=16');
+@import url('window.css?v=16');
+@import url('components.css?v=16');
+@import url('apps.css?v=16');
 
 /* ============================================
    MOBILE RESPONSIVE STYLES
@@ -169,13 +169,25 @@
         display: none;
     }
     
+    /* Icon-only buttons; the strip scrolls sideways without a visible scrollbar */
+    .taskbar-windows {
+        scrollbar-width: none;
+        overscroll-behavior-x: contain;
+    }
+
+    .taskbar-windows::-webkit-scrollbar {
+        display: none;
+    }
+
     .taskbar-window-btn {
-        min-width: 50px;
-        max-width: 100px;
-        padding: 4px 8px;
+        flex: 0 0 auto;
+        justify-content: center;
+        min-width: 40px;
+        max-width: 40px;
+        padding: 4px;
         font-size: 12px;
     }
-    
+
     .taskbar-window-btn span:last-child {
         display: none;
     }
@@ -236,13 +248,6 @@
         font-size: 14px;
     }
     
-    /* Minesweeper bigger cells */
-    .minesweeper-cell {
-        width: 36px !important;
-        height: 36px !important;
-        font-size: 18px !important;
-    }
-    
     /* Buttons bigger for touch */
     .win-btn {
         padding: 8px 16px;
@@ -283,8 +288,15 @@
     
     .desktop-icon {
         width: 78px;
+        padding: 6px 0;
     }
-    
+
+    /* Room for names like README.TXT on one line */
+    .desktop-icon .icon-label {
+        padding: 2px 0;
+        letter-spacing: -0.2px;
+    }
+
     .desktop-icon .icon-image {
         width: 40px;
         height: 40px;

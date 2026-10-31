@@ -37,7 +37,10 @@ export const Profile = {
     contact: {
         email: 'you@example.com',
         github: 'your-github-username',
-        discord: 'your-discord-username'
+        discord: 'your-discord-username',
+        // Shown on the CV only; leave empty to hide
+        phone: '',
+        linkedin: '' // full profile URL, e.g. https://www.linkedin.com/in/your-name
     },
 
     experience: [
@@ -78,6 +81,36 @@ export const Profile = {
         { en: 'Figuring out how things work and why', pl: 'Dociekanie, jak coś działa i dlaczego' },
         { en: 'A hobby you enjoy', pl: 'Hobby, które lubisz' }
     ],
+
+    // Optional extras for the printable CV (cv.html) and the printer in the
+    // desktop. Anything left out falls back to the fields above.
+    cv: {
+        title: { en: 'Junior Full-Stack Developer', pl: 'Junior Full-Stack Developer' },
+        profile: {
+            en: 'A few sentences for recruiters: what you study, where you have worked and what you built there, and what kind of role you are looking for.',
+            pl: 'Kilka zdań dla rekrutera: co studiujesz, gdzie pracowałeś i co tam zbudowałeś oraz jakiej pracy szukasz.'
+        },
+        // Skills in groups; without this the CV shows the flat `skills` list
+        skills: [
+            { group: { en: 'Programming', pl: 'Programowanie' }, items: ['JavaScript', 'TypeScript', 'Python', 'C++'] },
+            { group: 'Backend', items: ['Node.js', 'Express', 'Next.js'] },
+            { group: { en: 'Databases', pl: 'Bazy danych' }, items: ['PostgreSQL', 'MongoDB'] },
+            { group: { en: 'Tools', pl: 'Narzędzia' }, items: ['Git', 'Docker', 'Tailwind'] }
+        ],
+        languages: [
+            { name: { en: 'English', pl: 'Angielski' }, level: 'B2' }
+        ],
+        // Longer descriptions of featured projects, by project name
+        projects: {
+            PortfolioOS: {
+                tech: 'JavaScript, Node.js, Express',
+                description: {
+                    en: 'Windows 3.1-style portfolio in vanilla JavaScript with working apps and games.',
+                    pl: 'Portfolio w stylu Windows 3.1 w czystym JavaScripcie z działającymi aplikacjami i grami.'
+                }
+            }
+        }
+    },
 
     // Cloudflare Turnstile site key (public) for the contact form. Leave empty to
     // disable it. Needs TURNSTILE_SECRET in the backend .env; see README.

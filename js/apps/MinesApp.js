@@ -2,10 +2,10 @@
  * Mines App - Classic game with safe first click, chording and touch flagging
  */
 
-import { Icons } from '../icons.js?v=15';
-import { SoundManager } from '../managers/SoundManager.js?v=15';
-import { WindowManager } from '../managers/WindowManager.js?v=15';
-import { Leaderboard } from '../leaderboard.js?v=15';
+import { Icons } from '../icons.js?v=16';
+import { SoundManager } from '../managers/SoundManager.js?v=16';
+import { WindowManager } from '../managers/WindowManager.js?v=16';
+import { Leaderboard } from '../leaderboard.js?v=16';
 
 const DIFFICULTIES = {
     beginner: { width: 9, height: 9, mines: 10 },
@@ -149,8 +149,8 @@ export const MinesApp = {
 
         const win = M.win;
         if (win) {
-            const gridEl = win.querySelector('.mines-grid');
-            const size = gridEl ? parseFloat(getComputedStyle(gridEl).getPropertyValue('--mine-size')) || CELL : CELL;
+            // --mine-size can be a calc() on phones, so measure a real cell
+            const size = win.querySelector('.mine-cell')?.getBoundingClientRect().width || CELL;
             win.style.width = `${d.width * size + 70}px`;
             win.style.height = `${d.height * size + 170}px`;
         }
@@ -159,7 +159,7 @@ export const MinesApp = {
 
     showBestTimes() {
         const times = JSON.parse(localStorage.getItem('minesweeperBestTimes') || '{}');
-        import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
+        import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
             DialogManager.info({
                 'Beginner': times.beginner ? `${times.beginner} seconds` : 'Not yet played',
                 'Intermediate': times.intermediate ? `${times.intermediate} seconds` : 'Not yet played',
@@ -169,7 +169,7 @@ export const MinesApp = {
     },
 
     showHowToPlay() {
-        import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
+        import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
             DialogManager.alert(
                 'How to Play:\n\n' +
                 '• Left-click to reveal a cell\n' +
@@ -458,7 +458,7 @@ export const MinesApp = {
         const game = `mines-${M.currentDifficulty}`;
         const time = M.time;
         setTimeout(() => {
-            import('../managers/DialogManager.js?v=15').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
                 DialogManager.alert(
                     `You won in ${time} seconds!${record ? ' New best time!' : ''}\n\nSecret code: WIN31-${time}`,
                     'Congratulations!'

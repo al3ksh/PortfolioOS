@@ -2,9 +2,9 @@
  * Task Manager App - Shows running processes
  */
 
-import { Icons } from '../icons.js?v=15';
-import { WindowManager } from '../managers/WindowManager.js?v=15';
-import { SoundManager } from '../managers/SoundManager.js?v=15';
+import { Icons } from '../icons.js?v=16';
+import { WindowManager } from '../managers/WindowManager.js?v=16';
+import { SoundManager } from '../managers/SoundManager.js?v=16';
 
 export const TaskMgrApp = {
     id: 'taskmgr',
@@ -255,7 +255,6 @@ export const TaskMgrApp = {
             // Close the window
             const id = selected.dataset.id;
             WindowManager.closeWindow(id);
-            SoundManager.play('close');
             TaskMgrApp.updateLists(container);
         } else if (type === 'process') {
             // System process
@@ -265,7 +264,7 @@ export const TaskMgrApp = {
             if (isCritical) {
                 // Show warning first
                 SoundManager.play('error');
-                const { DialogManager } = await import('../managers/DialogManager.js?v=15');
+                const { DialogManager } = await import('../managers/DialogManager.js?v=16');
                 const confirmed = await DialogManager.confirm(
                     `WARNING: Terminating "${name}" may cause system instability.\n\nAre you sure you want to end this process?`,
                     'End Process'

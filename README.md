@@ -86,9 +86,9 @@ cd PortfolioOS
 python -m http.server 8000
 ```
 
-Open <http://localhost:8000>. `npx serve` and the VS Code "Live Server" extension work as well.
+Open <http://localhost:8000> for the homepage and <http://localhost:8000/os.html> for the desktop. `npx serve` and the VS Code "Live Server" extension work as well.
 
-> Opening `index.html` straight from disk (`file://`) does not work: browsers block ES module imports there.
+> Opening `os.html` straight from disk (`file://`) does not work: browsers block ES module imports there.
 
 Contact form and leaderboards need the backend, see [Docker deployment](#docker-deployment). Everything else runs as a plain static site.
 
@@ -115,7 +115,7 @@ After editing `config.js`, regenerate the pages that must work without JavaScrip
 node scripts/build-static.mjs
 ```
 
-It rewrites the meta tags, structured data and the static portfolio in `index.html`, and creates `pl.html`, `cv.html`, `cv.pl.html`, `404.html`, `robots.txt`, `sitemap.xml` and the `contact-sent` / `contact-error` pages. Use `--config` and `--out` to build from another config into another folder.
+It writes the homepage (`index.html` in English, `pl.html` in Polish), rewrites the meta tags, structured data and the static portfolio in `os.html`, and creates `cv.html`, `cv.pl.html`, `404.html`, `robots.txt`, `sitemap.xml` and the `contact-sent` / `contact-error` pages. Use `--config` and `--out` to build from another config into another folder.
 
 Two things are not generated: `og-image.png` (the 1200x630 link preview) and the Spotify track in [`js/apps/TunesApp.js`](js/apps/TunesApp.js).
 
@@ -134,6 +134,7 @@ services:
       - ./private/og-image.png:/usr/share/nginx/html/og-image.png:ro
       - ./private/build/index.html:/usr/share/nginx/html/index.html:ro
       - ./private/build/pl.html:/usr/share/nginx/html/pl.html:ro
+      - ./private/build/os.html:/usr/share/nginx/html/os.html:ro
       - ./private/build/cv.html:/usr/share/nginx/html/cv.html:ro
       # ...and the other generated pages
 ```
@@ -199,7 +200,7 @@ Cloudflare Turnstile is optional.
 2. Put the **site key** (public) in `js/config.js` as `turnstileSiteKey` and the **secret key** in `.env` as `TURNSTILE_SECRET`.
 3. Rebuild the static pages (`node scripts/build-static.mjs`) and restart the containers.
 
-The widget loads when the Contact window opens (and when a leaderboard nickname is requested); Send stays disabled until it passes. Turnstile needs JavaScript, so with a site key set the no-JS page shows your e-mail address instead of the form. Without a key, the honeypot and rate limit are the only protection.
+The widget loads when the Contact window opens, when a leaderboard nickname is requested and, on the homepage, when the contact card scrolls into view; Send stays disabled until it passes. Turnstile needs JavaScript, so with a site key set the no-JS page shows your e-mail address instead of the form. Without a key, the honeypot and rate limit are the only protection.
 
 ### Running the backend without Docker
 
@@ -215,8 +216,9 @@ The frontend calls `/api/...`, so put a reverse proxy in front of it (see [`ngin
 
 ```
 PortfolioOS/
-├── index.html            App shell, boot screen, desktop markup
-├── cv.html, pl.html ...  Generated no-JS pages
+├── index.html, pl.html   Generated homepage (works without JS, css/home.css + js/home.js)
+├── os.html               App shell, boot screen, desktop markup
+├── cv.html, 404.html ... Generated no-JS pages
 ├── scripts/
 │   └── build-static.mjs  Builds the no-JS pages from js/config.js
 ├── css/                  main.css imports variables, base, desktop, window, components, apps, boot

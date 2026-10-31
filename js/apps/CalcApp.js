@@ -3,8 +3,8 @@
  * a scientific panel and a hidden surprise (type IDDQD).
  */
 
-import { Icons } from '../icons.js?v=15';
-import { SoundManager } from '../managers/SoundManager.js?v=15';
+import { Icons } from '../icons.js?v=16';
+import { SoundManager } from '../managers/SoundManager.js?v=16';
 
 const MAX_DIGITS = 12;
 const MAX_LENGTH = 14;
@@ -237,7 +237,7 @@ function setSci(on) {
 async function launchDoom() {
     if (document.querySelector('.doom-screen')) return;
     try {
-        const { playDoomIntro } = await import('../doomIntro.js?v=15');
+        const { playDoomIntro } = await import('../doomIntro.js?v=16');
         playDoomIntro(() => { reset(); paint(); });
     } catch (err) {
         console.error('DOOM failed to load:', err);

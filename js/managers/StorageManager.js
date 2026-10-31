@@ -1,164 +1,61 @@
 /**
- * Storage Manager - Privacy compliant storage wrapper
+ * Storage Manager - keeps localStorage writes behind the visitor's choice.
+ *
+ * Saving settings, window positions and scores in the browser is part of the
+ * service the visitor asked for, so it is on by default. Turning it off on the
+ * Cookies page (cookies.html) stores storagePrefs = 'no': from then on nothing
+ * else is read from or written to localStorage.
  */
 
 export const StorageManager = {
-    // Consent status
-    _consentGiven: null,
-    
-    // Original localStorage methods
     _originalSetItem: null,
     _originalGetItem: null,
-    _privacyPreviousFocus: null,
-    
+
+    _prefs() {
+        return this._originalGetItem
+            ? this._originalGetItem('storagePrefs')
+            : localStorage.getItem('storagePrefs');
+    },
+
     /**
-     * Check if user has made a consent decision
+     * Saving is allowed unless the visitor switched it off
      */
     hasConsent() {
-        if (this._consentGiven !== null) {
-            return this._consentGiven;
-        }
-        
-        const consent = this._originalGetItem ? 
-            this._originalGetItem.call(localStorage, 'storagePrefs') :
-            localStorage.getItem('storagePrefs');
-        this._consentGiven = consent === 'yes';
-        return this._consentGiven;
+        return this._prefs() !== 'no';
     },
-    
+
     /**
-     * Check if consent decision has been made (either way)
-     */
-    hasDecided() {
-        const consent = this._originalGetItem ?
-            this._originalGetItem.call(localStorage, 'storagePrefs') :
-            localStorage.getItem('storagePrefs');
-        return consent === 'yes' || consent === 'no';
-    },
-    
-    /**
-     * Accept storage
-     */
-    accept() {
-        if (this._originalSetItem) {
-            this._originalSetItem.call(localStorage, 'storagePrefs', 'yes');
-        } else {
-            localStorage.setItem('storagePrefs', 'yes');
-        }
-        this._consentGiven = true;
-    },
-    
-    /**
-     * Decline storage
-     */
-    decline() {
-        this.clearNonEssentialData();
-        if (this._originalSetItem) {
-            this._originalSetItem.call(localStorage, 'storagePrefs', 'no');
-        } else {
-            localStorage.setItem('storagePrefs', 'no');
-        }
-        this._consentGiven = false;
-    },
-    
-    /**
-     * Clear non-essential stored data
-     */
-    clearNonEssentialData() {
-        const keysToRemove = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key !== 'storagePrefs') {
-                keysToRemove.push(key);
-            }
-        }
-        keysToRemove.forEach(key => localStorage.removeItem(key));
-    },
-    
-    /**
-     * Wrap localStorage to respect consent
+     * Wrap localStorage to respect the choice. The methods are replaced on
+     * Storage.prototype: assigning localStorage.setItem = fn would only save an
+     * item called "setItem" and leave the real method untouched.
      */
     wrapLocalStorage() {
-        this._originalSetItem = localStorage.setItem.bind(localStorage);
-        this._originalGetItem = localStorage.getItem.bind(localStorage);
-        
-        const self = this;
-        
-        localStorage.setItem = function(key, value) {
-            if (key === 'storagePrefs') {
-                return self._originalSetItem(key, value);
-            }
-            if (self.hasConsent()) {
-                return self._originalSetItem(key, value);
-            }
-            return undefined;
-        };
-        
-        localStorage.getItem = function(key) {
-            if (key === 'storagePrefs') {
-                return self._originalGetItem(key);
-            }
-            if (self.hasConsent()) {
-                return self._originalGetItem(key);
-            }
-            return null;
-        };
-    },
-    
-    /**
-     * Show the consent modal
-     */
-    showModal() {
-        const modal = document.getElementById('privacyModal');
-        if (modal) {
-            this._privacyPreviousFocus = document.activeElement;
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.querySelector('button')?.focus(), 0);
+        try {
+            void localStorage;
+        } catch {
+            return; // storage blocked by the browser: nothing gets saved anyway
         }
-    },
-    
-    /**
-     * Hide the consent modal
-     */
-    hideModal() {
-        const modal = document.getElementById('privacyModal');
-        if (modal) {
-            modal.classList.add('hidden');
-        }
-        if (this._privacyPreviousFocus?.isConnected) {
-            this._privacyPreviousFocus.focus();
-        }
-    },
-    
-    /**
-     * Initialize event listeners
-     */
-    init(onComplete) {
-        const acceptBtn = document.getElementById('privacyAccept');
-        const declineBtn = document.getElementById('privacyDecline');
-        
-        if (acceptBtn) {
-            acceptBtn.addEventListener('click', () => {
-                this.accept();
-                this.hideModal();
-                if (onComplete) onComplete(true);
-            });
-        }
-        
-        if (declineBtn) {
-            declineBtn.addEventListener('click', () => {
-                this.decline();
-                this.hideModal();
-                if (onComplete) onComplete(false);
-            });
-        }
+        const proto = Storage.prototype;
+        const setItem = proto.setItem;
+        const getItem = proto.getItem;
+        this._originalSetItem = (key, value) => setItem.call(localStorage, key, value);
+        this._originalGetItem = key => getItem.call(localStorage, key);
 
-        document.getElementById('privacyModal')?.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                event.preventDefault();
-                declineBtn?.click();
-            }
+        // Older versions left those junk items behind
+        ['setItem', 'getItem'].forEach(key => {
+            if (String(getItem.call(localStorage, key)).startsWith('function')) localStorage.removeItem(key);
         });
+
+        const self = this;
+        const allowed = (storage, key) => storage !== localStorage || key === 'storagePrefs' || self.hasConsent();
+
+        proto.setItem = function(key, value) {
+            return allowed(this, key) ? setItem.call(this, key, value) : undefined;
+        };
+
+        proto.getItem = function(key) {
+            return allowed(this, key) ? getItem.call(this, key) : null;
+        };
     }
 };
 

@@ -11,7 +11,6 @@
 html:not(.js) #bootScreen,
 html:not(.js) #desktop,
 html:not(.js) #bsodScreen,
-html:not(.js) #privacyModal { display: none !important; }
 
 /* base.css locks the page for the desktop (overflow: hidden, no text selection);
    the static page must scroll and be selectable like a normal document. */
