@@ -2,12 +2,12 @@
  * Portfolio App - Main Bento Grid portfolio
  */
 
-import { Icons } from '../icons.js?v=16';
-import { WindowManager } from '../managers/WindowManager.js?v=16';
-import { Profile, githubUrl, featuredProjects } from '../config.js?v=16';
-import { t, loc, lang } from '../i18n.js?v=16';
-import { openCv } from './PrinterApp.js?v=16';
-import { mountFace } from '../face.js?v=16';
+import { Icons } from '../icons.js?v=17';
+import { WindowManager } from '../managers/WindowManager.js?v=17';
+import { Profile, githubUrl, featuredProjects } from '../config.js?v=17';
+import { t, loc, lang } from '../i18n.js?v=17';
+import { openCv } from './PrinterApp.js?v=17';
+import { mountFace } from '../face.js?v=17';
 
 export const PortfolioApp = {
     id: 'portfolio',

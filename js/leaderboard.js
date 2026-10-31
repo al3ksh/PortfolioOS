@@ -3,9 +3,10 @@
  * personal bests stay in each game's own localStorage.
  */
 
-import { Profile } from './config.js?v=16';
-import { DialogManager } from './managers/DialogManager.js?v=16';
-import { SoundManager } from './managers/SoundManager.js?v=16';
+import { Profile } from './config.js?v=17';
+import { DialogManager } from './managers/DialogManager.js?v=17';
+import { SoundManager } from './managers/SoundManager.js?v=17';
+import { t } from './i18n.js?v=17';
 
 const BOARDS = {
     'snake-solid': { title: 'Snake - Solid walls', unit: '' },
@@ -38,6 +39,9 @@ async function load(game) {
     }
 }
 
+// Board names follow the language; BOARDS[game].title stays as the English fallback
+const boardTitle = game => (t(`lb.${game}`) !== `lb.${game}` ? t(`lb.${game}`) : BOARDS[game].title);
+
 const beats = (order, a, b) => order === 'asc' ? a < b : a > b;
 
 // Where a result would land (1-based), or 0 when it would not make the list.
@@ -48,7 +52,7 @@ function rankFor(board, score) {
 }
 
 function tableHtml(game, board, mark) {
-    if (!board.scores.length) return '<p class="lb-empty">No results yet. Be the first!</p>';
+    if (!board.scores.length) return `<p class="lb-empty">${escapeHtml(t('lb.empty'))}</p>`;
     const rows = board.scores.map((entry, index) => `
         <tr${mark === index + 1 ? ' class="lb-mine"' : ''}>
             <td class="lb-rank">${index + 1}.</td>
@@ -91,13 +95,13 @@ async function show(game, mark = 0, known = null) {
     if (!BOARDS[game]) return;
     const board = known || await load(game);
     if (!board) {
-        await DialogManager.alert('The leaderboard could not be reached right now.', BOARDS[game].title);
+        await DialogManager.alert(t('lb.unreachable'), boardTitle(game));
         return;
     }
     await openDialog({
-        title: `Leaderboard - ${BOARDS[game].title}`,
+        title: t('lb.title', { board: boardTitle(game) }),
         content: `<div class="lb-box">${tableHtml(game, board, mark)}</div>`,
-        buttons: [{ label: 'OK', action: 'ok', primary: true }]
+        buttons: [{ label: t('dlg.ok'), action: 'ok', primary: true }]
     });
 }
 
@@ -118,9 +122,9 @@ async function submit(game, score, name, turnstileToken) {
             signal: AbortSignal.timeout(10000)
         });
         const body = await response.json().catch(() => ({}));
-        return response.ok ? body : { error: body.error || 'The score could not be saved.' };
+        return response.ok ? body : { error: body.error || t('lb.saveFailed') };
     } catch (error) {
-        return { error: 'The score could not be saved. Check your connection.' };
+        return { error: t('lb.offline') };
     }
 }
 
@@ -142,18 +146,18 @@ async function offer(game, score, stillOver = () => true) {
     for (let attempt = 0; attempt < 3; attempt++) {
         let token = '';
         const { action, dialog } = await openDialog({
-            title: 'New high score!',
+            title: t('lb.newHigh'),
             content: `
                 <div class="lb-box">
-                    <p>${escapeHtml(BOARDS[game].title)}: <b>${escapeHtml(format(game, score))}</b>, place ${rank}.</p>
-                    <p>Enter a nickname for the public leaderboard (only the nickname, score and date are stored).</p>
-                    <input type="text" class="dialog-input win-input" maxlength="12" autocomplete="off" spellcheck="false" aria-label="Nickname" value="${escapeHtml(typed)}">
+                    <p>${escapeHtml(boardTitle(game))}: <b>${escapeHtml(format(game, score))}</b>, ${escapeHtml(t('lb.place', { rank }))}.</p>
+                    <p>${escapeHtml(t('lb.enterNick'))}</p>
+                    <input type="text" class="dialog-input win-input" maxlength="12" autocomplete="off" spellcheck="false" aria-label="${escapeHtml(t('lb.nickname'))}" value="${escapeHtml(typed)}">
                     ${error ? `<p class="lb-error">${escapeHtml(error)}</p>` : ''}
                     ${Profile.turnstileSiteKey ? '<div class="lb-turnstile"></div>' : ''}
                 </div>`,
             buttons: [
-                { label: 'Submit', action: 'submit', primary: true },
-                { label: 'Skip', action: 'skip' }
+                { label: t('lb.submit'), action: 'submit', primary: true },
+                { label: t('lb.skip'), action: 'skip' }
             ],
             onOpen(box) {
                 const send = box.querySelector('[data-action="submit"]');
@@ -165,7 +169,7 @@ async function offer(game, score, stillOver = () => true) {
                     callback: (value) => { token = value; send.disabled = false; },
                     'expired-callback': () => { token = ''; send.disabled = true; },
                     'error-callback': () => { token = ''; send.disabled = true; }
-                })).catch(() => { slot.textContent = 'Verification is unavailable right now.'; });
+                })).catch(() => { slot.textContent = t('lb.noVerify'); });
             }
         });
 

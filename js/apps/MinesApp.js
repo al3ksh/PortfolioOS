@@ -2,10 +2,11 @@
  * Mines App - Classic game with safe first click, chording and touch flagging
  */
 
-import { Icons } from '../icons.js?v=16';
-import { SoundManager } from '../managers/SoundManager.js?v=16';
-import { WindowManager } from '../managers/WindowManager.js?v=16';
-import { Leaderboard } from '../leaderboard.js?v=16';
+import { Icons } from '../icons.js?v=17';
+import { t } from '../i18n.js?v=17';
+import { SoundManager } from '../managers/SoundManager.js?v=17';
+import { WindowManager } from '../managers/WindowManager.js?v=17';
+import { Leaderboard } from '../leaderboard.js?v=17';
 
 const DIFFICULTIES = {
     beginner: { width: 9, height: 9, mines: 10 },
@@ -159,28 +160,19 @@ export const MinesApp = {
 
     showBestTimes() {
         const times = JSON.parse(localStorage.getItem('minesweeperBestTimes') || '{}');
-        import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
+        import('../managers/DialogManager.js?v=17').then(({ DialogManager }) => {
+            const best = level => (times[level] ? t('mines.seconds', { n: times[level] }) : t('mines.notPlayed'));
             DialogManager.info({
-                'Beginner': times.beginner ? `${times.beginner} seconds` : 'Not yet played',
-                'Intermediate': times.intermediate ? `${times.intermediate} seconds` : 'Not yet played',
-                'Expert': times.expert ? `${times.expert} seconds` : 'Not yet played'
-            }, 'Best Times');
+                [t('mines.beginner')]: best('beginner'),
+                [t('mines.intermediate')]: best('intermediate'),
+                [t('mines.expert')]: best('expert')
+            }, t('mines.bestTimes'));
         });
     },
 
     showHowToPlay() {
-        import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
-            DialogManager.alert(
-                'How to Play:\n\n' +
-                '• Left-click to reveal a cell\n' +
-                '• Right-click (or long-press on a phone) to flag a mine\n' +
-                '• Numbers show adjacent mines\n' +
-                '• Click a number whose flags are all placed (or middle-click it) to reveal the rest around it\n' +
-                '• Your first click is always safe\n' +
-                '• Clear all non-mine cells to win!\n\n' +
-                'F2 or the face starts a new game.',
-                'How to Play'
-            );
+        import('../managers/DialogManager.js?v=17').then(({ DialogManager }) => {
+            DialogManager.alert(t('mines.help'), t('dlg.howToPlay'));
         });
     },
 
@@ -407,6 +399,8 @@ export const MinesApp = {
     lose(hitX, hitY) {
         const M = MinesApp;
         M.gameOver = true;
+        // Counted for this visit only; the shutdown screen has a line for it
+        try { sessionStorage.setItem('minesLost', String(Number(sessionStorage.getItem('minesLost') || 0) + 1)); } catch { /* storage blocked */ }
         clearInterval(M.timerInterval);
         M.timerInterval = null;
 
@@ -458,10 +452,10 @@ export const MinesApp = {
         const game = `mines-${M.currentDifficulty}`;
         const time = M.time;
         setTimeout(() => {
-            import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=17').then(({ DialogManager }) => {
                 DialogManager.alert(
-                    `You won in ${time} seconds!${record ? ' New best time!' : ''}\n\nSecret code: WIN31-${time}`,
-                    'Congratulations!'
+                    t('mines.won', { time, record: record ? t('mines.record') : '' }),
+                    t('mines.wonTitle')
                 ).then(() => Leaderboard.offer(game, time));
             });
         }, 600);

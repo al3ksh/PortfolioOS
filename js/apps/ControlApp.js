@@ -2,13 +2,15 @@
  * Control Panel App - Settings / Theme switcher
  */
 
-import { Icons } from '../icons.js?v=16';
-import { Profile, githubUrl } from '../config.js?v=16';
-import { SoundManager } from '../managers/SoundManager.js?v=16';
-import { ScreenSaver } from '../managers/ScreenSaver.js?v=16';
-import { SCREENSAVERS } from '../screensavers.js?v=16';
-import { getSetting, setSetting } from '../settings.js?v=16';
-import { WindowManager } from '../managers/WindowManager.js?v=16';
+import { Icons } from '../icons.js?v=17';
+import { t } from '../i18n.js?v=17';
+import { Profile, githubUrl } from '../config.js?v=17';
+import { SoundManager } from '../managers/SoundManager.js?v=17';
+import { ScreenSaver } from '../managers/ScreenSaver.js?v=17';
+import { SCREENSAVERS } from '../screensavers.js?v=17';
+import { getSetting, setSetting } from '../settings.js?v=17';
+import { WindowManager } from '../managers/WindowManager.js?v=17';
+import { enhanceSelects } from '../winSelect.js?v=17';
 
 export const ControlApp = {
     id: 'control',
@@ -115,7 +117,7 @@ export const ControlApp = {
 
                 <div class="control-section">
                     <h3>${Icons.cpSession} Session Management</h3>
-                    <p style="font-size: 11px; color: #808080; margin-bottom: 8px;">
+                    <p style="font-size: 11px; color: var(--content-muted); margin-bottom: 8px;">
                         Window positions and open apps are saved automatically.
                     </p>
                     <button class="win-btn" id="clearSessionBtn">${Icons.actTrash} Clear Saved Session</button>
@@ -197,6 +199,7 @@ export const ControlApp = {
         });
 
         // Screen saver
+        enhanceSelects(window, 'select.win-select');
         const saverSelect = window.querySelector('#screensaverType');
         saverSelect?.addEventListener('change', (e) => {
             setSetting('screensaver', e.target.value);
@@ -222,15 +225,12 @@ export const ControlApp = {
         // Clear session button
         const clearBtn = window.querySelector('#clearSessionBtn');
         clearBtn?.addEventListener('click', async () => {
-            const { DialogManager } = await import('../managers/DialogManager.js?v=16');
-            const confirmed = await DialogManager.confirm(
-                'Clear all saved window positions and session data?\n\nThis will reset to default on next refresh.',
-                'Clear Session Data'
-            );
+            const { DialogManager } = await import('../managers/DialogManager.js?v=17');
+            const confirmed = await DialogManager.confirm(t('control.clearQ'), t('control.clearTitle'));
             if (confirmed) {
                 WindowManager.clearSavedState();
                 SoundManager.play('click');
-                await DialogManager.alert('Session data cleared! Refresh to see default layout.', 'Success');
+                await DialogManager.alert(t('control.cleared'), t('control.clearedTitle'));
             }
         });
     },

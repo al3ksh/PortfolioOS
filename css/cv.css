@@ -108,7 +108,7 @@ a { color: inherit; text-decoration: none; }
 .cv-columns {
     flex: 1;
     display: grid;
-    grid-template-columns: 62mm 1fr;
+    grid-template-columns: 64mm 1fr;
 }
 
 .cv-sidebar {
@@ -146,8 +146,11 @@ a { color: inherit; text-decoration: none; }
     display: flex;
     align-items: flex-start;
     gap: 2.2mm;
-    overflow-wrap: anywhere;
+    min-width: 0;
 }
+
+/* Addresses break only at the <wbr> after "/" or before "@" */
+.cv-nowrap { white-space: nowrap; }
 
 .cv-contact svg {
     flex-shrink: 0;
@@ -161,15 +164,16 @@ a { color: inherit; text-decoration: none; }
     list-style: none;
     display: flex;
     flex-wrap: wrap;
-    gap: 1.5mm;
+    gap: 1.2mm;
 }
 
 .cv-skills li {
-    padding: 0.6mm 2.2mm;
+    padding: 0.3mm 1.5mm;
     border-radius: 1mm;
     background: #fff;
     border: 1px solid var(--cv-line);
-    font-size: 8.5pt;
+    font-size: 8.3pt;
+    white-space: nowrap;
 }
 
 .cv-skill-group + .cv-skill-group { margin-top: 2.6mm; }
@@ -293,9 +297,11 @@ a { color: inherit; text-decoration: none; }
 
 .cv-projects {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3mm 5mm;
+    gap: 3mm;
 }
+
+/* Name and stack, then the repository address on its own line (readable on paper too) */
+.cv-project-head { display: grid; }
 
 .cv-project-name {
     font-weight: 700;
@@ -303,10 +309,16 @@ a { color: inherit; text-decoration: none; }
 }
 
 .cv-project-tech {
-    display: block;
+    margin-left: 2mm;
     color: var(--cv-accent);
     font-size: 8.3pt;
     font-weight: 600;
+}
+
+.cv-project-url {
+    justify-self: start;
+    color: var(--cv-muted);
+    font-size: 8.3pt;
 }
 
 .cv-consent {
@@ -339,7 +351,6 @@ a { color: inherit; text-decoration: none; }
     .cv-sheet { width: auto; min-height: 0; margin: 0; box-shadow: none; }
     .cv-columns { grid-template-columns: 1fr; }
     .cv-sidebar, .cv-main, .cv-header, .cv-consent { padding-left: 6mm; padding-right: 6mm; }
-    .cv-projects { grid-template-columns: 1fr; }
     .cv-toolbar { flex-wrap: wrap; }
     .cv-hint { margin-left: 0; }
 }

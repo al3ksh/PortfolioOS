@@ -2,9 +2,11 @@
  * Window Component - Draggable, resizable window
  */
 
-import { Icons } from '../icons.js?v=16';
-import { WindowManager } from '../managers/WindowManager.js?v=16';
-import { SoundManager } from '../managers/SoundManager.js?v=16';
+import { Icons } from '../icons.js?v=17';
+import { WindowManager } from '../managers/WindowManager.js?v=17';
+import { SoundManager } from '../managers/SoundManager.js?v=17';
+import { Profile } from '../config.js?v=17';
+import { t } from '../i18n.js?v=17';
 
 export class Window {
     constructor(config) {
@@ -382,12 +384,12 @@ export class Window {
             <div class="about-dialog-content">
                 <div class="about-icon">${this.icon || Icons.smFolder}</div>
                 <h3>${this.title}</h3>
-                <p>Portfolio OS v1.0</p>
-                <p>© 2024 All Rights Reserved</p>
+                <p>PortfolioOS</p>
+                <p>© ${new Date().getFullYear()} ${Profile.name}</p>
                 <p style="margin-top: 10px; font-size: 11px; color: var(--content-muted);">
-                    Windows 3.1 Style Portfolio
+                    ${t('about.tagline')}
                 </p>
-                <button class="about-ok-btn">OK</button>
+                <button class="about-ok-btn">${t('dlg.ok')}</button>
             </div>
         `;
 

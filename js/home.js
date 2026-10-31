@@ -1,10 +1,12 @@
 /**
  * Landing page behaviour (index.html / pl.html). The page is complete without it;
- * this adds the light/dark switch, the skill filter, copy-email button, menu highlight, the tray clock
- * and sends the contact form in the background (with Turnstile when configured).
+ * this adds the light/dark switch, the skill filter, copy-email button, menu highlight, the tray clock,
+ * the subject picker (js/winSelect.js) and sends the contact form in the background (with Turnstile when configured).
  * On the cookies page it also runs the switch for data PortfolioOS saves.
  * Everything it needs is in data-* attributes written by scripts/build-static.mjs.
  */
+
+import { enhanceSelects } from './winSelect.js?v=17';
 
 const lang = document.documentElement.lang === 'pl' ? 'pl' : 'en';
 
@@ -156,6 +158,9 @@ function initContact() {
     const sendLabel = submit.innerHTML;
     let token = '';
     let widget = null;
+
+    // Win95-style picker in front of the subject <select>; it follows form.reset() itself
+    enhanceSelects(form, 'select');
 
     const say = (text, isError = false) => {
         status.classList.toggle('is-error', isError);

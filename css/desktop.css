@@ -886,20 +886,8 @@ button.calendar-full-date:hover {
     color: #fff;
 }
 
-.desktop-icon.recycle-refused {
-    animation: recycle-refused 0.5s steps(10, end);
-}
-
 .desktop-icon.recycle-bump .icon-image {
     animation: recycle-bump 0.5s steps(8, end);
-}
-
-@keyframes recycle-refused {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-5px) rotate(-6deg); }
-    40% { transform: translateX(5px) rotate(6deg); }
-    60% { transform: translateX(-3px) rotate(-3deg); }
-    80% { transform: translateX(3px) rotate(3deg); }
 }
 
 @keyframes recycle-bump {
@@ -910,7 +898,6 @@ button.calendar-full-date:hover {
 
 @media (prefers-reduced-motion: reduce) {
     .desktop.konami-shake,
-    .desktop-icon.recycle-refused,
     .desktop-icon.recycle-bump .icon-image {
         animation: none;
     }

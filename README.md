@@ -53,10 +53,11 @@ Windows 3.1 / 95 look, built with plain HTML, CSS and JavaScript. No frameworks,
 | **Projects.exe** | Your public GitHub repositories, loaded live and searchable; open a project to read its README |
 | **Network.exe** | Live status of the services you self-host, plus server uptime, load and memory |
 | **Contact.exe** | Contact form (Node.js API) and social links |
-| **Simple View** | The portfolio as a clean document, styled like the printable CV |
+| **Simple View** | The printable CV (`cv.html` / `cv.pl.html`) inside a window, so the two always match |
 | **Internet** | Retro browser: YouTube, Spotify and Vimeo links play in place, Wikipedia search, other sites through the Wayback Machine, and a Time machine for 1996-2015 |
 | **Terminal** | Fake DOS prompt with `dir`, `type`, `open`, `neofetch`, `bios`, `matrix` and a few secrets |
-| **File Explorer** | Virtual file system with hidden files |
+| **File Explorer** | Virtual disk shared with the Terminal, Notepad and the printer, with hidden files; `cv.txt`, `Program Files` and the desktop shortcuts follow the CV and the app list |
+| **Recycle Bin** | Desktop icons (drag them in, or Delete) and files deleted in Explorer wait here until restored; emptying it shows the classic progress bar that never moves, so only Cancel gets you out and nothing is ever deleted for good |
 | **Notepad**, **Paint**, **Calculator** | The classics (Notepad saves your text in the browser) |
 | **Tunes** | Embedded Spotify player |
 | **Control Panel** | Themes, sounds, screen saver and session settings |
@@ -244,7 +245,7 @@ PortfolioOS/
 2. Register it in [`js/apps/index.js`](js/apps/index.js).
 3. Add styles to `css/apps.css`.
 
-> Imports carry a `?v=15` query string for cache busting. Bump it across files when you deploy changes behind aggressive caches.
+> Imports carry a `?v=17` query string for cache busting. Bump it across files when you deploy changes behind aggressive caches.
 
 ## Browser support
 

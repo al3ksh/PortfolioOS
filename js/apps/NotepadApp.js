@@ -3,12 +3,13 @@
  * Explorer and the Terminal open files here; Save writes back to the same disk.
  */
 
-import { Icons } from '../icons.js?v=16';
-import { SoundManager } from '../managers/SoundManager.js?v=16';
-import { DialogManager } from '../managers/DialogManager.js?v=16';
-import { WindowManager } from '../managers/WindowManager.js?v=16';
-import { VFS } from '../vfs.js?v=16';
-import { printText } from './PrinterApp.js?v=16';
+import { Icons } from '../icons.js?v=17';
+import { t } from '../i18n.js?v=17';
+import { SoundManager } from '../managers/SoundManager.js?v=17';
+import { DialogManager } from '../managers/DialogManager.js?v=17';
+import { WindowManager } from '../managers/WindowManager.js?v=17';
+import { VFS } from '../vfs.js?v=17';
+import { printText } from './PrinterApp.js?v=17';
 
 const CONTENT_KEY = 'notepad-content';
 const PATH_KEY = 'notepad-path';
@@ -116,7 +117,7 @@ export const NotepadApp = {
         const same = NotepadApp.path && parts.join('\\') === NotepadApp.path.join('\\');
         if (same) return;
         if (NotepadApp.isDirty()) {
-            const discard = await DialogManager.confirm(`The text in ${NotepadApp.fileName()} has changed.\n\nDiscard the changes?`, 'Notepad');
+            const discard = await DialogManager.confirm(t('notepad.discard', { name: NotepadApp.fileName() }), t('notepad.title'));
             if (!discard) return;
         }
         NotepadApp.load(parts);
@@ -126,7 +127,7 @@ export const NotepadApp = {
     save() {
         if (!NotepadApp.path) return NotepadApp.saveAs();
         if (!VFS.write(NotepadApp.path, NotepadApp.textarea().value)) {
-            DialogManager.alert(`Cannot save ${NotepadApp.fileName()}.\n\nThe path no longer exists.`, 'Notepad');
+            DialogManager.alert(t('notepad.pathGone', { name: NotepadApp.fileName() }), t('notepad.title'));
             return NotepadApp.saveAs();
         }
         NotepadApp.remember();
@@ -135,26 +136,26 @@ export const NotepadApp = {
 
     async saveAs() {
         const suggestion = NotepadApp.path ? VFS.toString(NotepadApp.path) : 'Documents\\untitled.txt';
-        let name = await DialogManager.prompt(`File name (relative to ${VFS.toString(VFS.home)}):`, suggestion, 'Save As');
+        let name = await DialogManager.prompt(t('notepad.fileName', { home: VFS.toString(VFS.home) }), suggestion, t('notepad.saveAs'));
         name = name?.trim();
         if (!name) return;
         if (!/\.[a-z0-9]+$/i.test(name)) name += '.txt';
         const target = VFS.resolve(VFS.home, name, { parent: true });
         if (!target) {
-            DialogManager.alert(`${name}\n\nPath not found.`, 'Save As');
+            DialogManager.alert(t('notepad.notFound', { name }), t('notepad.saveAs'));
             return;
         }
         if (target.node && !VFS.isText(target.node)) {
-            DialogManager.alert(`${target.parts[target.parts.length - 1]} is not a text file.`, 'Save As');
+            DialogManager.alert(t('notepad.notText', { name: target.parts[target.parts.length - 1] }), t('notepad.saveAs'));
             return;
         }
         const samePath = NotepadApp.path && target.parts.join('\\') === NotepadApp.path.join('\\');
         if (target.node && !samePath) {
-            const replace = await DialogManager.confirm(`${VFS.toString(target.parts)} already exists.\n\nDo you want to replace it?`, 'Save As');
+            const replace = await DialogManager.confirm(t('notepad.replace', { path: VFS.toString(target.parts) }), t('notepad.saveAs'));
             if (!replace) return;
         }
         if (!VFS.write(target.parts, NotepadApp.textarea()?.value ?? '')) {
-            DialogManager.alert(`Cannot save ${name}.`, 'Save As');
+            DialogManager.alert(t('notepad.cannotSave', { name }), t('notepad.saveAs'));
             return;
         }
         NotepadApp.path = target.parts;
@@ -202,7 +203,7 @@ export const NotepadApp = {
         switch(action) {
             case 'new':
                 if (NotepadApp.isDirty()) {
-                    DialogManager.confirm(`The text in ${NotepadApp.fileName()} has changed.\n\nDiscard the changes?`, 'New File').then(confirmed => {
+                    DialogManager.confirm(t('notepad.discard', { name: NotepadApp.fileName() }), t('notepad.newFile')).then(confirmed => {
                         if (confirmed) NotepadApp.load(null, '');
                     });
                     return;

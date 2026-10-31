@@ -2,10 +2,11 @@
  * System Information App - Detailed "system" info with charts
  */
 
-import { Icons } from '../icons.js?v=16';
-import { Profile, githubUrl } from '../config.js?v=16';
-import { WindowManager } from '../managers/WindowManager.js?v=16';
-import { SoundManager } from '../managers/SoundManager.js?v=16';
+import { Icons } from '../icons.js?v=17';
+import { t } from '../i18n.js?v=17';
+import { Profile, githubUrl } from '../config.js?v=17';
+import { WindowManager } from '../managers/WindowManager.js?v=17';
+import { SoundManager } from '../managers/SoundManager.js?v=17';
 
 export const SysInfoApp = {
     id: 'sysinfo',
@@ -354,8 +355,8 @@ Online: ${info.online ? 'Yes' : 'No'}
 
         navigator.clipboard.writeText(report).then(() => {
             SoundManager.play('chord');
-            import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
-                DialogManager.alert('System information copied to clipboard!', 'Copy Successful');
+            import('../managers/DialogManager.js?v=17').then(({ DialogManager }) => {
+                DialogManager.alert(t('sysinfo.copied'), t('sysinfo.copiedTitle'));
             });
         });
     }

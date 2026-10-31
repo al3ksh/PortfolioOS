@@ -2,11 +2,12 @@
  * Desktop Icon Component - Grid-based with drag & drop
  */
 
-import { WindowManager } from '../managers/WindowManager.js?v=16';
-import { SoundManager } from '../managers/SoundManager.js?v=16';
-import { DesktopGridManager } from '../managers/DesktopGridManager.js?v=16';
-import { Icons } from '../icons.js?v=16';
-import { t } from '../i18n.js?v=16';
+import { WindowManager } from '../managers/WindowManager.js?v=17';
+import { SoundManager } from '../managers/SoundManager.js?v=17';
+import { DesktopGridManager } from '../managers/DesktopGridManager.js?v=17';
+import { Icons } from '../icons.js?v=17';
+import { t } from '../i18n.js?v=17';
+import { VFS } from '../vfs.js?v=17';
 
 const RECYCLE_ID = 'icon-recycle';
 
@@ -89,6 +90,9 @@ export class DesktopIcon {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 this.open();
+            } else if (e.key === 'Delete') {
+                e.preventDefault();
+                this.throwAway();
             }
         });
 
@@ -175,7 +179,7 @@ export class DesktopIcon {
                 const cell = DesktopGridManager.getCellFromPosition(e.clientX, e.clientY);
                 document.querySelector(`[data-icon-id="${RECYCLE_ID}"]`)?.classList.remove('drop-target');
                 if (this.isRecycleCell(cell)) {
-                    this.refuseRecycle();
+                    this.throwAway();
                     return;
                 }
                 DesktopGridManager.placeIcon(this.id, cell.row, cell.col);
@@ -206,31 +210,21 @@ export class DesktopIcon {
         return this.id !== RECYCLE_ID && DesktopGridManager.grid[cell.row]?.[cell.col] === RECYCLE_ID;
     }
 
-    // Nothing on this desktop can be thrown away: the icon jumps back and complains.
-    refuseRecycle() {
-        SoundManager.play('error');
-        this.element.classList.remove('recycle-refused');
-        void this.element.offsetWidth;
-        this.element.classList.add('recycle-refused');
-        setTimeout(() => this.element.classList.remove('recycle-refused'), 600);
-
+    // Into the Recycle Bin: its desktop shortcut goes there, and the desktop drops the icon
+    throwAway() {
+        if (this.id === RECYCLE_ID) return;
+        const path = VFS.shortcutOf(this.appId);
+        if (!path) return;
+        SoundManager.play('close');
         const bin = document.querySelector(`[data-icon-id="${RECYCLE_ID}"]`);
+        bin?.classList.remove('recycle-bump');
+        void bin?.offsetWidth;
         bin?.classList.add('recycle-bump');
         setTimeout(() => bin?.classList.remove('recycle-bump'), 600);
-
-        const refused = Number(sessionStorage.getItem('recycleRefused') || 0) + 1;
-        sessionStorage.setItem('recycleRefused', String(refused));
-
-        const lines = t('recycle.refuse');
-        const line = Array.isArray(lines) ? lines[(refused - 1) % lines.length] : String(lines);
-        const message = line.replace(/\{name\}/g, this.title);
-
         document.dispatchEvent(new CustomEvent('face:react', {
             detail: { mood: 'surprised', text: t('face.say.recycle', { name: this.title }) }
         }));
-        import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
-            DialogManager.alert(message, t('recycle.dialogTitle'));
-        });
+        VFS.trash(path);
     }
 
     showContextMenu(x, y) {
@@ -252,10 +246,14 @@ export class DesktopIcon {
             z-index: 10000;
         `;
 
+        const isBin = this.id === RECYCLE_ID;
         const items = [
-            { label: 'Open', icon: Icons.ctxOpen, action: () => this.open() },
+            { label: t('recycle.open'), icon: Icons.ctxOpen, action: () => this.open() },
+            isBin
+                ? { label: t('recycle.emptyBin'), icon: Icons.actTrash, disabled: !VFS.bin.length, action: () => import('../apps/RecycleApp.js?v=17').then(({ RecycleApp }) => RecycleApp.emptyBin()) }
+                : { label: t('recycle.delete'), icon: Icons.actTrash, action: () => this.throwAway() },
             { type: 'separator' },
-            { label: 'Properties', icon: Icons.ctxProps, action: () => this.showProperties() }
+            { label: t('recycle.properties'), icon: Icons.ctxProps, action: () => this.showProperties() }
         ];
 
         items.forEach(item => {
@@ -270,6 +268,7 @@ export class DesktopIcon {
                 menuItem.className = 'menu-item';
                 menuItem.setAttribute('role', 'menuitem');
                 menuItem.innerHTML = `<span class="context-menu-icon" aria-hidden="true">${item.icon || ''}</span><span>${item.label}</span>`;
+                menuItem.disabled = Boolean(item.disabled);
                 menuItem.addEventListener('click', () => {
                     item.action();
                     menu.remove();
@@ -309,15 +308,15 @@ export class DesktopIcon {
     }
 
     showProperties() {
-        import('../apps/index.js?v=16').then(module => {
+        import('../apps/index.js?v=17').then(module => {
             const app = module.Apps[this.appId];
-            import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=17').then(({ DialogManager }) => {
                 DialogManager.info({
-                    'Name': this.title,
-                    'Type': 'Application',
-                    'App ID': this.appId,
-                    'Window Size': `${app?.width || 400} × ${app?.height || 300}`
-                }, 'Properties');
+                    [t('dlg.name')]: this.title,
+                    [t('dlg.type')]: t('dlg.application'),
+                    [t('dlg.appId')]: this.appId,
+                    [t('dlg.windowSize')]: `${app?.width || 400} × ${app?.height || 300}`
+                }, t('dlg.properties'));
             });
         });
     }

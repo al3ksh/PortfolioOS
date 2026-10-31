@@ -2,12 +2,13 @@
  * File Explorer App - Virtual file browser
  */
 
-import { Icons } from '../icons.js?v=16';
-import { SoundManager } from '../managers/SoundManager.js?v=16';
-import { WindowManager } from '../managers/WindowManager.js?v=16';
-import { VFS } from '../vfs.js?v=16';
-import { NotepadApp } from './NotepadApp.js?v=16';
-import { printText } from './PrinterApp.js?v=16';
+import { Icons } from '../icons.js?v=17';
+import { t } from '../i18n.js?v=17';
+import { SoundManager } from '../managers/SoundManager.js?v=17';
+import { WindowManager } from '../managers/WindowManager.js?v=17';
+import { VFS } from '../vfs.js?v=17';
+import { NotepadApp } from './NotepadApp.js?v=17';
+import { printText } from './PrinterApp.js?v=17';
 
 const BS = String.fromCharCode(92);
 const escapeHtml = value => String(value).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]);
@@ -122,39 +123,39 @@ export const FileExplorerApp = {
     },
 
     async createNewFolder(container) {
-        const { DialogManager } = await import('../managers/DialogManager.js?v=16');
-        const name = (await DialogManager.prompt('Enter folder name:', 'New Folder', 'New Folder'))?.replace(/[\\/:*?"<>|]+/g, '').trim();
+        const { DialogManager } = await import('../managers/DialogManager.js?v=17');
+        const name = (await DialogManager.prompt(t('explorer.folderName'), t('explorer.newFolder'), t('explorer.newFolder')))?.replace(/[\\/:*?"<>|]+/g, '').trim();
         if (!name) return;
 
         if (!VFS.mkdir([...FileExplorerApp.currentPath, name])) {
             SoundManager.play('error');
-            await DialogManager.alert(`Cannot create folder "${name}".\nA file or folder with that name already exists.`, 'Error');
+            await DialogManager.alert(t('explorer.folderExists', { name }), t('dlg.error'));
             return;
         }
         SoundManager.play('chord');
     },
 
     async showProperties(container) {
-        const { DialogManager } = await import('../managers/DialogManager.js?v=16');
+        const { DialogManager } = await import('../managers/DialogManager.js?v=17');
         const selected = FileExplorerApp.selectedItem;
         
         if (!selected) {
             // Show folder properties
             const path = FileExplorerApp.currentPath.join('\\');
             await DialogManager.info({
-                'Location': path,
-                'Type': 'Folder',
-                'Items': container.querySelectorAll('.explorer-item').length
-            }, 'Folder Properties');
+                [t('dlg.location')]: path,
+                [t('dlg.type')]: t('dlg.folder'),
+                [t('dlg.items')]: container.querySelectorAll('.explorer-item').length
+            }, t('explorer.folderProps'));
         } else {
             const item = FileExplorerApp.getItems()?.[selected];
             if (item) {
                 await DialogManager.info({
-                    'Name': selected,
-                    'Type': item.type.charAt(0).toUpperCase() + item.type.slice(1),
-                    'Size': VFS.sizeLabel(item) || 'Unknown',
-                    'Location': FileExplorerApp.currentPath.join('\\')
-                }, 'File Properties');
+                    [t('dlg.name')]: selected,
+                    [t('dlg.type')]: t({ folder: 'dlg.folder', drive: 'dlg.drive' }[item.type] || 'dlg.file'),
+                    [t('dlg.size')]: VFS.sizeLabel(item) || t('dlg.unknown'),
+                    [t('dlg.location')]: FileExplorerApp.currentPath.join('\\')
+                }, t('explorer.fileProps'));
             }
         }
     },
@@ -193,24 +194,25 @@ export const FileExplorerApp = {
         return out;
     },
 
-    async deleteSelected(container) {
-        const names = [...container.querySelectorAll('.explorer-item.selected')].map(el => el.dataset.name);
+    /** Send the selected items (or the given names in the current folder) to the Recycle Bin. */
+    async deleteSelected(container, picked = null) {
+        const names = picked || [...container.querySelectorAll('.explorer-item.selected')].map(el => el.dataset.name);
         const items = FileExplorerApp.getItems();
         if (!names.length || !items) return;
 
-        const { DialogManager } = await import('../managers/DialogManager.js?v=16');
+        const { DialogManager } = await import('../managers/DialogManager.js?v=17');
         const first = items[names[0]];
         let message;
         let title;
         if (names.length > 1) {
-            message = `Are you sure you want to delete these ${names.length} items?`;
-            title = 'Confirm Multiple File Delete';
+            message = t('explorer.trashMany', { count: names.length });
+            title = t('explorer.confirmMany');
         } else if (first?.type === 'file') {
-            message = `Are you sure you want to delete "${names[0]}"?`;
-            title = 'Confirm File Delete';
+            message = t('explorer.trashOne', { name: names[0] });
+            title = t('explorer.confirmFile');
         } else {
-            message = `Are you sure you want to delete the folder "${names[0]}" and all its contents?`;
-            title = 'Confirm Folder Delete';
+            message = t('explorer.trashFolder', { name: names[0] });
+            title = t('explorer.confirmFolder');
         }
         if (!await DialogManager.confirm(message, title)) return;
 
@@ -224,16 +226,17 @@ export const FileExplorerApp = {
             return;
         }
 
-        doomed.forEach(name => VFS.remove([...FileExplorerApp.currentPath, name]));
+        // Into the Recycle Bin, from where they can be restored
+        doomed.forEach(name => VFS.trash([...FileExplorerApp.currentPath, name]));
         SoundManager.play('close');
     },
 
     /** "Deleting..." dialog that gets as far as the first few system files, then gives up. */
     playDeleteProgress(files) {
         return new Promise(async resolve => {
-            const { DialogManager } = await import('../managers/DialogManager.js?v=16');
+            const { DialogManager } = await import('../managers/DialogManager.js?v=17');
             const dialog = DialogManager.createDialog({
-                title: 'Deleting',
+                title: t('explorer.deleting'),
                 content: `
                     <div class="delete-progress">
                         <div class="delete-file"></div>
@@ -247,7 +250,7 @@ export const FileExplorerApp = {
 
             const fileEl = dialog.querySelector('.delete-file');
             const fillEl = dialog.querySelector('.delete-fill');
-            dialog.querySelector('.delete-from').textContent = `from ${FileExplorerApp.currentPath.join(BS)}${BS}`;
+            dialog.querySelector('.delete-from').textContent = t('explorer.from', { path: `${FileExplorerApp.currentPath.join(BS)}${BS}` });
 
             const steps = 20;
             const failAt = 12;
@@ -445,6 +448,9 @@ export const FileExplorerApp = {
             FileExplorerApp.navigateTo(container, FileExplorerApp.currentPath, { keepSelection: true });
         };
         window.addEventListener('vfs-change', FileExplorerApp.diskHandler);
+        // A file dropped on the desktop Recycle Bin (see createDesktopIcons in main.js)
+        FileExplorerApp.binDropHandler = (event) => FileExplorerApp.deleteSelected(container, [event.detail.name]);
+        window.addEventListener('recycle-drop', FileExplorerApp.binDropHandler);
 
         // Render initial view
         FileExplorerApp.renderTree(container);
@@ -454,6 +460,7 @@ export const FileExplorerApp = {
     onClose() {
         document.removeEventListener('keydown', FileExplorerApp.keyHandler);
         window.removeEventListener('vfs-change', FileExplorerApp.diskHandler);
+        window.removeEventListener('recycle-drop', FileExplorerApp.binDropHandler);
         FileExplorerApp.closeContextMenu();
     },
 
@@ -564,6 +571,14 @@ export const FileExplorerApp = {
                 if (item.hidden) el.classList.add('hidden-file');
                 el.dataset.name = name;
                 el.dataset.type = item.type;
+                // Files and folders can be dragged onto the Recycle Bin on the desktop
+                if (item.type !== 'drive') {
+                    el.draggable = true;
+                    el.addEventListener('dragstart', (event) => {
+                        event.dataTransfer.setData('application/x-portfolio-file', name);
+                        event.dataTransfer.effectAllowed = 'move';
+                    });
+                }
 
                 const size = VFS.sizeLabel(item);
                 el.innerHTML = `
@@ -634,26 +649,23 @@ export const FileExplorerApp = {
             NotepadApp.openPath([...FileExplorerApp.currentPath, name]);
         } else if (ext === 'wav') {
             SoundManager.play('chord');
-            import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
-                DialogManager.alert('♪ Playing sound... ♪\n(Not really, but imagine it!)', 'Media Player');
+            import('../managers/DialogManager.js?v=17').then(({ DialogManager }) => {
+                DialogManager.alert(t('explorer.playing'), t('explorer.mediaPlayer'));
             });
         } else if (ext === 'zip') {
             SoundManager.play('error');
-            import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
-                DialogManager.alert('Cannot extract archive.\nWinZIP not installed.', 'Error');
+            import('../managers/DialogManager.js?v=17').then(({ DialogManager }) => {
+                DialogManager.alert(t('explorer.noZip'), t('dlg.error'));
             });
         } else if (ext === 'dll') {
             SoundManager.play('error');
-            import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
-                DialogManager.alert('This is a system file.\nIt cannot be opened directly.', 'Error');
+            import('../managers/DialogManager.js?v=17').then(({ DialogManager }) => {
+                DialogManager.alert(t('explorer.systemFile'), t('dlg.error'));
             });
         } else {
             SoundManager.play('error');
-            import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
-                DialogManager.alert(
-                    `Cannot open "${name}"\n\nNo application associated with this file type.`,
-                    'Error'
-                );
+            import('../managers/DialogManager.js?v=17').then(({ DialogManager }) => {
+                DialogManager.alert(t('explorer.noApp', { name }), t('dlg.error'));
             });
         }
     }

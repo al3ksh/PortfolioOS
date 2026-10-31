@@ -78,7 +78,8 @@
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
 
-html { scroll-behavior: smooth; scroll-padding-top: 60px; }
+/* Room for the sticky title bar + menu (about 57px) and the section legend that sticks out 11px above its frame */
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
 
 body {
     margin: 0;
@@ -499,6 +500,114 @@ h1, h2, h3, h4, p { margin: 0; }
 .postcard input:focus, .postcard select:focus, .postcard textarea:focus { outline: 1px dotted var(--ink); outline-offset: -4px; }
 .postcard textarea { min-height: 130px; resize: vertical; }
 
+/* Subject picker (js/winSelect.js): the <select> stays in the form, hidden */
+.postcard .win-select-native[hidden] { display: none !important; }
+
+.win-select-picker {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+    width: 100%;
+    min-height: 32px;
+    padding: 3px;
+    background: var(--field);
+    color: var(--ink);
+    font: 14px var(--font);
+    text-align: left;
+    border: 0;
+    border-radius: 0;
+    box-shadow: var(--sunken);
+    cursor: pointer;
+}
+
+.win-select-value {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+    align-items: center;
+    padding: 0 4px;
+    border: 1px dotted transparent;
+}
+
+.win-select-current, .win-select-sizer > span {
+    grid-area: 1 / 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.win-select-sizer { display: contents; }
+.win-select-sizer > span { visibility: hidden; }
+
+.win-select-arrow {
+    position: relative;
+    flex: none;
+    width: 20px;
+    background: var(--gray);
+    color: var(--ink);
+    box-shadow: var(--raised);
+}
+
+.win-select-arrow::before, .win-select-arrow::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    width: 7px;
+    background: currentColor;
+    transform: translateX(-50%);
+}
+
+.win-select-arrow::before { top: calc(50% - 4px); height: 4px; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.win-select-arrow::after { top: calc(50% + 2px); height: 1px; }
+
+.win-select-picker:active .win-select-arrow, .win-select-picker.is-open .win-select-arrow { box-shadow: var(--pressed); }
+.win-select-picker:active .win-select-arrow::before, .win-select-picker:active .win-select-arrow::after,
+.win-select-picker.is-open .win-select-arrow::before, .win-select-picker.is-open .win-select-arrow::after { margin: 1px 0 0 1px; }
+
+.win-select-picker:focus { outline: none; }
+.win-select-picker:focus-visible .win-select-value, .win-select-picker.is-open .win-select-value {
+    background: var(--navy);
+    color: #FFF;
+    border-color: var(--field);
+}
+
+.win-select-picker:disabled { color: var(--disabled); cursor: not-allowed; }
+
+.win-select-list {
+    position: fixed;
+    z-index: 1000;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--field);
+    color: var(--ink);
+    border: 1px solid var(--frame);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+    font: 14px/1.3 var(--font);
+    user-select: none;
+}
+
+.win-select-list:focus { outline: none; }
+.win-select-option { padding: 4px 26px 4px 8px; white-space: nowrap; cursor: default; }
+.win-select-option[aria-selected="true"] { font-weight: bold; }
+.win-select-option.is-active { background: var(--navy); color: #FFF; }
+.win-select-option[aria-disabled="true"] { color: var(--disabled); }
+
+@media screen {
+    :root:not([data-theme="light"]) .win-select-list {
+        border-color: var(--white);
+        box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
+    }
+}
+
+@media (pointer: coarse) {
+    .win-select-picker { min-height: 40px; }
+    .win-select-option { padding: 9px 26px 9px 10px; }
+}
+
 .hp { position: absolute; left: -9999px; }
 .turnstile { max-width: 100%; overflow: hidden; }
 .turnstile:empty { display: none; }
@@ -600,7 +709,7 @@ html:not(.js) .postcard.needs-js { display: none; }
 .toc ol { margin: 0; padding-left: 22px; columns: 2; column-gap: 28px; }
 .toc li { break-inside: avoid; }
 
-.doc-section { margin-top: 24px; scroll-margin-top: 60px; }
+.doc-section { margin-top: 24px; }
 .doc-section h2 { max-width: 78ch; padding-bottom: 4px; border-bottom: 1px solid var(--gray); color: var(--accent); font-size: 17px; line-height: 1.3; }
 
 .table-wrap { margin-top: 12px; padding: 2px; overflow-x: auto; box-shadow: var(--sunken); }

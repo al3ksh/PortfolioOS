@@ -3,18 +3,21 @@
  * Windows 3.1 Style Interactive Desktop Environment
  */
 
-import { WindowManager } from './managers/WindowManager.js?v=16';
-import { SoundManager } from './managers/SoundManager.js?v=16';
-import { DesktopGridManager } from './managers/DesktopGridManager.js?v=16';
-import { StorageManager } from './managers/StorageManager.js?v=16';
-import { DialogManager } from './managers/DialogManager.js?v=16';
-import { DesktopIcon } from './components/DesktopIcon.js?v=16';
-import { TaskbarPreview } from './components/TaskbarPreview.js?v=16';
-import { Icons } from './icons.js?v=16';
-import { ScreenSaver } from './managers/ScreenSaver.js?v=16';
-import { BiosSetup } from './components/BiosSetup.js?v=16';
-import { getSetting } from './settings.js?v=16';
-import { lang, t, setLanguage, applyStaticTranslations } from './i18n.js?v=16';
+import { WindowManager } from './managers/WindowManager.js?v=17';
+import { SoundManager } from './managers/SoundManager.js?v=17';
+import { DesktopGridManager } from './managers/DesktopGridManager.js?v=17';
+import { StorageManager } from './managers/StorageManager.js?v=17';
+import { DialogManager } from './managers/DialogManager.js?v=17';
+import { DesktopIcon } from './components/DesktopIcon.js?v=17';
+import { TaskbarPreview } from './components/TaskbarPreview.js?v=17';
+import { Icons } from './icons.js?v=17';
+import { DESKTOP_APPS } from './desktopApps.js?v=17';
+import { VFS } from './vfs.js?v=17';
+import { measureText, drawText, glyphPixels, LINE_HEIGHT as PIXEL_LINE_HEIGHT } from './pixelFont.js?v=17';
+import { ScreenSaver } from './managers/ScreenSaver.js?v=17';
+import { BiosSetup } from './components/BiosSetup.js?v=17';
+import { getSetting } from './settings.js?v=17';
+import { lang, t, setLanguage, applyStaticTranslations } from './i18n.js?v=17';
 
 function replaceDataIcons() {
     document.querySelectorAll('[data-icon]').forEach(el => {
@@ -25,8 +28,8 @@ function replaceDataIcons() {
         }
     });
 }
-import { Apps } from './apps/index.js?v=16';
-import { ControlApp } from './apps/ControlApp.js?v=16';
+import { Apps } from './apps/index.js?v=17';
+import { ControlApp } from './apps/ControlApp.js?v=17';
 
 // ===========================================
 // TASKBAR & START MENU MANAGER
@@ -180,17 +183,33 @@ class TaskbarManager {
         screen.setAttribute('role', 'button');
         screen.tabIndex = 0;
         const [title, line] = TaskbarManager.shutdownLine();
-        // Text is drawn as real pixels, scaled by whole numbers to fit the screen
+        // Text is drawn as real pixels, scaled by whole numbers to fit the screen. On a narrow
+        // screen it breaks into lines rather than shrinking below 2x, where it gets too small to read.
+        const room = Math.min(window.innerWidth * 0.9, window.innerWidth - 48);
         const text = (value, options, maxScale) => {
-            const bitmap = TaskbarManager.pixelText(value, options);
-            const scale = Math.max(1, Math.min(maxScale, Math.floor(window.innerWidth * 0.9 / bitmap.width)));
-            return `<img src="${bitmap.url}" alt="${value.replace(/"/g, '&quot;')}" width="${bitmap.width * scale}" height="${bitmap.height * scale}">`;
+            const minScale = Math.min(2, maxScale);
+            const fits = words => (measureText(words, options) + 2) * minScale <= room;
+            const lines = [];
+            if (fits(value)) lines.push(value);
+            else {
+                value.split(' ').forEach(word => {
+                    const last = lines.length ? `${lines[lines.length - 1]} ${word}` : null;
+                    if (last && fits(last)) lines[lines.length - 1] = last;
+                    else lines.push(word);
+                });
+            }
+            const bitmaps = lines.map(part => TaskbarManager.pixelText(part, options));
+            const widest = Math.max(...bitmaps.map(bitmap => bitmap.width));
+            const scale = Math.max(1, Math.min(maxScale, Math.floor(room / widest)));
+            const label = value.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+            return `<span class="sd-text" role="img" aria-label="${label}">${bitmaps.map(bitmap =>
+                `<img src="${bitmap.url}" alt="" width="${bitmap.width * scale}" height="${bitmap.height * scale}">`).join('')}</span>`;
         };
         screen.innerHTML = `
             <canvas class="sd-scene" width="160" height="56" aria-hidden="true"></canvas>
-            <h1 class="sd-title">${text(title, { size: 11, color: '#F0F0F0', shadow: '#0000AA' }, 3)}</h1>
-            <p class="sd-line">${text(line, { size: 11, color: '#FF9A1F' }, 2)}</p>
-            <p class="sd-again">${text(t('shutdown.again'), { size: 11, color: '#6A6A6A' }, 2)}<span class="sd-cursor"></span></p>
+            <h1 class="sd-title">${text(title, { color: '#F0F0F0', shadow: '#0000AA' }, 3)}</h1>
+            <p class="sd-line">${text(line, { color: '#FF9A1F' }, 2)}</p>
+            <p class="sd-again">${text(t('shutdown.again'), { color: '#6A6A6A' }, 2)}<span class="sd-cursor"></span></p>
         `;
         const restart = () => location.reload();
         screen.addEventListener('click', restart);
@@ -202,44 +221,29 @@ class TaskbarManager {
         screen.focus();
     }
 
-    // A random goodbye; a real Snake high score gets its own roast
+    // A random goodbye. What you did on the desktop gets its own roast (a Snake high score,
+    // a lost Minesweeper game or deleted files this visit), picked half of the time when there is one.
     static shutdownLine() {
-        const lines = [...t('shutdown.lines')];
-        let snake = 0;
-        try { snake = parseInt(localStorage.getItem('snakeHighScore') || '0', 10); } catch { /* storage blocked */ }
-        if (snake > 0) lines.push(t('shutdown.snake').map(text => text.replace('{n}', snake)));
-        return lines[Math.floor(Math.random() * lines.length)];
+        const lines = t('shutdown.lines');
+        const earned = [];
+        const read = (store, key) => { try { return parseInt(store.getItem(key) || '0', 10) || 0; } catch { return 0; } };
+        const snake = read(localStorage, 'snakeHighScore');
+        if (snake > 0) earned.push(t('shutdown.snake').map(text => text.replace('{n}', snake)));
+        if (read(sessionStorage, 'minesLost') > 0) earned.push(t('shutdown.mines'));
+        if (read(sessionStorage, 'filesDeleted') > 0) earned.push(t('shutdown.deleted'));
+        const pool = earned.length && Math.random() < 0.5 ? earned : lines;
+        return pool[Math.floor(Math.random() * pool.length)];
     }
 
-    // Draws text without anti-aliasing, so it scales up into crisp pixels. Bold is the old bitmap-font
-    // trick (the same text again 1px to the right), plus an optional 1px drop shadow.
-    static pixelText(text, { size = 11, color = '#FFF', shadow = null, bold = false } = {}) {
-        const font = `${size}px Tahoma, Verdana, sans-serif`;
-        const measure = document.createElement('canvas').getContext('2d');
-        measure.font = font;
-        const width = Math.ceil(measure.measureText(text).width) + 3;
-        const height = Math.ceil(size * 1.35) + 1;
-        const layer = (fill) => {
-            const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.font = font;
-            ctx.textBaseline = 'top';
-            ctx.fillStyle = fill;
-            ctx.fillText(text, 0, Math.round(size * 0.12));
-            if (bold) ctx.fillText(text, 1, Math.round(size * 0.12));
-            const image = ctx.getImageData(0, 0, width, height);
-            for (let i = 3; i < image.data.length; i += 4) image.data[i] = image.data[i] >= 140 ? 255 : 0;
-            ctx.putImageData(image, 0, 0);
-            return canvas;
-        };
+    // Text in the hand-drawn bitmap font (js/pixelFont.js), so it scales up into crisp, even pixels
+    // in every browser instead of a thresholded system font. Optional 1px drop shadow.
+    static pixelText(text, { color = '#FFF', shadow = null, bold = false } = {}) {
         const out = document.createElement('canvas');
-        out.width = width + 1;
-        out.height = height + 1;
+        out.width = measureText(text, { bold }) + 1;
+        out.height = PIXEL_LINE_HEIGHT + 1;
         const ctx = out.getContext('2d');
-        if (shadow) ctx.drawImage(layer(shadow), 1, 1);
-        ctx.drawImage(layer(color), 0, 0);
+        if (shadow) drawText(ctx, text, 1, 1, { color: shadow, bold });
+        drawText(ctx, text, 0, 0, { color, bold });
         return { canvas: out, url: out.toDataURL(), width: out.width, height: out.height };
     }
 
@@ -273,8 +277,7 @@ class TaskbarManager {
             const left = Math.round(cx - rows[0].length / 2), top = Math.round(cy - rows.length / 2);
             rows.forEach((row, y) => [...row].forEach((c, x) => { if (colors[c]) px(left + x, top + y, 1, 1, colors[c]); }));
         };
-        const glyph = ['###', '#.#', '###', '..#', '###'];
-        const clang = TaskbarManager.pixelText(t('shutdown.clang'), { size: 11, color: '#FFE066', shadow: '#8A5A00', bold: true });
+        const clang = TaskbarManager.pixelText(t('shutdown.clang'), { color: '#FFE066', shadow: '#8A5A00', bold: true });
         const skin = '#F1C27D', shirt = '#00A0A0', pants = '#2B2B7A';
 
         const drawGuy = (x, pose, step, f) => {
@@ -288,8 +291,10 @@ class TaskbarManager {
             if (pose === 'throw') { at(2, 38, 1, 5, shirt); at(8, 37, 1, 1, shirt); at(9, 36, 1, 1, shirt); at(10, 35, 1, 1, shirt); at(11, 34, 1, 1, skin); }
             if (pose === 'down') { at(2, 38, 1, 5, shirt); at(8, 38, 1, 5, shirt); at(2, 43, 1, 1, skin); at(8, 43, 1, 1, skin); }
             if (f >= 42) {
-                at(11, 24, 13, 7, '#F0F0F0'); at(11, 31, 2, 2, '#F0F0F0');
-                [13, 17].forEach(left => glyph.forEach((row, y) => [...row].forEach((on, gx) => { if (on === '#') at(left + gx, 25 + y, 1, 1, '#000'); })));
+                // Speech bubble with "gg" in the bitmap font; the g hangs below the line, so it cannot pass for 9
+                at(11, 22, 13, 9, '#F0F0F0'); at(11, 31, 2, 2, '#F0F0F0');
+                const { pixels } = glyphPixels('g');
+                [13, 18].forEach(left => pixels.forEach(([gx, gy]) => at(left + gx, 21 + gy, 1, 1, '#000')));
             }
         };
 
@@ -856,37 +861,57 @@ function createDesktopIcons() {
     const container = document.getElementById('desktopIcons');
     if (!container) return;
 
-    const iconConfigs = [
-        { appId: 'portfolio', title: 'Portfolio.exe', icon: Icons.portfolio },
-        { appId: 'projects', title: 'Projects.exe', icon: Icons.projects },
-        { appId: 'network', title: 'Network.exe', icon: Icons.network },
-        { appId: 'readme', title: 'README.TXT', icon: Icons.readme },
-        { appId: 'contact', title: 'Contact.exe', icon: Icons.contact },
-        { appId: 'notepad', title: 'Notepad.exe', icon: Icons.notepad },
-        { appId: 'terminal', title: 'Terminal.exe', icon: Icons.terminal },
-        { appId: 'explorer', title: 'Explorer.exe', icon: Icons.explorer },
-        { appId: 'browser', title: 'Internet.exe', icon: Icons.browser },
-        { appId: 'simplemode', title: 'Simple View', icon: Icons.simplemode },
-        { appId: 'paint', title: 'Paint.exe', icon: Icons.paint },
-        { appId: 'calc', title: 'Calc.exe', icon: Icons.calc },
-        { appId: 'tunes', title: 'Tunes.exe', icon: Icons.tunes },
-        { appId: 'mines', title: 'Mines.exe', icon: Icons.mines },
-        { appId: 'snake', title: 'Snake.exe', icon: Icons.snake },
-        { appId: 'tetris', title: 'Blocks.exe', icon: Icons.tetris },
-        { appId: 'sysinfo', title: 'System Info', icon: Icons.sysinfo },
-        { appId: 'taskmgr', title: 'Task Manager', icon: Icons.taskmgr },
-        { appId: 'control', title: 'Control.cpl', icon: Icons.control },
-        { appId: 'recycle', title: 'Recycle Bin', icon: Icons.recycle }
-    ];
-
-    iconConfigs.forEach((config, index) => {
+    // An icon is on the desktop while its shortcut is in Users\<name>\Desktop on the virtual disk,
+    // so throwing it in the Recycle Bin and restoring it works like any other file
+    const shown = app => !app.folder || Boolean(VFS.shortcutOf(app.appId));
+    const add = (app) => {
         const icon = new DesktopIcon({
-            id: `icon-${config.appId}`,
-            appId: config.appId,
-            title: config.title,
-            icon: config.icon
+            id: `icon-${app.appId}`,
+            appId: app.appId,
+            title: app.title,
+            icon: app.icon
         });
         container.appendChild(icon.element);
+    };
+    const syncBin = () => {
+        const bin = container.querySelector('[data-icon-id="icon-recycle"] .icon-image');
+        if (bin) bin.innerHTML = VFS.bin.length ? Icons.recycle : Icons.recycleEmpty;
+    };
+
+    DESKTOP_APPS.filter(shown).forEach(add);
+    syncBin();
+
+    // Files dragged from Explorer onto the bin: Explorer asks and moves them (it knows the folder)
+    const FILE_TYPE = 'application/x-portfolio-file';
+    const binUnder = event => event.target.closest?.('[data-icon-id="icon-recycle"]');
+    container.addEventListener('dragover', (event) => {
+        const bin = binUnder(event);
+        if (!bin || !event.dataTransfer.types.includes(FILE_TYPE)) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+        bin.classList.add('drop-target');
+    });
+    container.addEventListener('dragleave', event => binUnder(event)?.classList.remove('drop-target'));
+    container.addEventListener('drop', (event) => {
+        const bin = binUnder(event);
+        const name = event.dataTransfer.getData(FILE_TYPE);
+        bin?.classList.remove('drop-target');
+        if (!bin || !name) return;
+        event.preventDefault();
+        window.dispatchEvent(new CustomEvent('recycle-drop', { detail: { name } }));
+    });
+
+    window.addEventListener('vfs-change', () => {
+        DESKTOP_APPS.filter(app => app.folder).forEach((app) => {
+            const id = `icon-${app.appId}`;
+            const onDesktop = DesktopGridManager.icons.has(id);
+            if (shown(app) && !onDesktop) add(app);
+            else if (!shown(app) && onDesktop) {
+                DesktopGridManager.unregisterIcon(id);
+                DesktopGridManager.savePositions();
+            }
+        });
+        syncBin();
     });
 }
 

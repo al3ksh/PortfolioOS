@@ -7,10 +7,11 @@
  * backend has a GITHUB_TOKEN, otherwise the flags in Profile.projects.
  */
 
-import { Icons } from '../icons.js?v=16';
-import { Profile, githubUrl } from '../config.js?v=16';
-import { t, loc, lang } from '../i18n.js?v=16';
-import { ProjectViewerApp } from './ProjectViewerApp.js?v=16';
+import { Icons } from '../icons.js?v=17';
+import { Profile, githubUrl } from '../config.js?v=17';
+import { t, loc, lang } from '../i18n.js?v=17';
+import { ProjectViewerApp } from './ProjectViewerApp.js?v=17';
+import { enhanceSelects } from '../winSelect.js?v=17';
 
 let repositories = Profile.projects;
 let liveRequest = null;
@@ -200,6 +201,8 @@ export const ProjectsApp = {
         const search = windowEl.querySelector('#projectsSearch');
         const language = windowEl.querySelector('#projectsLanguage');
         const list = windowEl.querySelector('#projectsList');
+        // The picker follows the options and value renderList() sets below
+        enhanceSelects(windowEl, 'select.win-select');
 
         const applyFilter = () => {
             const query = (search?.value || '').trim().toLowerCase();

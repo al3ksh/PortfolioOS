@@ -50,7 +50,7 @@ const siteUrl = String(Profile.siteUrl || 'https://example.com').replace(/\/+$/,
 const featured = () => Profile.projects.filter(project => project.featured);
 const year = new Date().getFullYear();
 
-const LOGO = '<svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="1" width="14" height="14" fill="#000"/><rect x="2" y="2" width="12" height="10" fill="#008080"/><rect x="2" y="12" width="12" height="2" fill="#C0C0C0"/><rect x="2" y="12" width="3" height="2" fill="#808080"/><rect x="3" y="3" width="3" height="2" fill="#FFFF80"/><rect x="3" y="7" width="2" height="3" fill="#FFF"/><rect x="8" y="4" width="5" height="5" fill="#C0C0C0"/><rect x="8" y="4" width="5" height="1" fill="#000080"/></svg>';
+const LOGO = '<svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="0" width="16" height="1" fill="#000"/><rect x="0" y="1" width="1" height="1" fill="#000"/><rect x="1" y="1" width="13" height="1" fill="#FFF"/><rect x="14" y="1" width="1" height="1" fill="#808080"/><rect x="15" y="1" width="1" height="1" fill="#000"/><rect x="0" y="2" width="1" height="1" fill="#000"/><rect x="1" y="2" width="1" height="1" fill="#FFF"/><rect x="2" y="2" width="12" height="1" fill="#000"/><rect x="14" y="2" width="1" height="1" fill="#808080"/><rect x="15" y="2" width="1" height="1" fill="#000"/><rect x="0" y="3" width="1" height="1" fill="#000"/><rect x="1" y="3" width="1" height="1" fill="#FFF"/><rect x="2" y="3" width="1" height="1" fill="#000"/><rect x="3" y="3" width="2" height="1" fill="#FFE070"/><rect x="5" y="3" width="1" height="1" fill="#008080"/><rect x="6" y="3" width="6" height="1" fill="#000080"/><rect x="12" y="3" width="1" height="1" fill="#008080"/><rect x="13" y="3" width="1" height="1" fill="#000"/><rect x="14" y="3" width="1" height="1" fill="#808080"/><rect x="15" y="3" width="1" height="1" fill="#000"/><rect x="0" y="4" width="1" height="1" fill="#000"/><rect x="1" y="4" width="1" height="1" fill="#FFF"/><rect x="2" y="4" width="1" height="1" fill="#000"/><rect x="3" y="4" width="2" height="1" fill="#C09000"/><rect x="5" y="4" width="1" height="1" fill="#008080"/><rect x="6" y="4" width="6" height="1" fill="#FFF"/><rect x="12" y="4" width="1" height="1" fill="#008080"/><rect x="13" y="4" width="1" height="1" fill="#000"/><rect x="14" y="4" width="1" height="1" fill="#808080"/><rect x="15" y="4" width="1" height="1" fill="#000"/><rect x="0" y="5" width="1" height="1" fill="#000"/><rect x="1" y="5" width="1" height="1" fill="#FFF"/><rect x="2" y="5" width="1" height="1" fill="#000"/><rect x="3" y="5" width="3" height="1" fill="#008080"/><rect x="6" y="5" width="6" height="1" fill="#FFF"/><rect x="12" y="5" width="1" height="1" fill="#008080"/><rect x="13" y="5" width="1" height="1" fill="#000"/><rect x="14" y="5" width="1" height="1" fill="#808080"/><rect x="15" y="5" width="1" height="1" fill="#000"/><rect x="0" y="6" width="1" height="1" fill="#000"/><rect x="1" y="6" width="1" height="1" fill="#FFF"/><rect x="2" y="6" width="1" height="1" fill="#000"/><rect x="3" y="6" width="2" height="1" fill="#FFF"/><rect x="5" y="6" width="1" height="1" fill="#008080"/><rect x="6" y="6" width="6" height="1" fill="#FFF"/><rect x="12" y="6" width="1" height="1" fill="#008080"/><rect x="13" y="6" width="1" height="1" fill="#000"/><rect x="14" y="6" width="1" height="1" fill="#808080"/><rect x="15" y="6" width="1" height="1" fill="#000"/><rect x="0" y="7" width="1" height="1" fill="#000"/><rect x="1" y="7" width="1" height="1" fill="#FFF"/><rect x="2" y="7" width="1" height="1" fill="#000"/><rect x="3" y="7" width="2" height="1" fill="#FFF"/><rect x="5" y="7" width="8" height="1" fill="#008080"/><rect x="13" y="7" width="1" height="1" fill="#000"/><rect x="14" y="7" width="1" height="1" fill="#808080"/><rect x="15" y="7" width="1" height="1" fill="#000"/><rect x="0" y="8" width="1" height="1" fill="#000"/><rect x="1" y="8" width="1" height="1" fill="#FFF"/><rect x="2" y="8" width="1" height="1" fill="#000"/><rect x="3" y="8" width="10" height="1" fill="#008080"/><rect x="13" y="8" width="1" height="1" fill="#000"/><rect x="14" y="8" width="1" height="1" fill="#808080"/><rect x="15" y="8" width="1" height="1" fill="#000"/><rect x="0" y="9" width="1" height="1" fill="#000"/><rect x="1" y="9" width="1" height="1" fill="#FFF"/><rect x="2" y="9" width="1" height="1" fill="#000"/><rect x="3" y="9" width="10" height="1" fill="#C0C0C0"/><rect x="13" y="9" width="1" height="1" fill="#000"/><rect x="14" y="9" width="1" height="1" fill="#808080"/><rect x="15" y="9" width="1" height="1" fill="#000"/><rect x="0" y="10" width="1" height="1" fill="#000"/><rect x="1" y="10" width="1" height="1" fill="#FFF"/><rect x="2" y="10" width="12" height="1" fill="#000"/><rect x="14" y="10" width="1" height="1" fill="#808080"/><rect x="15" y="10" width="1" height="1" fill="#000"/><rect x="0" y="11" width="1" height="1" fill="#000"/><rect x="1" y="11" width="1" height="1" fill="#FFF"/><rect x="2" y="11" width="10" height="1" fill="#C0C0C0"/><rect x="12" y="11" width="1" height="1" fill="#00E000"/><rect x="13" y="11" width="1" height="1" fill="#C0C0C0"/><rect x="14" y="11" width="1" height="1" fill="#808080"/><rect x="15" y="11" width="1" height="1" fill="#000"/><rect x="0" y="12" width="1" height="1" fill="#000"/><rect x="1" y="12" width="14" height="1" fill="#808080"/><rect x="15" y="12" width="1" height="1" fill="#000"/><rect x="0" y="13" width="16" height="1" fill="#000"/><rect x="5" y="14" width="1" height="1" fill="#000"/><rect x="6" y="14" width="4" height="1" fill="#C0C0C0"/><rect x="10" y="14" width="1" height="1" fill="#808080"/><rect x="11" y="14" width="1" height="1" fill="#000"/><rect x="3" y="15" width="10" height="1" fill="#000"/></svg>';
 
 const AVATAR = `╔══════════╗
 ║  ◉    ◉  ║
@@ -236,7 +236,7 @@ function standalonePage(lang, { title, body, head = '', css = 'css/static.css' }
     ${head}
     <title>${esc(title)}</title>
     <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(LOGO.replace(' aria-hidden="true"', ' xmlns="http://www.w3.org/2000/svg"'))}">
-    <link rel="stylesheet" href="${css}?v=16">
+    <link rel="stylesheet" href="${css}?v=17">
 </head>
 <body>
 ${body}
@@ -485,8 +485,8 @@ function frame(lang, { head, icons, title, flags, content, home = '', current = 
     <meta name="theme-color" content="#1a1a2e">
     <script>document.documentElement.classList.add('js');try{if(localStorage.getItem('homeTheme')==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>${skip}
     <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(LOGO.replace(' aria-hidden="true"', ' xmlns="http://www.w3.org/2000/svg"'))}">
-    <link rel="stylesheet" href="css/home.css?v=16">
-    <script type="module" src="js/home.js?v=16"></script>
+    <link rel="stylesheet" href="css/home.css?v=17">
+    <script type="module" src="js/home.js?v=17"></script>
 </head>
 <body>
     ${sprite(icons)}
@@ -614,6 +614,9 @@ const CV_ICONS = {
 // "https://www.linkedin.com/in/name/" -> "linkedin.com/in/name"
 const bareUrl = url => String(url).replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
 
+// Escaped text that may break only after "/" or before "@" (never at a hyphen inside a nickname)
+const breakable = text => esc(text).split(/(?<=\/)|(?=@)/).map(part => `<span class="cv-nowrap">${part}</span>`).join('<wbr>');
+
 function renderCv(lang) {
     const t = key => tr(lang, key);
     const L = value => esc(loc(value, lang));
@@ -630,10 +633,10 @@ function renderCv(lang) {
     const contact = [
         ['location', L(Profile.location), null],
         ['phone', esc(phone || ''), phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : null],
-        ['email', esc(Profile.contact.email), `mailto:${Profile.contact.email}`],
-        ['linkedin', linkedin ? esc(bareUrl(linkedin)) : '', linkedin],
-        ['github', `github.com/${esc(Profile.contact.github)}`, githubUrl()],
-        ['web', esc(site), siteUrl]
+        ['email', breakable(Profile.contact.email), `mailto:${Profile.contact.email}`],
+        ['linkedin', linkedin ? breakable(bareUrl(linkedin)) : '', linkedin],
+        ['github', breakable(`github.com/${Profile.contact.github}`), githubUrl()],
+        ['web', breakable(site), siteUrl]
     ].filter(([, text]) => text);
 
     const body = `    <nav class="cv-toolbar" aria-label="CV">
@@ -701,9 +704,11 @@ ${Profile.experience.map(job => `                        <div class="cv-entry">
                 <section class="cv-section">
                     <h2>${t('section.projects')}</h2>
                     <div class="cv-projects">
-${featured().map(project => ({ ...project, ...cv.projects?.[project.name] })).map(project => `                        <div>
-                            <a class="cv-project-name" href="${esc(project.url)}">${esc(project.name)}</a>
-                            <span class="cv-project-tech">${esc(project.tech || project.language || '')}</span>
+${featured().map(project => ({ ...project, ...cv.projects?.[project.name] })).map(project => `                        <div class="cv-project">
+                            <div class="cv-project-head">
+                                <span><a class="cv-project-name" href="${esc(project.url)}">${esc(project.name)}</a>${project.tech || project.language ? `<span class="cv-project-tech">${esc(project.tech || project.language)}</span>` : ''}</span>
+                                ${project.url ? `<a class="cv-project-url" href="${esc(project.url)}">${breakable(bareUrl(project.url))}</a>` : ''}
+                            </div>
                             <p class="cv-entry-desc">${L(project.description)}</p>
                         </div>`).join('')}
                     </div>

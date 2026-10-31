@@ -2,8 +2,8 @@
  * Desktop Grid Manager - Handles icon grid layout like modern Windows
  */
 
-import { SoundManager } from './SoundManager.js?v=16';
-import { Icons } from '../icons.js?v=16';
+import { SoundManager } from './SoundManager.js?v=17';
+import { Icons } from '../icons.js?v=17';
 
 class DesktopGridManagerClass {
     constructor() {
@@ -53,6 +53,13 @@ class DesktopGridManagerClass {
 
         // Initialize empty grid
         this.grid = Array(this.rows).fill(null).map(() => Array(this.cols).fill(null));
+    }
+
+    /** Take an icon off the desktop (thrown in the Recycle Bin). Its saved cell is kept for a restore. */
+    unregisterIcon(iconId) {
+        this.removeIconFromGrid(iconId);
+        this.icons.get(iconId)?.element.remove();
+        this.icons.delete(iconId);
     }
 
     registerIcon(icon) {
@@ -291,7 +298,9 @@ class DesktopGridManagerClass {
      * Save icon positions to localStorage
      */
     savePositions() {
-        const positions = {};
+        // Icons in the Recycle Bin keep their last cell, so a restore puts them back there
+        let positions = {};
+        try { positions = JSON.parse(localStorage.getItem('desktopIconPositions') || '{}') || {}; } catch { positions = {}; }
         this.icons.forEach((icon, id) => {
             positions[id] = { row: icon.gridRow, col: icon.gridCol };
         });
@@ -378,10 +387,10 @@ class DesktopGridManagerClass {
             { label: 'Sort by Name', icon: Icons.ctxSort, action: () => this.sortByName() },
             { type: 'separator' },
             { label: 'Settings', icon: Icons.smSettings, action: () => {
-                import('../managers/WindowManager.js?v=16').then(m => m.WindowManager.createWindow('control'));
+                import('../managers/WindowManager.js?v=17').then(m => m.WindowManager.createWindow('control'));
             }},
             { label: 'System Info', icon: Icons.smInfo, action: () => {
-                import('../managers/WindowManager.js?v=16').then(m => m.WindowManager.createWindow('sysinfo'));
+                import('../managers/WindowManager.js?v=17').then(m => m.WindowManager.createWindow('sysinfo'));
             }}
         ];
 

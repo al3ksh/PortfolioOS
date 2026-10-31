@@ -2,8 +2,9 @@
  * Paint App - Simple drawing application
  */
 
-import { Icons } from '../icons.js?v=16';
-import { SoundManager } from '../managers/SoundManager.js?v=16';
+import { Icons } from '../icons.js?v=17';
+import { t } from '../i18n.js?v=17';
+import { SoundManager } from '../managers/SoundManager.js?v=17';
 
 export const PaintApp = {
     id: 'paint',
@@ -77,8 +78,8 @@ export const PaintApp = {
         switch(action) {
             case 'new':
                 if (!canvas || !ctx) return;
-                import('../managers/DialogManager.js?v=16').then(async ({ DialogManager }) => {
-                    const confirmed = await DialogManager.confirm('Create new canvas? Current work will be lost.', 'New Canvas');
+                import('../managers/DialogManager.js?v=17').then(async ({ DialogManager }) => {
+                    const confirmed = await DialogManager.confirm(t('paint.newCanvasQ'), t('paint.newCanvas'));
                     if (confirmed) {
                         PaintApp.saveToHistory(canvas);
                         ctx.fillStyle = '#FFFFFF';
@@ -103,8 +104,8 @@ export const PaintApp = {
                 break;
             case 'clearCanvas':
                 if (!canvas || !ctx) return;
-                import('../managers/DialogManager.js?v=16').then(async ({ DialogManager }) => {
-                    const confirmed = await DialogManager.confirm('Clear the entire canvas?', 'Clear Canvas');
+                import('../managers/DialogManager.js?v=17').then(async ({ DialogManager }) => {
+                    const confirmed = await DialogManager.confirm(t('paint.clearAllQ'), t('paint.clearCanvas'));
                     if (confirmed) {
                         PaintApp.saveToHistory(canvas);
                         ctx.fillStyle = '#FFFFFF';
@@ -253,7 +254,7 @@ export const PaintApp = {
         if (element) {
             element.classList.toggle('hidden');
             // Update menu checkmark
-            import('../managers/WindowManager.js?v=16').then(({ WindowManager }) => {
+            import('../managers/WindowManager.js?v=17').then(({ WindowManager }) => {
                 const windowInstance = WindowManager.getWindowInstance('paint');
                 if (windowInstance) {
                     windowInstance.toggleMenuChecked('View', action);
@@ -384,8 +385,8 @@ export const PaintApp = {
 
         // Clear button
         container.querySelector('#clearCanvas')?.addEventListener('click', async () => {
-            const { DialogManager } = await import('../managers/DialogManager.js?v=16');
-            const confirmed = await DialogManager.confirm('Clear the canvas?', 'Clear Canvas');
+            const { DialogManager } = await import('../managers/DialogManager.js?v=17');
+            const confirmed = await DialogManager.confirm(t('paint.clearQ'), t('paint.clearCanvas'));
             if (confirmed) {
                 PaintApp.saveToHistory(canvas);
                 ctx.fillStyle = '#FFFFFF';
@@ -487,8 +488,8 @@ export const PaintApp = {
             const cvs = PaintApp.canvas;
             (async () => {
                 try {
-                    const { DialogManager } = await import('../managers/DialogManager.js?v=16');
-                    const text = await DialogManager.prompt('Enter text:', '', 'Add Text');
+                    const { DialogManager } = await import('../managers/DialogManager.js?v=17');
+                    const text = await DialogManager.prompt(t('paint.enterText'), '', t('paint.addText'));
                     if (!text || !cvs) return;
                     const ctx = cvs.getContext('2d');
                     ctx.fillStyle = color;
@@ -638,8 +639,8 @@ export const PaintApp = {
     },
 
     async addText(x, y) {
-        const { DialogManager } = await import('../managers/DialogManager.js?v=16');
-        const text = await DialogManager.prompt('Enter text:', '', 'Add Text');
+        const { DialogManager } = await import('../managers/DialogManager.js?v=17');
+        const text = await DialogManager.prompt(t('paint.enterText'), '', t('paint.addText'));
         if (!text) return;
 
         const canvas = document.querySelector('#paintCanvas');

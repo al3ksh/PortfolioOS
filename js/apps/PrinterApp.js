@@ -5,76 +5,15 @@
  * printText() sends any text file from the shared disk (Notepad, Explorer, Terminal).
  */
 
-import { Icons } from '../icons.js?v=16';
-import { Profile, featuredProjects } from '../config.js?v=16';
-import { t, loc, lang } from '../i18n.js?v=16';
-import { SoundManager } from '../managers/SoundManager.js?v=16';
-import { WindowManager } from '../managers/WindowManager.js?v=16';
+import { Icons } from '../icons.js?v=17';
+import { t, lang } from '../i18n.js?v=17';
+import { WIDTH, center, cvLines } from '../cvText.js?v=17';
+import { SoundManager } from '../managers/SoundManager.js?v=17';
+import { WindowManager } from '../managers/WindowManager.js?v=17';
 
-const WIDTH = 58;
 const CHARS_PER_TICK = 6;
 const TICK_MS = 16;
 const MAX_LINES = 400;
-
-function wrap(text, indent = '') {
-    const lines = [];
-    let line = indent;
-    String(text).split(/\s+/).filter(Boolean).forEach((word) => {
-        if (line.trim() && (line + word).length > WIDTH) {
-            lines.push(line.trimEnd());
-            line = indent;
-        }
-        line += `${word} `;
-    });
-    if (line.trim()) lines.push(line.trimEnd());
-    return lines;
-}
-
-const center = text => `${' '.repeat(Math.max(0, Math.floor((WIDTH - text.length) / 2)))}${text}`;
-const heading = text => ['', text.toUpperCase(), '-'.repeat(text.length)];
-const row = (left, right) => `${left}${' '.repeat(Math.max(1, WIDTH - left.length - right.length))}${right}`;
-
-function cvLines() {
-    const cv = Profile.cv || {};
-    const lines = [
-        center(Profile.name.toUpperCase()),
-        center(loc(cv.title || Profile.title)),
-        '='.repeat(WIDTH),
-        center(`${Profile.contact.email}  |  github.com/${Profile.contact.github}`),
-        ...heading(t('cv.profile')),
-        ...wrap(loc(cv.profile || Profile.about)),
-        ...heading(t('section.experience'))
-    ];
-    Profile.experience.forEach((job) => {
-        lines.push(row(`* ${loc(job.role)}`, loc(job.date)), `  ${loc(job.company)}`, ...wrap(loc(job.description), '  '));
-    });
-    lines.push(...heading(t('section.projects')));
-    featuredProjects().map(project => ({ ...project, ...cv.projects?.[project.name] })).forEach((project) => {
-        lines.push(`* ${project.name} (${project.tech || project.language})`, ...wrap(loc(project.description), '  '));
-    });
-    lines.push(...heading(t('section.education')));
-    Profile.education.forEach((edu) => {
-        lines.push(row(`* ${loc(edu.degree)}`, loc(edu.date)), `  ${loc(edu.school)}`);
-    });
-    lines.push(...heading(t('section.skills')));
-    if (cv.skills) {
-        cv.skills.forEach(group => lines.push(...wrap(`${loc(group.group)}: ${group.items.map(loc).join(', ')}`)));
-    } else {
-        lines.push(...wrap(Profile.skills.map(loc).join(', ')));
-    }
-    if (cv.languages?.length) {
-        lines.push(...heading(t('cv.languages')), ...cv.languages.map(item => `- ${loc(item.name)}: ${loc(item.level)}`));
-    }
-    if (Profile.interests?.length) {
-        lines.push(...heading(t('section.interests')), ...Profile.interests.flatMap((item) => {
-            const lines = wrap(loc(item), '  ');
-            lines[0] = `- ${lines[0].trimStart()}`;
-            return lines;
-        }));
-    }
-    lines.push('', '='.repeat(WIDTH), center('*** END OF DOCUMENT ***'));
-    return lines;
-}
 
 // A short burst of filtered noise that sounds like a print head pass.
 function printSound() {

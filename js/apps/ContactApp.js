@@ -2,10 +2,11 @@
  * Contact App - Contact form with email simulation
  */
 
-import { Icons } from '../icons.js?v=16';
-import { Profile, githubUrl } from '../config.js?v=16';
-import { t, lang } from '../i18n.js?v=16';
-import { SoundManager } from '../managers/SoundManager.js?v=16';
+import { Icons } from '../icons.js?v=17';
+import { Profile, githubUrl } from '../config.js?v=17';
+import { t, lang } from '../i18n.js?v=17';
+import { SoundManager } from '../managers/SoundManager.js?v=17';
+import { enhanceSelects } from '../winSelect.js?v=17';
 
 const escapeHtml = (value) => {
     const div = document.createElement('div');
@@ -104,6 +105,7 @@ export const ContactApp = {
         if (!container) return;
 
         const form = container.querySelector('#contactForm');
+        enhanceSelects(container, 'select.win-select');
         form?.addEventListener('submit', (e) => {
             e.preventDefault();
             ContactApp.sendMessage(container);

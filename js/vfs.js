@@ -5,11 +5,17 @@
  * (saved files, new folders, deletions) is kept as a short log in localStorage
  * and replayed on top, so a file saved in Notepad shows up in Explorer and in
  * `dir`, and is still there after a reload. A crash (BSOD) wipes the log.
+ *
+ * The Recycle Bin lives here too: 'trash' moves a file or folder into VFS.bin,
+ * 'restore' puts it back, 'purge' deletes it for good. Desktop icons are the
+ * shortcuts in Users\<name>\Desktop, so an icon thrown away goes the same way.
  */
 
-import { Icons } from './icons.js?v=16';
-import { Profile } from './config.js?v=16';
-import { loc } from './i18n.js?v=16';
+import { Icons } from './icons.js?v=17';
+import { Profile } from './config.js?v=17';
+import { loc } from './i18n.js?v=17';
+import { cvText, skillLines } from './cvText.js?v=17';
+import { DESKTOP_APPS } from './desktopApps.js?v=17';
 
 const BS = String.fromCharCode(92);
 const STORE = 'vfs-changes';
@@ -57,47 +63,59 @@ wav=waveaudio
 mid=sequencer
 avi=AVIVideo`,
 
-    notes: `TODO
+    notes: () => loc({
+        en: `TODO
 
 - update the CV
 - add screenshots to the project READMEs
 - back up the server
 - reply to recruiters`,
+        pl: `DO ZROBIENIA
 
-    cv: () => `${Profile.name}
-${loc(Profile.cv?.title || Profile.title)}
+- zaktualizować CV
+- dodać zrzuty ekranu do README projektów
+- zrobić kopię zapasową serwera
+- odpisać rekruterom`
+    }),
 
-Email:    ${Profile.contact.email}
-GitHub:   github.com/${Profile.contact.github}
-Discord:  ${Profile.contact.discord}
-Location: ${loc(Profile.location)}
+    // The same text the printer prints, built from the same data as cv.html
+    cv: () => cvText(),
 
-EDUCATION
-${Profile.education.map(edu => `${loc(edu.date)}  ${loc(edu.school)}\n          ${loc(edu.degree)}`).join('\n')}
-
-EXPERIENCE
-${Profile.experience.map(job => `${loc(job.date)}  ${loc(job.role)}, ${loc(job.company)}`).join('\n')}
-
-SKILLS
-${Profile.skills.map(loc).join(', ')}`,
+    skills: () => skillLines().join('\n'),
 
     projects: () => `PROJECTS
 
 ${Profile.projects.map(project => `${project.name}${project.tech ? ` (${project.tech})` : ''}\n${loc(project.description)}\n${project.url}`).join('\n\n')}`,
 
-    easter_egg: () => `Hidden file, nothing sensitive in here.
+    easter_egg: () => loc({
+        en: `Hidden file, nothing sensitive in here.
 
 If you like poking around, try the Konami code
 and the Terminal.
 
 ${Profile.initials}`,
+        pl: `Ukryty plik, nie ma tu nic poufnego.
 
-    project_readme: () => `PortfolioOS
+Jeśli lubisz grzebać, spróbuj kodu Konami
+i Terminala.
+
+${Profile.initials}`
+    }),
+
+    project_readme: () => loc({
+        en: `PortfolioOS
 
 A portfolio built as a Windows 3.1 / 95 style desktop.
 Vanilla JavaScript, no frameworks.
 
+github.com/${Profile.contact.github}/PortfolioOS`,
+        pl: `PortfolioOS
+
+Portfolio zbudowane jako pulpit w stylu Windows 3.1 / 95.
+Czysty JavaScript, bez frameworków.
+
 github.com/${Profile.contact.github}/PortfolioOS`
+    })
 };
 
 const content = key => (typeof CONTENTS[key] === 'function' ? CONTENTS[key]() : CONTENTS[key]);
@@ -110,6 +128,26 @@ function projectFiles() {
     });
     return files;
 }
+
+// C:\Program Files, one folder per group in DESKTOP_APPS
+function programFiles() {
+    const folders = {};
+    DESKTOP_APPS.filter(app => app.folder).forEach((app) => {
+        folders[app.folder] ??= {};
+        folders[app.folder][app.file] = blob(app.size, app.icon, { action: app.appId });
+    });
+    return Object.fromEntries(Object.entries(folders).map(([name, files]) => [name, folder(files)]));
+}
+
+// A shortcut for every desktop icon ("Portfolio.exe" -> "Portfolio.lnk")
+function desktopShortcuts() {
+    return Object.fromEntries(DESKTOP_APPS.filter(app => app.folder).map(app => [
+        shortcutName(app),
+        blob('1 KB', app.icon, { action: app.appId })
+    ]));
+}
+
+const shortcutName = app => `${fileName(app.title.replace(/\.(exe|cpl|txt)$/i, ''))}.lnk`;
 
 function buildTree() {
     return {
@@ -134,38 +172,15 @@ function buildTree() {
                         'ding.wav': blob('12 KB', Icons.fileAudio)
                     })
                 }),
-                'Program Files': folder({
-                    'Portfolio OS': folder({
-                        'portfolio.exe': blob('2.1 MB', Icons.portfolio, { action: 'portfolio' }),
-                        'readme.txt': blob('4 KB', Icons.fileText, { action: 'readme' }),
-                        'contact.exe': blob('512 KB', Icons.contact, { action: 'contact' }),
-                        'simple.exe': blob('128 KB', Icons.simplemode, { action: 'simplemode' })
-                    }),
-                    'Accessories': folder({
-                        'notepad.exe': blob('64 KB', Icons.notepad, { action: 'notepad' }),
-                        'calc.exe': blob('48 KB', Icons.calc, { action: 'calc' }),
-                        'paint.exe': blob('256 KB', Icons.paint, { action: 'paint' }),
-                        'terminal.exe': blob('96 KB', Icons.terminal, { action: 'terminal' })
-                    }),
-                    'Internet': folder({
-                        'internet.exe': blob('1.2 MB', Icons.browser, { action: 'browser' })
-                    }),
-                    'Games': folder({
-                        'mines.exe': blob('180 KB', Icons.mines, { action: 'mines' }),
-                        'snake.exe': blob('96 KB', Icons.snake, { action: 'snake' })
-                    })
-                }),
+                'Program Files': folder(programFiles()),
                 'Users': folder({
                     [Profile.firstName]: folder({
-                        'Desktop': folder({
-                            'Portfolio.lnk': blob('1 KB', Icons.fileLink, { action: 'portfolio' }),
-                            'README.txt': blob('2 KB', Icons.fileText, { action: 'readme' })
-                        }),
+                        'Desktop': folder(desktopShortcuts()),
                         'Documents': folder({
                             'Projects': folder(projectFiles()),
                             'cv.txt': text(content('cv')),
                             'projects.txt': text(content('projects')),
-                            'skills.txt': text(Profile.skills.map(loc).join('\n')),
+                            'skills.txt': text(content('skills')),
                             'notes.txt': text(content('notes'))
                         }),
                         'Pictures': folder({
@@ -213,11 +228,13 @@ function loadLog() {
 export const VFS = {
     root: { type: 'folder', children: {} },
     log: [],
+    bin: [],
     home: ['C:', 'Users', Profile.firstName],
     documents: ['C:', 'Users', Profile.firstName, 'Documents'],
 
     init() {
         VFS.root = { type: 'folder', children: buildTree() };
+        VFS.bin = [];
         VFS.log = loadLog();
         VFS.log.forEach(entry => VFS.apply(entry));
     },
@@ -336,22 +353,64 @@ export const VFS = {
         return VFS.commit({ op: 'mkdir', path: parts });
     },
 
+    /** Delete for good (the Terminal's DEL). */
     remove(parts) {
-        return VFS.commit({ op: 'rm', path: parts });
+        const removed = VFS.commit({ op: 'rm', path: parts });
+        if (removed) countDeleted();
+        return removed;
+    },
+
+    /** Move a file or folder to the Recycle Bin (Explorer, desktop icons). */
+    trash(parts) {
+        const id = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+        const moved = VFS.commit({ op: 'trash', path: parts, id, at: Date.now() });
+        if (moved) countDeleted();
+        return moved;
+    },
+
+    /** Put Recycle Bin items back where they came from. */
+    restore(ids) {
+        return [].concat(ids).filter(id => VFS.commit({ op: 'restore', id })).length;
+    },
+
+    /** Delete Recycle Bin items for good. */
+    purge(ids) {
+        return VFS.commit({ op: 'purge', ids: [].concat(ids) });
+    },
+
+    binBytes() {
+        const size = node => (VFS.isDir(node) ? Object.values(node.children || {}).reduce((sum, child) => sum + size(child), 0) : VFS.bytes(node));
+        return VFS.bin.reduce((sum, item) => sum + size(item.node), 0);
+    },
+
+    // ---------- Desktop shortcuts ----------
+
+    desktop: ['C:', 'Users', Profile.firstName, 'Desktop'],
+
+    /** Path of the desktop shortcut that opens appId, or null when it is gone. */
+    shortcutOf(appId) {
+        const name = Object.entries(VFS.list(VFS.desktop) || {}).find(([, node]) => node.action === appId)?.[0];
+        return name ? [...VFS.desktop, name] : null;
     },
 
     commit(entry) {
         if (!VFS.apply(entry)) return false;
-        const same = other => other.path.join(BS) === entry.path.join(BS);
-        // Older writes to the same file are dead weight
-        if (entry.op !== 'mkdir') VFS.log = VFS.log.filter(other => !(other.op === 'write' && same(other)));
+        const same = other => other.path && entry.path && other.path.join(BS) === entry.path.join(BS);
+        // Older writes to the same file are dead weight (but a trashed file still needs them to come back)
+        if (entry.op === 'write' || entry.op === 'rm') VFS.log = VFS.log.filter(other => !(other.op === 'write' && same(other)));
         VFS.log.push(entry);
         VFS.save();
         window.dispatchEvent(new CustomEvent('vfs-change', { detail: entry }));
         return true;
     },
 
-    apply({ op, path, text: body }) {
+    apply({ op, path, text: body, id, ids, at }) {
+        if (op === 'restore') return restoreFromBin(id);
+        if (op === 'purge') {
+            const before = VFS.bin.length;
+            VFS.bin = VFS.bin.filter(item => !ids?.includes(item.id));
+            return VFS.bin.length < before;
+        }
         if (!Array.isArray(path) || path.length < 2) return false;
         const parent = VFS.get(path.slice(0, -1));
         const name = path[path.length - 1];
@@ -366,6 +425,10 @@ export const VFS = {
         } else if (op === 'rm') {
             if (!existing) return false;
             delete parent.children[name];
+        } else if (op === 'trash') {
+            if (!existing) return false;
+            delete parent.children[name];
+            VFS.bin.push({ id, name, path, node: existing, at });
         } else {
             return false;
         }
@@ -387,6 +450,30 @@ export const VFS = {
         window.dispatchEvent(new CustomEvent('vfs-change', { detail: { op: 'reset' } }));
     }
 };
+
+// Counted for this visit only; the shutdown screen has a line for it
+function countDeleted() {
+    try { sessionStorage.setItem('filesDeleted', String(Number(sessionStorage.getItem('filesDeleted') || 0) + 1)); } catch { /* storage blocked */ }
+}
+
+// Back to its folder (recreated if it was deleted meanwhile); a name already taken gets " (2)"
+function restoreFromBin(id) {
+    const index = VFS.bin.findIndex(item => item.id === id);
+    if (index < 0) return false;
+    const { path, node } = VFS.bin[index];
+    let parent = VFS.root;
+    for (const part of path.slice(0, -1)) {
+        if (!VFS.isDir(parent.children[part])) parent.children[part] = folder({});
+        parent = parent.children[part];
+    }
+    let name = path[path.length - 1];
+    const dot = name.lastIndexOf('.');
+    const [stem, extension] = dot > 0 ? [name.slice(0, dot), name.slice(dot)] : [name, ''];
+    for (let n = 2; parent.children[name]; n++) name = `${stem} (${n})${extension}`;
+    parent.children[name] = node;
+    VFS.bin.splice(index, 1);
+    return true;
+}
 
 VFS.init();
 

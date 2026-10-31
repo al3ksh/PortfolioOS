@@ -3,6 +3,8 @@
    ============================================ */
 
 .window {
+    /* Text on the window face: black in the light themes, light in dark, matrix and ubuntu */
+    color: var(--win-black);
     position: absolute;
     background: var(--win-gray);
     min-width: var(--window-min-width);
@@ -20,6 +22,11 @@
         var(--border-thick) var(--border-thick) 0 var(--win-black),
         inset -1px -1px 0 var(--win-dark-gray),
         inset 1px 1px 0 var(--win-light-gray);
+}
+
+/* Buttons do not inherit the text colour by default; :where() keeps this weaker than any button's own colour */
+.window :where(button) {
+    color: inherit;
 }
 
 .window.maximized {
@@ -384,6 +391,7 @@
 /* Disable scrolling for full-height apps */
 .window-content:has(.browser-container),
 .window-content:has(.simplemode-container),
+.window-content:has(.recycle-container),
 .window-content:has(.tetris-container),
 .window-content:has(.mines-container),
 .window-content:has(.tunes-container) {
@@ -398,7 +406,8 @@
 
 /* Full-height apps without padding */
 .window-content-inner:has(.browser-container),
-.window-content-inner:has(.simplemode-container) {
+.window-content-inner:has(.simplemode-container),
+.window-content-inner:has(.recycle-container) {
     padding: 0;
     height: 100%;
     display: flex;

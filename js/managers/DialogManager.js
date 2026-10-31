@@ -2,7 +2,8 @@
  * Dialog Manager - Custom modal dialogs instead of native JS alerts/confirms/prompts
  */
 
-import { SoundManager } from './SoundManager.js?v=16';
+import { SoundManager } from './SoundManager.js?v=17';
+import { t } from '../i18n.js?v=17';
 
 class DialogManagerClass {
     constructor() {
@@ -12,13 +13,13 @@ class DialogManagerClass {
     /**
      * Show an alert dialog
      */
-    alert(message, title = 'Message') {
+    alert(message, title = t('dlg.message')) {
         return new Promise((resolve) => {
             const dialog = this.createDialog({
                 title,
                 content: `<div class="dialog-message">${this.formatMessage(message)}</div>`,
                 buttons: [
-                    { label: 'OK', action: 'ok', primary: true }
+                    { label: t('dlg.ok'), action: 'ok', primary: true }
                 ],
                 onClose: () => resolve()
             });
@@ -29,7 +30,7 @@ class DialogManagerClass {
     /**
      * Show a confirm dialog
      */
-    confirm(message, title = 'Confirm') {
+    confirm(message, title = t('dlg.confirm')) {
         return new Promise((resolve) => {
             const dialog = this.createDialog({
                 title,
@@ -40,8 +41,8 @@ class DialogManagerClass {
                     </div>
                 `,
                 buttons: [
-                    { label: 'Yes', action: 'yes', primary: true },
-                    { label: 'No', action: 'no' }
+                    { label: t('dlg.yes'), action: 'yes', primary: true },
+                    { label: t('dlg.no'), action: 'no' }
                 ],
                 onClose: (action) => resolve(action === 'yes')
             });
@@ -52,7 +53,7 @@ class DialogManagerClass {
     /**
      * Show a prompt dialog
      */
-    prompt(message, defaultValue = '', title = 'Input') {
+    prompt(message, defaultValue = '', title = t('dlg.input')) {
         return new Promise((resolve) => {
             const inputId = 'dialog-input-' + Date.now();
             const dialog = this.createDialog({
@@ -62,8 +63,8 @@ class DialogManagerClass {
                     <input type="text" id="${inputId}" class="dialog-input win-input" value="${this.escapeHtml(defaultValue)}">
                 `,
                 buttons: [
-                    { label: 'OK', action: 'ok', primary: true },
-                    { label: 'Cancel', action: 'cancel' }
+                    { label: t('dlg.ok'), action: 'ok', primary: true },
+                    { label: t('dlg.cancel'), action: 'cancel' }
                 ],
                 onClose: (action) => {
                     if (action === 'ok') {
@@ -103,7 +104,7 @@ class DialogManagerClass {
     /**
      * Show info/properties dialog
      */
-    info(properties, title = 'Properties') {
+    info(properties, title = t('dlg.properties')) {
         return new Promise((resolve) => {
             let content = '<div class="dialog-properties">';
             for (const [key, value] of Object.entries(properties)) {
@@ -120,7 +121,7 @@ class DialogManagerClass {
                 title,
                 content,
                 buttons: [
-                    { label: 'OK', action: 'ok', primary: true }
+                    { label: t('dlg.ok'), action: 'ok', primary: true }
                 ],
                 onClose: () => resolve()
             });

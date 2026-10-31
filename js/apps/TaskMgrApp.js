@@ -2,9 +2,10 @@
  * Task Manager App - Shows running processes
  */
 
-import { Icons } from '../icons.js?v=16';
-import { WindowManager } from '../managers/WindowManager.js?v=16';
-import { SoundManager } from '../managers/SoundManager.js?v=16';
+import { Icons } from '../icons.js?v=17';
+import { t } from '../i18n.js?v=17';
+import { WindowManager } from '../managers/WindowManager.js?v=17';
+import { SoundManager } from '../managers/SoundManager.js?v=17';
 
 export const TaskMgrApp = {
     id: 'taskmgr',
@@ -264,11 +265,8 @@ export const TaskMgrApp = {
             if (isCritical) {
                 // Show warning first
                 SoundManager.play('error');
-                const { DialogManager } = await import('../managers/DialogManager.js?v=16');
-                const confirmed = await DialogManager.confirm(
-                    `WARNING: Terminating "${name}" may cause system instability.\n\nAre you sure you want to end this process?`,
-                    'End Process'
-                );
+                const { DialogManager } = await import('../managers/DialogManager.js?v=17');
+                const confirmed = await DialogManager.confirm(t('taskmgr.endWarn', { name }), t('taskmgr.endTitle'));
                 
                 if (confirmed) {
                     // BSOD!

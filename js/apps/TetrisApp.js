@@ -4,9 +4,10 @@
  * The board scales to the window height, so nothing is cut off on short screens.
  */
 
-import { Icons } from '../icons.js?v=16';
-import { SoundManager } from '../managers/SoundManager.js?v=16';
-import { Leaderboard } from '../leaderboard.js?v=16';
+import { Icons } from '../icons.js?v=17';
+import { t } from '../i18n.js?v=17';
+import { SoundManager } from '../managers/SoundManager.js?v=17';
+import { Leaderboard } from '../leaderboard.js?v=17';
 
 const COLS = 10;
 const VISIBLE = 20;
@@ -147,20 +148,8 @@ export const TetrisApp = {
                 Leaderboard.show('tetris');
                 break;
             case 'howToPlay':
-                import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
-                    DialogManager.alert(
-                        'How to Play Blocks:\n\n' +
-                        '• ← → (or A D) move, hold to slide\n' +
-                        '• ↑ or X rotate clockwise\n' +
-                        '• Z rotate counter-clockwise\n' +
-                        '• ↓ (or S) soft drop\n' +
-                        '• SPACE hard drop\n' +
-                        '• P or ESC pause, F2 new game\n' +
-                        '• Touch: tap rotates, drag moves,\n' +
-                        '   hold = soft drop, flick down = hard drop\n\n' +
-                        'Clear lines to score and speed up!',
-                        'How to Play'
-                    );
+                import('../managers/DialogManager.js?v=17').then(({ DialogManager }) => {
+                    DialogManager.alert(t('tetris.help'), t('dlg.howToPlay'));
                 });
                 break;
         }

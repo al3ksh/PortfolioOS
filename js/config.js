@@ -47,27 +47,28 @@ export const Profile = {
         {
             role: 'Full-Stack Developer (Contract)',
             company: 'Company Name · Client Name',
-            date: '2024',
+            date: { en: 'Mar 2024 - Sep 2024', pl: 'mar 2024 - wrz 2024' },
             description: 'Describe what you built, which stack you used and what impact it had.'
         },
         {
             role: 'Full-Stack Intern',
             company: 'Company Name',
-            date: '2023',
+            date: { en: 'Jul 2023 - Aug 2023', pl: 'lip 2023 - sie 2023' },
             description: 'Describe your internship responsibilities and technologies.'
         }
     ],
 
     education: [
         {
-            degree: 'Computer Science',
+            // Field of study and the kind of studies (level, full-time / part-time)
+            degree: { en: 'Computer Science · BSc, full-time', pl: 'Informatyka · studia I stopnia, stacjonarne' },
             school: 'Your University',
-            date: '2025 - present'
+            date: { en: 'Oct 2025 - present', pl: 'paź 2025 - obecnie' }
         },
         {
             degree: 'IT Technician',
             school: 'Your Technical School · Certifications',
-            date: '2025'
+            date: { en: 'Sep 2020 - Jun 2025', pl: 'wrz 2020 - cze 2025' }
         }
     ],
 

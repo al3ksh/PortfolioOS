@@ -150,8 +150,8 @@
     --win-text-white: #00FF00;
     --content-bg: #0a0a0a;
     --content-text: #00FF00;
-    --content-muted: #006600;
-    --content-dim: #004400;
+    --content-muted: #00B000;
+    --content-dim: #009000;
     --content-subtle: #00AA00;
     --canvas-bg: #000000;
     --canvas-grid: #001100;
@@ -160,6 +160,7 @@
     --term-fg: #00FF00;
     --calc-screen-bg: #001100;
     --calc-screen-fg: #00FF00;
+    --calc-btn-func: #003300;
     --accent-green: #00FF00;
     --accent-cyan: #00DDAA;
     --accent-red: #FF0044;

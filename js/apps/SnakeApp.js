@@ -2,10 +2,11 @@
  * Snake Game App - Smooth snake with speed levels, bonus food and optional wrap-around walls
  */
 
-import { Icons } from '../icons.js?v=16';
-import { SoundManager } from '../managers/SoundManager.js?v=16';
-import { WindowManager } from '../managers/WindowManager.js?v=16';
-import { Leaderboard } from '../leaderboard.js?v=16';
+import { Icons } from '../icons.js?v=17';
+import { t } from '../i18n.js?v=17';
+import { SoundManager } from '../managers/SoundManager.js?v=17';
+import { WindowManager } from '../managers/WindowManager.js?v=17';
+import { Leaderboard } from '../leaderboard.js?v=17';
 
 const getThemeColor = (varName) => getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || '';
 
@@ -140,18 +141,8 @@ export const SnakeApp = {
                 Leaderboard.show(SnakeApp.boardId());
                 break;
             case 'howToPlay':
-                import('../managers/DialogManager.js?v=16').then(({ DialogManager }) => {
-                    DialogManager.alert(
-                        'How to Play Snake:\n\n' +
-                        '• Arrow Keys / WASD to move (turns are buffered)\n' +
-                        '• Swipe on the board to turn (mobile)\n' +
-                        '• Eat apples to grow, the snake speeds up every level\n' +
-                        '• Golden apples are worth 50 but vanish quickly\n' +
-                        "• Don't hit the walls or yourself!\n" +
-                        '• Game > Wrap-around walls lets you pass through the edges\n' +
-                        '• P pauses, F2 starts a new game',
-                        'How to Play'
-                    );
+                import('../managers/DialogManager.js?v=17').then(({ DialogManager }) => {
+                    DialogManager.alert(t('snake.help'), t('dlg.howToPlay'));
                 });
                 break;
         }

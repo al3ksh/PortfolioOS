@@ -3,13 +3,22 @@
  * Works on the same disk as Explorer and Notepad (js/vfs.js).
  */
 
-import { Icons } from '../icons.js?v=16';
-import { WindowManager } from '../managers/WindowManager.js?v=16';
-import { SoundManager } from '../managers/SoundManager.js?v=16';
-import { Profile, githubUrl } from '../config.js?v=16';
-import { VFS } from '../vfs.js?v=16';
-import { NotepadApp } from './NotepadApp.js?v=16';
-import { printText } from './PrinterApp.js?v=16';
+import { Icons } from '../icons.js?v=17';
+import { WindowManager } from '../managers/WindowManager.js?v=17';
+import { SoundManager } from '../managers/SoundManager.js?v=17';
+import { Profile, githubUrl } from '../config.js?v=17';
+import { VFS } from '../vfs.js?v=17';
+import { NotepadApp } from './NotepadApp.js?v=17';
+import { printText } from './PrinterApp.js?v=17';
+import { DESKTOP_APPS } from '../desktopApps.js?v=17';
+
+// "open blocks", "open blocks.exe", "open tetris", "open task manager": every app on the desktop
+const appNames = () => Object.fromEntries(DESKTOP_APPS.flatMap(app => [
+    app.appId,
+    app.title.toLowerCase().replace(/\.(exe|cpl|txt)$/, ''),
+    app.title.toLowerCase(),
+    ...(app.file ? [app.file, app.file.replace(/\.\w+$/, '')] : [])
+].map(name => [name, app.appId])));
 
 const SEP = '\\';
 const FILE_DATE = '01-31-26  12:00a';
@@ -20,7 +29,7 @@ const ALIASES = {
 };
 
 // Commands whose last argument is a path, for Tab completion
-const PATH_COMMANDS = ['cd', 'chdir', 'dir', 'ls', 'type', 'cat', 'tree', 'open', 'notepad', 'edit', 'print', 'del', 'erase', 'rd', 'rmdir', 'md', 'mkdir'];
+const PATH_COMMANDS = ['cd', 'chdir', 'dir', 'ls', 'type', 'cat', 'tree', 'open', 'start', 'notepad', 'edit', 'print', 'del', 'erase', 'rd', 'rmdir', 'md', 'mkdir'];
 
 const pathOf = parts => VFS.toString(parts);
 const pad = (text, width) => String(text).padEnd(width, ' ');
@@ -50,7 +59,7 @@ export const TerminalApp = {
   clear     - Clear screen
   history   - Show command history
   echo      - Print text
-  open      - Open a file, project or application
+  open      - Open a file, project or application (also: start)
   github    - Open the GitHub profile
   whoami    - Display current user
   date      - Show current date
@@ -146,6 +155,7 @@ Aliases: ls = dir, cat = type, pwd = cd, man = help, mkdir = md, rmdir = rd,
             : 'No commands in history.',
 
         open: (app, args) => app.openTarget(args.join(' ')),
+        start: (app, args) => app.openTarget(args.join(' ')),
         github: () => {
             window.open(githubUrl(), '_blank', 'noopener,noreferrer');
             return `Opening github.com/${Profile.contact.github}...`;
@@ -291,7 +301,7 @@ Portfolio OS [Version 1.0.2026]
 
         doom: async () => {
             try {
-                const { playDoomIntro } = await import('../doomIntro.js?v=16');
+                const { playDoomIntro } = await import('../doomIntro.js?v=17');
                 playDoomIntro(() => document.querySelector('#window-terminal #terminalInput')?.focus());
             } catch (err) {
                 console.error('DOOM failed to load:', err);
@@ -526,7 +536,7 @@ Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
                 .filter(([name, node]) => !node.hidden && name.toUpperCase().startsWith(namePart.toUpperCase()) && (!dirsOnly || VFS.isDir(node)))
                 .map(([name, node]) => name + (VFS.isDir(node) ? SEP : ''));
         }
-        if (cmd === 'open' && !dirPart) {
+        if ((cmd === 'open' || cmd === 'start') && !dirPart) {
             options.push(...TerminalApp.openNames().filter(name => name.startsWith(namePart.toLowerCase())));
         }
         return TerminalApp.finish(head, namePart, options, dirPart);
@@ -545,7 +555,7 @@ Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
 
     openNames() {
         return [...new Set([
-            'github', 'projects', 'paint', 'terminal', 'sysinfo', 'internet', 'browser',
+            'github', ...DESKTOP_APPS.map(app => app.title.toLowerCase().replace(/\.(exe|cpl|txt)$/, '')),
             ...Profile.projects.map(project => project.name.toLowerCase()),
             ...Object.keys(Profile.links)
         ])];
@@ -569,15 +579,7 @@ Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
             ...Object.fromEntries(Profile.projects.map(project => [project.name.toLowerCase(), project.url])),
             ...Profile.links
         };
-        const apps = {
-            projects: 'projects',
-            paint: 'paint',
-            terminal: 'terminal',
-            sysinfo: 'sysinfo',
-            'system info': 'sysinfo',
-            internet: 'browser',
-            browser: 'browser'
-        };
+        const apps = appNames();
 
         const found = normalized ? TerminalApp.resolve(target) : null;
         if (found && !VFS.isDir(found.node)) {
