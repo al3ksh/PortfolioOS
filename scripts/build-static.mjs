@@ -2,7 +2,7 @@
 /**
  * Generates the static pages from js/config.js:
  *   index.html, pl.html landing page (English / Polish), works without JavaScript
- *   os.html             the desktop: meta tags + static portfolio inside <noscript>
+ *   os.html             the desktop: meta tags (without JavaScript it sends visitors back to the landing page)
  *   cv.html, cv.pl.html printable CV
  *   contact-sent(.pl).html, contact-error(.pl).html  replies for the no-JS contact form
  *   privacy, terms, cookies (.pl).html  legal pages in the landing page's window
@@ -48,6 +48,25 @@ const tr = (lang, key) => STRINGS[lang]?.[key] ?? STRINGS.en[key] ?? key;
 const githubUrl = (pathname = '') => `https://github.com/${Profile.contact.github}${pathname}`;
 const siteUrl = String(Profile.siteUrl || 'https://example.com').replace(/\/+$/, '');
 const featured = () => Profile.projects.filter(project => project.featured);
+
+// Projects follow GitHub the same way the desktop does: live repositories, pins as
+// featured. Pins need GITHUB_TOKEN or the live site's /api/pinned; without either the
+// config flags stay. --offline (or githubSync: false) keeps Profile.projects as written.
+if (Profile.githubSync !== false && !args.includes('--offline')) {
+    const { fetchRepositories, fetchPinnedGraphQL, fetchPinnedFromSite, mergeProjects } = await loadModule(path.join(ROOT, 'js/github.js'));
+    const user = Profile.contact.github;
+    const token = process.env.GITHUB_TOKEN;
+    try {
+        const [live, pinned] = await Promise.all([
+            fetchRepositories(user),
+            token ? fetchPinnedGraphQL(user, token).catch(() => null) : fetchPinnedFromSite(siteUrl)
+        ]);
+        Profile.projects = mergeProjects(Profile.projects, live, pinned);
+        console.log(`Projects: ${live.length} repositories from GitHub, featured: ${featured().map(project => project.name).join(', ')}${pinned ? ' (pinned)' : ' (config)'}`);
+    } catch (error) {
+        console.warn(`Projects: GitHub unavailable, using the config list - ${error.message}`);
+    }
+}
 const year = new Date().getFullYear();
 
 const LOGO = '<svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="0" width="16" height="1" fill="#000"/><rect x="0" y="1" width="1" height="1" fill="#000"/><rect x="1" y="1" width="13" height="1" fill="#FFF"/><rect x="14" y="1" width="1" height="1" fill="#808080"/><rect x="15" y="1" width="1" height="1" fill="#000"/><rect x="0" y="2" width="1" height="1" fill="#000"/><rect x="1" y="2" width="1" height="1" fill="#FFF"/><rect x="2" y="2" width="12" height="1" fill="#000"/><rect x="14" y="2" width="1" height="1" fill="#808080"/><rect x="15" y="2" width="1" height="1" fill="#000"/><rect x="0" y="3" width="1" height="1" fill="#000"/><rect x="1" y="3" width="1" height="1" fill="#FFF"/><rect x="2" y="3" width="1" height="1" fill="#000"/><rect x="3" y="3" width="2" height="1" fill="#FFE070"/><rect x="5" y="3" width="1" height="1" fill="#008080"/><rect x="6" y="3" width="6" height="1" fill="#000080"/><rect x="12" y="3" width="1" height="1" fill="#008080"/><rect x="13" y="3" width="1" height="1" fill="#000"/><rect x="14" y="3" width="1" height="1" fill="#808080"/><rect x="15" y="3" width="1" height="1" fill="#000"/><rect x="0" y="4" width="1" height="1" fill="#000"/><rect x="1" y="4" width="1" height="1" fill="#FFF"/><rect x="2" y="4" width="1" height="1" fill="#000"/><rect x="3" y="4" width="2" height="1" fill="#C09000"/><rect x="5" y="4" width="1" height="1" fill="#008080"/><rect x="6" y="4" width="6" height="1" fill="#FFF"/><rect x="12" y="4" width="1" height="1" fill="#008080"/><rect x="13" y="4" width="1" height="1" fill="#000"/><rect x="14" y="4" width="1" height="1" fill="#808080"/><rect x="15" y="4" width="1" height="1" fill="#000"/><rect x="0" y="5" width="1" height="1" fill="#000"/><rect x="1" y="5" width="1" height="1" fill="#FFF"/><rect x="2" y="5" width="1" height="1" fill="#000"/><rect x="3" y="5" width="3" height="1" fill="#008080"/><rect x="6" y="5" width="6" height="1" fill="#FFF"/><rect x="12" y="5" width="1" height="1" fill="#008080"/><rect x="13" y="5" width="1" height="1" fill="#000"/><rect x="14" y="5" width="1" height="1" fill="#808080"/><rect x="15" y="5" width="1" height="1" fill="#000"/><rect x="0" y="6" width="1" height="1" fill="#000"/><rect x="1" y="6" width="1" height="1" fill="#FFF"/><rect x="2" y="6" width="1" height="1" fill="#000"/><rect x="3" y="6" width="2" height="1" fill="#FFF"/><rect x="5" y="6" width="1" height="1" fill="#008080"/><rect x="6" y="6" width="6" height="1" fill="#FFF"/><rect x="12" y="6" width="1" height="1" fill="#008080"/><rect x="13" y="6" width="1" height="1" fill="#000"/><rect x="14" y="6" width="1" height="1" fill="#808080"/><rect x="15" y="6" width="1" height="1" fill="#000"/><rect x="0" y="7" width="1" height="1" fill="#000"/><rect x="1" y="7" width="1" height="1" fill="#FFF"/><rect x="2" y="7" width="1" height="1" fill="#000"/><rect x="3" y="7" width="2" height="1" fill="#FFF"/><rect x="5" y="7" width="8" height="1" fill="#008080"/><rect x="13" y="7" width="1" height="1" fill="#000"/><rect x="14" y="7" width="1" height="1" fill="#808080"/><rect x="15" y="7" width="1" height="1" fill="#000"/><rect x="0" y="8" width="1" height="1" fill="#000"/><rect x="1" y="8" width="1" height="1" fill="#FFF"/><rect x="2" y="8" width="1" height="1" fill="#000"/><rect x="3" y="8" width="10" height="1" fill="#008080"/><rect x="13" y="8" width="1" height="1" fill="#000"/><rect x="14" y="8" width="1" height="1" fill="#808080"/><rect x="15" y="8" width="1" height="1" fill="#000"/><rect x="0" y="9" width="1" height="1" fill="#000"/><rect x="1" y="9" width="1" height="1" fill="#FFF"/><rect x="2" y="9" width="1" height="1" fill="#000"/><rect x="3" y="9" width="10" height="1" fill="#C0C0C0"/><rect x="13" y="9" width="1" height="1" fill="#000"/><rect x="14" y="9" width="1" height="1" fill="#808080"/><rect x="15" y="9" width="1" height="1" fill="#000"/><rect x="0" y="10" width="1" height="1" fill="#000"/><rect x="1" y="10" width="1" height="1" fill="#FFF"/><rect x="2" y="10" width="12" height="1" fill="#000"/><rect x="14" y="10" width="1" height="1" fill="#808080"/><rect x="15" y="10" width="1" height="1" fill="#000"/><rect x="0" y="11" width="1" height="1" fill="#000"/><rect x="1" y="11" width="1" height="1" fill="#FFF"/><rect x="2" y="11" width="10" height="1" fill="#C0C0C0"/><rect x="12" y="11" width="1" height="1" fill="#00E000"/><rect x="13" y="11" width="1" height="1" fill="#C0C0C0"/><rect x="14" y="11" width="1" height="1" fill="#808080"/><rect x="15" y="11" width="1" height="1" fill="#000"/><rect x="0" y="12" width="1" height="1" fill="#000"/><rect x="1" y="12" width="14" height="1" fill="#808080"/><rect x="15" y="12" width="1" height="1" fill="#000"/><rect x="0" y="13" width="16" height="1" fill="#000"/><rect x="5" y="14" width="1" height="1" fill="#000"/><rect x="6" y="14" width="4" height="1" fill="#C0C0C0"/><rect x="10" y="14" width="1" height="1" fill="#808080"/><rect x="11" y="14" width="1" height="1" fill="#000"/><rect x="3" y="15" width="10" height="1" fill="#000"/></svg>';
@@ -62,119 +81,6 @@ function description(lang) {
     return lang === 'pl'
         ? `${Profile.name} - ${loc(Profile.title, lang)}. Portfolio z projektami, doświadczeniem i kontaktem.`
         : `${Profile.name}, ${loc(Profile.title, lang)} portfolio with selected projects, experience and contact details.`;
-}
-
-// ---------- Static portfolio ----------
-
-function renderStaticPage(lang, links) {
-    const t = key => tr(lang, key);
-    const L = value => esc(loc(value, lang));
-    const projects = [...featured(), ...Profile.projects.filter(project => !project.featured)];
-    const subjects = ['general', 'job', 'project', 'feedback', 'bug'];
-
-    return `<div class="static-page" lang="${lang}">
-    <a class="static-skip" href="#static-content">${t('static.skip')}</a>
-    <main class="static-main">
-        <div class="static-window">
-            <div class="static-titlebar">
-                ${LOGO}
-                <span class="static-titlebar-text">Portfolio.exe</span>
-                <span class="static-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
-            </div>
-            <nav class="static-menu" aria-label="Portfolio">
-                <a href="#about">${t('section.about')}</a>
-                <a href="#experience">${t('section.experience')}</a>
-                <a href="#projects">${t('section.projects')}</a>
-                <a href="#skills">${t('section.skills')}</a>
-                <a href="#education">${t('section.education')}</a>
-                <a href="#contact">${t('section.contact')}</a>
-                <a class="static-menu-right" href="${links.cv}">${t('static.cv')}</a>
-                <a href="${links.otherLanguage}" hreflang="${lang === 'pl' ? 'en' : 'pl'}">${t('static.otherLanguage')}</a>
-            </nav>
-            <p class="static-notice" role="note">${t('static.notice')}</p>
-            <div class="static-body" id="static-content">
-                <section class="static-card static-hero is-wide" aria-label="${esc(Profile.name)}">
-                    <pre class="static-avatar" aria-hidden="true">${AVATAR}</pre>
-                    <div>
-                        <h1>${esc(Profile.name)}</h1>
-                        <p class="static-role">${L(Profile.title)}</p>
-                        <ul class="static-bio">${Profile.bio.map(line => `<li>${L(line)}</li>`).join('')}</ul>
-                    </div>
-                </section>
-
-                <section class="static-card is-wide" id="about">
-                    <h2>${t('section.about')}</h2>
-                    <p class="static-desc">${L(Profile.about)}</p>
-                </section>
-
-                <section class="static-card" id="experience">
-                    <h2>${t('section.experience')}</h2>
-                    ${Profile.experience.map(job => `<div class="static-item">
-                        <div class="static-item-head"><span>${L(job.role)}</span><span class="static-date">${L(job.date)}</span></div>
-                        <div class="static-sub">${L(job.company)}</div>
-                        <p class="static-desc">${L(job.description)}</p>
-                    </div>`).join('')}
-                </section>
-
-                <div>
-                    <section class="static-card" id="skills">
-                        <h2>${t('section.skills')}</h2>
-                        <ul class="static-tags">${Profile.skills.map(skill => `<li>${L(skill)}</li>`).join('')}</ul>
-                    </section>
-                    <section class="static-card" id="education" style="margin-top:8px">
-                        <h2>${t('section.education')}</h2>
-                        ${Profile.education.map(edu => `<div class="static-item">
-                            <div class="static-item-head"><span>${L(edu.degree)}</span><span class="static-date">${L(edu.date)}</span></div>
-                            <div class="static-desc">${L(edu.school)}</div>
-                        </div>`).join('')}
-                    </section>
-                </div>
-
-                <section class="static-card is-wide" id="projects">
-                    <h2>${t('section.projects')}</h2>
-                    <ul class="static-projects">${projects.map(project => `<li${project.featured ? ' class="static-featured"' : ''}>
-                        <a href="${esc(project.url)}" rel="noopener noreferrer">${esc(project.name)}</a>
-                        <small>${esc(project.tech || project.language || '')}</small>
-                        <span class="static-desc">${L(project.description)}</span>
-                    </li>`).join('')}</ul>
-                    <p class="static-more"><a href="${esc(githubUrl('?tab=repositories'))}" rel="noopener noreferrer">${t('static.allProjects')} →</a></p>
-                </section>
-
-                <section class="static-card is-wide" id="contact">
-                    <h2>${t('section.contact')}</h2>
-                    <p class="static-desc">${t('static.contactIntro')}</p>
-                    <ul class="static-links">
-                        <li>E-mail: <a href="mailto:${esc(Profile.contact.email)}">${esc(Profile.contact.email)}</a></li>
-                        <li>GitHub: <a href="${esc(githubUrl())}" rel="noopener noreferrer">github.com/${esc(Profile.contact.github)}</a></li>
-                        <li>Discord: ${esc(Profile.contact.discord)}</li>
-                    </ul>
-                    ${Profile.turnstileSiteKey
-        ? `<p class="static-desc">${t('static.formNeedsJs')} <a href="mailto:${esc(Profile.contact.email)}">${esc(Profile.contact.email)}</a></p>`
-        : `<form class="static-form" action="/api/contact" method="post">
-                        <input type="hidden" name="lang" value="${lang}">
-                        <label class="static-hp" aria-hidden="true">Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
-                        <label>${t('contact.name')} <input type="text" name="name" required maxlength="100" autocomplete="name"></label>
-                        <label>${t('contact.email')} <input type="email" name="email" required maxlength="254" autocomplete="email"></label>
-                        <label class="is-wide">${t('contact.subject')}
-                            <select name="subject">${subjects.map(key => `<option value="${key}">${t(`contact.subject.${key}`)}</option>`).join('')}</select>
-                        </label>
-                        <label class="is-wide">${t('contact.message')} <textarea name="message" required maxlength="5000" placeholder="${esc(t('contact.messagePlaceholder'))}"></textarea></label>
-                        <div class="static-form-actions">
-                            <button type="submit">${t('contact.send')}</button>
-                            <small>${t('static.formNote')}</small>
-                        </div>
-                    </form>`}
-                    <p class="static-desc">${t('contact.privacy')} <a href="${links.privacy}">${t('contact.privacyLink')}</a></p>
-                </section>
-            </div>
-        </div>
-    </main>
-    <footer class="static-taskbar">
-        <span class="static-start">${LOGO} Start</span>
-        <span class="static-task">Portfolio.exe</span>
-        <span class="static-tray">${t('static.mode')}<span class="static-copyright"> · © ${year} ${esc(Profile.name)}</span></span>
-    </footer>
-</div>`;
 }
 
 // schema.org Person, so search engines can connect the site to the name.
@@ -236,7 +142,8 @@ function standalonePage(lang, { title, body, head = '', css = 'css/static.css' }
     ${head}
     <title>${esc(title)}</title>
     <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(LOGO.replace(' aria-hidden="true"', ' xmlns="http://www.w3.org/2000/svg"'))}">
-    <link rel="stylesheet" href="${css}?v=17">
+    <link rel="stylesheet" href="${css}?v=18">${css === 'css/static.css' ? `
+    <script>try{if(localStorage.getItem('homeTheme')==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>` : ''}
 </head>
 <body>
 ${body}
@@ -248,7 +155,7 @@ ${body}
 // ---------- Landing page (index.html / pl.html) ----------
 
 // GitHub's language colours, for the dot next to each project
-const LANG_COLORS = { javascript: '#f1e05a', typescript: '#3178c6', python: '#3572a5', 'c++': '#f34b7d', c: '#555555', 'c#': '#178600', java: '#b07219', html: '#e34c26', css: '#663399', shell: '#89e051', lua: '#000080' };
+const LANG_COLORS = { javascript: '#f1e05a', typescript: '#3178c6', python: '#3572a5', 'c++': '#f34b7d', c: '#555555', 'c#': '#178600', java: '#b07219', html: '#e34c26', css: '#663399', shell: '#89e051', lua: '#000080', qml: '#44a51c', rust: '#dea584', assembly: '#6e4c13', ejs: '#a91e50', go: '#00add8', php: '#4f5d95' };
 
 // Desktop icons shown in the "Boot PortfolioOS" box
 const OS_APPS = [
@@ -271,13 +178,12 @@ function sprite(names) {
 
 const icon = (name, cls = '') => `<svg class="ico${cls ? ` ${cls}` : ''}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
 
-// Lowercase words a project is tagged with, for the skill filter: "Node.js" stays
-// one word and has to match a whole word, so "C" never matches "CSS".
-function projectWords(project) {
-    const text = [project.language, project.tech, loc(project.description, 'en')].filter(Boolean).join(' ').toLowerCase();
-    const words = text.split(/[\s,;:()/]+/).map(word => word.replace(/^["']+|[.!?"']+$/g, '')).filter(Boolean);
-    return [...new Set(words)];
-}
+// PortfolioOS needs JavaScript. Links to it point at the #no-js banner; the script at
+// the end of frame() puts the real address in once JavaScript runs. Each link has a
+// twin pointing at #no-js-again and CSS swaps them after a click, so every click
+// changes the hash and replays the banner. The script removes the twins.
+const bootLink = (lang, attrs, inner) => ['#no-js', '#no-js-again'].map((hash, i) =>
+    `<a ${attrs} href="${hash}" data-boot="os.html?lang=${lang}"${i ? ' data-boot-again' : ''}>${inner}</a>`).join('');
 
 // Underline the first letter like a Windows menu accelerator
 const accel = text => `<u>${esc(text.charAt(0))}</u>${esc(text.slice(1))}`;
@@ -292,16 +198,15 @@ function renderHome(lang) {
 
     // Featured first, the rest in config order
     const projects = [...featured(), ...Profile.projects.filter(project => !project.featured)];
-    const words = projects.map(projectWords);
-    const chips = Profile.skills
-        .map(skill => loc(skill, 'en'))
-        .map(skill => [skill, words.filter(list => list.includes(skill.toLowerCase())).length])
-        .filter(([, count]) => count > 0);
+    // One chip per repository language, most used first
+    const counts = new Map();
+    projects.forEach(project => project.language && counts.set(project.language, (counts.get(project.language) || 0) + 1));
+    const chips = [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 
     const liveUrl = project => project.demo
         || (project.name.toLowerCase() === 'portfolioos' ? boot : Profile.links?.[project.name.toLowerCase()]);
 
-    const items = projects.map((project, i) => {
+    const items = projects.map((project) => {
         const live = liveUrl(project);
         const repo = esc(project.url || githubUrl());
         const language = project.language || '';
@@ -309,16 +214,18 @@ function renderHome(lang) {
         const meta = [
             language && `<span class="lang"><i style="background:${color}"></i>${esc(language)}</span>`,
             project.tech && project.tech !== language && `<span>${esc(project.tech)}</span>`,
-            project.updated && `<span>${esc(project.updated)}</span>`
+            project.pushed
+                ? `<span>${esc(new Date(project.pushed).toLocaleDateString(lang === 'pl' ? 'pl-PL' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' }))}</span>`
+                : project.updated && `<span>${esc(project.updated)}</span>`
         ].filter(Boolean).join('');
         return `
-                    <article class="item${project.featured ? ' is-featured' : ''}" data-text="${esc(words[i].join(' '))}">
+                    <article class="item${project.featured ? ' is-featured' : ''}" data-lang="${esc(language.toLowerCase())}">
                         <div class="item-icon">${icon('projects')}${project.featured ? `<span class="badge" title="${t('landing.featured')}">&#9733;</span>` : ''}</div>
                         <div class="item-body">
                             <h3><a href="${repo}" target="_blank" rel="noopener">${esc(project.name)}</a></h3>
                             <p>${L(project.description)}</p>
                             ${meta ? `<div class="item-meta">${meta}</div>` : ''}
-                            <div class="item-actions">${live ? `<a class="btn small" href="${esc(live)}"${live === boot ? '' : ' target="_blank" rel="noopener"'}>${t('landing.live')} &#9656;</a>` : ''}<a class="btn small" href="${repo}" target="_blank" rel="noopener">${icon('socialGithub')}${t('landing.repo')}</a></div>
+                            <div class="item-actions">${!live ? '' : live === boot ? bootLink(lang, 'class="btn small"', `${t('landing.live')} &#9656;`) : `<a class="btn small" href="${esc(live)}" target="_blank" rel="noopener">${t('landing.live')} &#9656;</a>`}<a class="btn small" href="${repo}" target="_blank" rel="noopener">${icon('socialGithub')}${t('landing.repo')}</a></div>
                         </div>
                     </article>`;
     }).join('');
@@ -350,7 +257,7 @@ function renderHome(lang) {
                         <div class="actions">
                             <a class="btn" href="${cv}">${icon('actDownload')}${t('landing.cv')}</a>
                             <a class="btn" href="#contact">${icon('secMail')}${t('landing.contact')}</a>
-                            <a class="btn default" href="${boot}">${LOGO}${t('landing.boot')} &#9656;</a>
+                            ${bootLink(lang, 'class="btn default"', `${LOGO}${t('landing.boot')} &#9656;`)}
                         </div>
                     </div>
                     <aside class="props" aria-labelledby="props-title">
@@ -359,7 +266,9 @@ function renderHome(lang) {
                             <dt>${t('landing.role')}:</dt><dd>${L(Profile.title)}</dd>
                             <dt>${t('landing.based')}:</dt><dd>${L(Profile.location)}</dd>
                             <dt>${t('landing.stack')}:</dt><dd>${Profile.skills.slice(0, 5).map(L).join(', ')}&hellip;</dd>
-                            <dt>${t('landing.langs')}:</dt><dd>${t('landing.langsValue')}</dd>${Profile.openToWork === false ? '' : `
+                            <dt>${t('landing.langs')}:</dt><dd>${Profile.cv?.languages?.length
+                                ? Profile.cv.languages.map(language => `${L(language.name)}${language.level ? ` (${L(language.level)})` : ''}`).join(', ')
+                                : t('landing.langsValue')}</dd>${Profile.openToWork === false ? '' : `
                             <dt>${t('landing.status')}:</dt><dd><span class="status"><i></i>${t('landing.open')}</span></dd>`}
                         </dl>
                     </aside>
@@ -369,8 +278,8 @@ function renderHome(lang) {
             <section id="works" class="group" aria-labelledby="works-title">
                 <h2 class="legend" id="works-title">${icon('projects')}${t('landing.works')}</h2>
                 <div class="explorer">
-                    ${chips.length ? `<div class="toolbar filter" role="group" aria-label="${t('landing.filter')}" hidden>
-                        <button class="chip" type="button" data-skill="" aria-pressed="true">${t('landing.all')}</button>${chips.map(([skill]) => `<button class="chip" type="button" data-skill="${esc(skill.toLowerCase())}" aria-pressed="false">${esc(skill)}</button>`).join('')}
+                    ${chips.length > 1 ? `<div class="toolbar filter" role="group" aria-label="${t('landing.filter')}" hidden>
+                        ${featured().length ? `<button class="chip" type="button" data-lang="pinned" aria-pressed="false">&#9733; ${t('landing.pinned')} <small>${featured().length}</small></button>` : ''}<button class="chip" type="button" data-lang="" aria-pressed="true">${t('landing.all')} <small>${projects.length}</small></button>${chips.map(([language, count]) => `<button class="chip" type="button" data-lang="${esc(language.toLowerCase())}" aria-pressed="false">${esc(language)} <small>${count}</small></button>`).join('')}
                     </div>` : ''}
                     <div class="address"><span>${lang === 'pl' ? 'Adres' : 'Address'}</span><code>C:\\Portfolio\\${t('landing.works')}\\</code></div>
                     <div class="items">${items}
@@ -445,11 +354,11 @@ function renderHome(lang) {
             <section class="group boot" aria-labelledby="boot-title">
                 <h2 class="legend" id="boot-title">${LOGO}PortfolioOS</h2>
                 <div class="boot-row">
-                    <a class="mini-desktop" href="${boot}" aria-label="${t('landing.boot')}">${OS_APPS.map(([name, label]) => `<span class="desk-icon">${icon(name)}<span>${L(label)}</span></span>`).join('')}</a>
+                    ${bootLink(lang, `class="mini-desktop" aria-label="${t('landing.boot')}"`, OS_APPS.map(([name, label]) => `<span class="desk-icon">${icon(name)}<span>${L(label)}</span></span>`).join(''))}
                     <div class="boot-text">
                         <h3>${t('landing.bootHead')}</h3>
                         <p>${t('landing.bootText')}</p>
-                        <a class="btn default" href="${boot}">${LOGO}${t('landing.boot')} &#9656;</a>
+                        ${bootLink(lang, 'class="btn default"', `${LOGO}${t('landing.boot')} &#9656;`)}
                     </div>
                 </div>
             </section>`
@@ -485,8 +394,8 @@ function frame(lang, { head, icons, title, flags, content, home = '', current = 
     <meta name="theme-color" content="#1a1a2e">
     <script>document.documentElement.classList.add('js');try{if(localStorage.getItem('homeTheme')==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>${skip}
     <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(LOGO.replace(' aria-hidden="true"', ' xmlns="http://www.w3.org/2000/svg"'))}">
-    <link rel="stylesheet" href="css/home.css?v=17">
-    <script type="module" src="js/home.js?v=17"></script>
+    <link rel="stylesheet" href="css/home.css?v=18">
+    <script type="module" src="js/home.js?v=18"></script>
 </head>
 <body>
     ${sprite(icons)}
@@ -496,7 +405,7 @@ function frame(lang, { head, icons, title, flags, content, home = '', current = 
         <header class="titlebar">
             ${LOGO}
             <span class="titlebar-text">${esc(title)} - ${esc(Profile.name)}</span>
-            <span class="controls" aria-hidden="true"><span>_</span><span>&#9633;</span><span>&times;</span></span>
+            <span class="controls" aria-hidden="true"><span class="min">_</span><span>&#9633;</span><span>&times;</span></span>
         </header>
         <nav class="menubar nav" aria-label="${esc(Profile.name)}">
             ${nav.map((id, i) => `<a href="${home}#${id}" data-id="${id}">${accel(t('landing.nav')[i])}</a>`).join('')}
@@ -518,13 +427,20 @@ function frame(lang, { head, icons, title, flags, content, home = '', current = 
     </div>
 
     <nav class="taskbar" aria-label="Taskbar">
-        <a class="start" href="${boot}" title="${t('landing.boot')}">${LOGO}<b>Start</b></a>
+        ${bootLink(lang, `class="start" title="${t('landing.boot')}"`, `${LOGO}<b>Start</b>`)}
         <a class="task" href="#top">${LOGO}<span>${esc(title)}</span></a>
         <span class="tray">
             <button class="tray-btn" type="button" data-theme-toggle aria-pressed="true" title="${t('landing.dark')}" aria-label="${t('landing.dark')}" hidden>${THEME_ICONS}</button>
             <time data-clock>${year}</time>
         </span>
     </nav>
+
+    <div class="boot-error" id="no-js" role="alert" tabindex="-1">
+        <div class="titlebar small">${LOGO}<span class="titlebar-text">${t('landing.noJsTitle')}</span></div>
+        <p><span class="boot-error-icon" aria-hidden="true">&times;</span>${t('landing.noJs')}</p>
+        <span id="no-js-again"></span>
+    </div>
+    <script>document.querySelectorAll('a[data-boot]').forEach(function(a){if('bootAgain' in a.dataset)a.remove();else a.href=a.dataset.boot})</script>
 </body>
 </html>
 `;
@@ -790,7 +706,6 @@ function renderSitemap() {
     const urls = [
         ['/', '1.0', alternates],
         ['/pl.html', '0.9', alternates],
-        ['/os.html', '0.5', ''],
         ['/cv.html', '0.7', ''],
         ['/cv.pl.html', '0.6', ''],
         ...LEGAL_PAGES.flatMap(page => {
@@ -818,14 +733,13 @@ async function main() {
     const outputs = {};
 
     // index.html (English) and pl.html (Polish) are the landing page; os.html is the
-    // desktop (os.html?lang=pl starts it in Polish). The static portfolio inside its
-    // <noscript> is what no-JS visitors of the desktop see.
+    // desktop (os.html?lang=pl starts it in Polish). It needs JavaScript, so its
+    // canonical page is the landing page, which works without it.
     outputs['index.html'] = renderHome('en');
     outputs['pl.html'] = renderHome('pl');
     let os = await readFile(path.join(ROOT, 'os.html'), 'utf8');
-    os = replaceBetween(os, 'meta', metaTags('en', `${siteUrl}/os.html`, { title: `PortfolioOS | ${Profile.name}`, alternates: false }));
-    os = replaceBetween(os, 'lang', '');
-    outputs['os.html'] = replaceBetween(os, 'static', renderStaticPage('en', { cv: 'cv.html', otherLanguage: 'pl.html', privacy: legalFile('privacy', 'en') }));
+    os = replaceBetween(os, 'meta', metaTags('en', `${siteUrl}/`, { title: `PortfolioOS | ${Profile.name}`, alternates: false }));
+    outputs['os.html'] = replaceBetween(os, 'lang', '');
     outputs['404.html'] = renderNotFound();
     outputs['robots.txt'] = `User-agent: *\nAllow: /\nDisallow: /api/\n\nSitemap: ${siteUrl}/sitemap.xml\n`;
     outputs['sitemap.xml'] = renderSitemap();

@@ -55,7 +55,7 @@ Windows 3.1 / 95 look, built with plain HTML, CSS and JavaScript. No frameworks,
 | **Contact.exe** | Contact form (Node.js API) and social links |
 | **Simple View** | The printable CV (`cv.html` / `cv.pl.html`) inside a window, so the two always match |
 | **Internet** | Retro browser: YouTube, Spotify and Vimeo links play in place, Wikipedia search, other sites through the Wayback Machine, and a Time machine for 1996-2015 |
-| **Terminal** | Fake DOS prompt with `dir`, `type`, `open`, `neofetch`, `bios`, `matrix` and a few secrets |
+| **Terminal** | Fake DOS prompt with `dir`, `type`, `open`, `neofetch`, `bios`, `ping`, `tracert`, `ipconfig`, `tasklist`, `matrix`, `hack` (try `hack mainframe`) and a few secrets |
 | **File Explorer** | Virtual disk shared with the Terminal, Notepad and the printer, with hidden files; `cv.txt`, `Program Files` and the desktop shortcuts follow the CV and the app list |
 | **Recycle Bin** | Desktop icons (drag them in, or Delete) and files deleted in Explorer wait here until restored; emptying it shows the classic progress bar that never moves, so only Cancel gets you out and nothing is ever deleted for good |
 | **Notepad**, **Paint**, **Calculator** | The classics (Notepad saves your text in the browser) |
@@ -245,7 +245,7 @@ PortfolioOS/
 2. Register it in [`js/apps/index.js`](js/apps/index.js).
 3. Add styles to `css/apps.css`.
 
-> Imports carry a `?v=17` query string for cache busting. Bump it across files when you deploy changes behind aggressive caches.
+> Imports carry a `?v=18` query string for cache busting. Bump it across files when you deploy changes behind aggressive caches.
 
 ## Browser support
 

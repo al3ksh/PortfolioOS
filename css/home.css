@@ -152,6 +152,7 @@ h1, h2, h3, h4, p { margin: 0; }
     font: bold 12px/1 var(--font);
 }
 .controls span:last-child:not(:first-child) { margin-left: 2px; }
+.controls .min { padding-bottom: 5px; }
 
 .menubar {
     position: sticky;
@@ -310,6 +311,7 @@ h1, h2, h3, h4, p { margin: 0; }
 
 .chip:hover { box-shadow: inset 1px 1px var(--white), inset -1px -1px var(--dark); }
 .chip[aria-pressed="true"] { background: var(--checker); box-shadow: var(--pressed); padding: 3px 9px 1px 11px; }
+.chip small { font-size: inherit; opacity: .6; }
 .chip:focus-visible { outline: 1px dotted var(--ink); outline-offset: -4px; }
 
 .address {
@@ -621,6 +623,53 @@ h1, h2, h3, h4, p { margin: 0; }
 html:not(.js) .postcard.needs-js { display: none; }
 .no-js-note { margin: 0; padding: 12px; background: var(--note); box-shadow: var(--thin); font-size: 13px; }
 
+/* Without JavaScript the PortfolioOS links open #no-js: this box slides down from
+   the top, stays about five seconds and goes back up. Pure CSS (:target). */
+.boot-error {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    z-index: 60;
+    width: min(460px, calc(100% - 16px));
+    padding: 3px;
+    background: var(--gray);
+    color: var(--ink);
+    box-shadow: var(--window), 4px 4px 0 rgb(0 0 0 / 0.35);
+    transform: translate(-50%, -110%);
+    visibility: hidden;
+    outline: none;
+}
+.boot-error p { display: flex; align-items: center; gap: 12px; padding: 12px 10px 10px; font-size: 13px; }
+.boot-error-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #C00000;
+    color: #FFF;
+    box-shadow: inset -2px -2px rgb(0 0 0 / 0.3), 1px 1px 0 #000;
+    font: bold 24px/1 var(--font);
+}
+/* Every PortfolioOS link has a twin aimed at #no-js-again (see bootLink in the build
+   script). Showing the other twin after each click makes the next click change the
+   hash too, and the different animation name restarts the banner. */
+html:not(:has(#no-js:target)) [data-boot-again],
+html:not(.js):has(#no-js:target) a[data-boot]:not([data-boot-again]) { display: none !important; }
+html:not(.js) .boot-error:target { animation: boot-error 5.6s steps(40) both; }
+html:not(.js) .boot-error:has(#no-js-again:target) { animation: boot-error-again 5.6s steps(40) both; }
+@keyframes boot-error {
+    0% { transform: translate(-50%, -110%); visibility: visible; }
+    5%, 94% { transform: translate(-50%, 8px); visibility: visible; }
+    100% { transform: translate(-50%, -110%); visibility: hidden; }
+}
+@keyframes boot-error-again {
+    0% { transform: translate(-50%, -110%); visibility: visible; }
+    5%, 94% { transform: translate(-50%, 8px); visibility: visible; }
+    100% { transform: translate(-50%, -110%); visibility: hidden; }
+}
+
 /* ---------- PortfolioOS ---------- */
 
 .boot-row {
@@ -860,6 +909,16 @@ html.js .storage-nojs { display: none; }
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .win, .item.is-in, .status i { animation: none; }
+    html:not(.js) .boot-error:target { animation-name: boot-error-still; animation-timing-function: linear; }
+    html:not(.js) .boot-error:has(#no-js-again:target) { animation-name: boot-error-still-again; animation-timing-function: linear; }
+    @keyframes boot-error-still-again {
+        0%, 99% { transform: translate(-50%, 8px); visibility: visible; }
+        100% { transform: translate(-50%, 8px); visibility: hidden; }
+    }
+    @keyframes boot-error-still {
+        0%, 99% { transform: translate(-50%, 8px); visibility: visible; }
+        100% { transform: translate(-50%, 8px); visibility: hidden; }
+    }
 }
 
 @media print {

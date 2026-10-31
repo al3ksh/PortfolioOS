@@ -4,14 +4,15 @@
  * The list is loaded live from the GitHub API when the window opens
  * (disable with Profile.githubSync = false). Profile.projects is the
  * offline fallback. Featured follows the repositories pinned on GitHub when the
- * backend has a GITHUB_TOKEN, otherwise the flags in Profile.projects.
+ * backend has a GITHUB_TOKEN, otherwise the flags in Profile.projects (see github.js).
  */
 
-import { Icons } from '../icons.js?v=17';
-import { Profile, githubUrl } from '../config.js?v=17';
-import { t, loc, lang } from '../i18n.js?v=17';
-import { ProjectViewerApp } from './ProjectViewerApp.js?v=17';
-import { enhanceSelects } from '../winSelect.js?v=17';
+import { Icons } from '../icons.js?v=18';
+import { Profile, githubUrl } from '../config.js?v=18';
+import { t, loc, lang } from '../i18n.js?v=18';
+import { ProjectViewerApp } from './ProjectViewerApp.js?v=18';
+import { enhanceSelects } from '../winSelect.js?v=18';
+import { fetchRepositories, fetchPinnedFromSite, mergeProjects } from '../github.js?v=18';
 
 let repositories = Profile.projects;
 let liveRequest = null;
@@ -21,6 +22,7 @@ const languageColors = {
     JavaScript: '#f1e05a',
     'C++': '#f34b7d',
     Assembly: '#6e4c13',
+    QML: '#44a51c',
     EJS: '#a91e50',
     Python: '#3572a5',
     TypeScript: '#3178c6',
@@ -44,52 +46,15 @@ const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
 
 const formatDate = iso => new Date(iso).toLocaleDateString(lang === 'pl' ? 'pl-PL' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-// Names pinned on the GitHub profile (needs GITHUB_TOKEN on the backend); null if unknown
-async function fetchPinned() {
-    try {
-        const response = await fetch('/api/pinned', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(6000) });
-        if (!response.ok) return null;
-        const { pinned } = await response.json();
-        return Array.isArray(pinned) && pinned.length ? new Set(pinned.map(name => String(name).toLowerCase())) : null;
-    } catch {
-        return null;
-    }
-}
-
+// Pins come from the backend (it holds the GitHub token); without them the config flags decide
 async function fetchGithubRepositories() {
-    const [response, pinned] = await Promise.all([
-        fetch(`https://api.github.com/users/${encodeURIComponent(Profile.contact.github)}/repos?per_page=100&sort=pushed`, {
-            headers: { Accept: 'application/vnd.github+json' }
-        }),
-        fetchPinned()
-    ]);
-    if (!response.ok) throw new Error(`GitHub API responded with ${response.status}`);
-
-    const publicRepositories = (await response.json()).filter(repo => !repo.fork);
-    if (!publicRepositories.length) throw new Error('no public repositories found');
-
-    const configured = new Map(Profile.projects.map(project => [project.name.toLowerCase(), project]));
-    return publicRepositories
-        .map((repo) => {
-            const local = configured.get(repo.name.toLowerCase()) || {};
-            const license = repo.license?.spdx_id;
-            return {
-                ...local,
-                name: repo.name,
-                language: repo.language || local.language || 'Other',
-                description: repo.description || local.description || 'No description provided.',
-                stars: repo.stargazers_count,
-                license: license && license !== 'NOASSERTION' ? license : local.license,
-                updated: formatDate(repo.pushed_at),
-                // Pins on GitHub win; without them the config flags decide
-                featured: pinned ? pinned.has(repo.name.toLowerCase()) : Boolean(local.featured),
-                url: repo.html_url
-            };
-        });
+    const [live, pinned] = await Promise.all([fetchRepositories(Profile.contact.github), fetchPinnedFromSite()]);
+    return mergeProjects(Profile.projects, live, pinned)
+        .map(project => ({ ...project, updated: formatDate(project.pushed) }));
 }
 
-// One request per page load; "Refresh list" forces a new one.
-function loadRepositories(force = false) {
+// One request per page load, shared with Portfolio.exe; "Refresh list" forces a new one.
+export function loadRepositories(force = false) {
     if (Profile.githubSync === false) return Promise.resolve(repositories);
     if (!liveRequest || force) {
         liveRequest = fetchGithubRepositories()

@@ -3,14 +3,15 @@
  * Works on the same disk as Explorer and Notepad (js/vfs.js).
  */
 
-import { Icons } from '../icons.js?v=17';
-import { WindowManager } from '../managers/WindowManager.js?v=17';
-import { SoundManager } from '../managers/SoundManager.js?v=17';
-import { Profile, githubUrl } from '../config.js?v=17';
-import { VFS } from '../vfs.js?v=17';
-import { NotepadApp } from './NotepadApp.js?v=17';
-import { printText } from './PrinterApp.js?v=17';
-import { DESKTOP_APPS } from '../desktopApps.js?v=17';
+import { Icons } from '../icons.js?v=18';
+import { WindowManager } from '../managers/WindowManager.js?v=18';
+import { SoundManager } from '../managers/SoundManager.js?v=18';
+import { Profile, githubUrl } from '../config.js?v=18';
+import { VFS } from '../vfs.js?v=18';
+import { NotepadApp } from './NotepadApp.js?v=18';
+import { printText } from './PrinterApp.js?v=18';
+import { DESKTOP_APPS } from '../desktopApps.js?v=18';
+import { funCommands, CANCEL } from './terminalFun.js?v=18';
 
 // "open blocks", "open blocks.exe", "open tetris", "open task manager": every app on the desktop
 const appNames = () => Object.fromEntries(DESKTOP_APPS.flatMap(app => [
@@ -74,17 +75,24 @@ export const TerminalApp = {
   rd        - Remove a directory (/S with everything inside)
   del       - Delete files (wildcards work: del *.txt)
   color     - Change text color
+  ping      - Ping a host (-t until Ctrl+C, -n count)
+  tracert   - Trace the route to a host
+  ipconfig  - Show the network settings (/all for more)
+  tasklist  - List running programs
+  taskkill  - Close a program: taskkill /im notepad.exe
+  hack      - Hack the mainframe (or: hack mainframe)
   matrix    - ???
+  telnet    - Connect to a host. Try towel.blinkenlights.nl
   bios      - Reboot into BIOS setup
   sudo      - Request administrator powers
   format c: - Pretend to format the drive
-  ping girlfriend - Test your luck
   sl        - Steam locomotive
   fortune   - Print a random fortune
   exit      - Close terminal
 
 Redirect output into a file: echo hi > note.txt, dir >> list.txt
-Tips: Tab completes, Up/Down browse history, Ctrl+L clears, Ctrl+C cancels.
+Tips: Tab completes, Up/Down browse history, Ctrl+L clears,
+      Ctrl+C cancels or stops a running command.
 Aliases: ls = dir, cat = type, pwd = cd, man = help, mkdir = md, rmdir = rd,
          erase = del, edit = notepad`,
 
@@ -282,18 +290,6 @@ Portfolio OS [Version 1.0.2026]
             return 'Rebooting... Press DEL to enter SETUP';
         },
 
-        matrix: () => {
-            SoundManager.play('chord');
-            return `
- ██████╗  █████╗ ███████╗████████╗███████╗██████╗ 
- ██╔══██╗██╔══██╗██╔════╝╚══██╔══╝██╔════╝██╔══██╗
- ██████╔╝███████║███████╗   ██║   █████╗  ██████╔╝
- ██╔═══╝ ██╔══██║╚════██║   ██║   ██╔══╝  ██╔══██╗
- ██║     ██║  ██║███████║   ██║   ███████╗██║  ██║
- ╚═╝     ╚═╝  ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
-           Wake up, Neo...`;
-        },
-
         exit: () => {
             setTimeout(() => WindowManager.closeWindow('terminal'), 100);
             return 'Goodbye!';
@@ -301,7 +297,7 @@ Portfolio OS [Version 1.0.2026]
 
         doom: async () => {
             try {
-                const { playDoomIntro } = await import('../doomIntro.js?v=17');
+                const { playDoomIntro } = await import('../doomIntro.js?v=18');
                 playDoomIntro(() => document.querySelector('#window-terminal #terminalInput')?.focus());
             } catch (err) {
                 console.error('DOOM failed to load:', err);
@@ -315,9 +311,6 @@ Portfolio OS [Version 1.0.2026]
             ? 'Permission denied: PortfolioOS protects the root directory.'
             : 'Nice try, but this is PortfolioOS!',
         rm: () => 'No rm here! Use DEL instead... just kidding, don\'t delete anything!',
-        hack: (app, args) => args.join(' ').toLowerCase() === 'nasa'
-            ? 'Connecting to NASA... ACCESS DENIED. Try building something first.'
-            : 'HACKING THE MAINFRAME... just kidding, that\'s not how it works!',
         format: (app, args) => args.join(' ').toLowerCase() === 'c:'
             ? 'FORMAT C: aborted. PortfolioOS needs its files.'
             : 'Specify a drive, for example: format c:',
@@ -341,26 +334,8 @@ Portfolio OS [Version 1.0.2026]
         
         answer: () => '42 - The answer to life, the universe, and everything.',
         
-        ping: (app, args) => {
-            if (args.join(' ').toLowerCase() === 'girlfriend') {
-                return 'Pinging girlfriend...\nRequest timed out. She is probably busy being awesome.';
-            }
-            return `Pinging localhost [127.0.0.1] with 32 bytes of data:
-Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
-Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
-Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
+        ...funCommands,
 
- Ping statistics for 127.0.0.1:
-    Packets: Sent = 3, Received = 3, Lost = 0 (0% loss)`;
-        },
-
-        sl: () => `      ====        ________
-     _|  |__     /        \\
-    /        \\___|  SL    |
-   /  O  O          \\_____/
-  /__________________________\\
-      Choo choo!`,
-        
         fortune: () => {
             const fortunes = [
                 'A beautiful, smart, and loving person will be coming into your life.',
@@ -443,13 +418,32 @@ Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
 
         const input = window.querySelector('#terminalInput');
         const output = window.querySelector('#terminalOutput');
-        
+
+        // A command still running in a closed terminal window stops here
+        TerminalApp.job?.cancel();
+        TerminalApp.job = null;
+
         input?.focus();
 
         let lastTab = '';
         const scrollDown = () => { output.scrollTop = output.scrollHeight; };
 
         input?.addEventListener('keydown', (e) => {
+            const job = TerminalApp.job;
+            if (job) {
+                // While a command runs, keys belong to it: Ctrl+C stops it, Enter answers job.read()
+                if (e.ctrlKey && e.key.toLowerCase() === 'c' && !document.getSelection()?.toString()) {
+                    e.preventDefault();
+                    job.cancel();
+                } else if (job.answer) {
+                    if (e.key === 'Enter' || e.key === 'Tab') e.preventDefault();
+                    if (e.key === 'Enter') job.answer(input.value);
+                } else if (!['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) {
+                    e.preventDefault();
+                    if (job.anyKey) job.cancel();
+                }
+                return;
+            }
             if (e.key !== 'Tab') lastTab = '';
             if (e.key === 'Enter') {
                 const cmd = input.value.trim();
@@ -636,13 +630,26 @@ Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
         TerminalApp.addLine(output, `${prompt?.textContent || 'C:\\>'} ${cmdLine}`);
 
         // Execute command
-        const handler = TerminalApp.commands[cmd];
+        const handler = TerminalApp.commands[cmd] || (/^\/?hlep$/.test(cmd) ? () => 'you spelled it wrong' : null);
         let result;
 
         if (handler) {
-            result = handler(TerminalApp, args);
+            const job = TerminalApp.startJob(output, input, prompt);
+            result = handler(TerminalApp, args, job);
             if (result instanceof Promise) {
-                result.then(text => TerminalApp.showResult(output, text, prompt));
+                TerminalApp.job = job;
+                job.busy(true);
+                result
+                    .catch(err => {
+                        if (err === CANCEL) return '^C';
+                        console.error(err);
+                        return 'Bad command or file name.';
+                    })
+                    .then(text => {
+                        if (TerminalApp.job === job) TerminalApp.job = null;
+                        job.busy(false);
+                        TerminalApp.showResult(output, text, prompt);
+                    });
                 return;
             }
             if (redirect) result = TerminalApp.redirect(result, redirect[1], redirect[2]);
@@ -671,11 +678,84 @@ Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
         output.scrollTop = output.scrollHeight;
     },
 
-    addLine(output, text) {
+    addLine(output, text, tone) {
         const line = document.createElement('span');
-        line.className = 'terminal-line';
+        line.className = tone ? `terminal-line t-${tone}` : 'terminal-line';
         line.textContent = text;
         output.appendChild(line);
+        return line;
+    },
+
+    /** The running command (ping, matrix...), null when the prompt is free. */
+    job: null,
+
+    /** What a long-running command gets: see js/apps/terminalFun.js. */
+    startJob(output, input, prompt) {
+        const container = output.closest('.terminal-container');
+        const job = {
+            cancelled: false,
+            wake: null,
+            answer: null,
+            anyKey: false,
+            check() {
+                if (job.cancelled || !output.isConnected) throw CANCEL;
+            },
+            cancel() {
+                job.cancelled = true;
+                job.wake?.();
+            },
+            busy(on) {
+                container?.classList.toggle('busy', on);
+                if (input) {
+                    input.readOnly = on;
+                    input.value = '';
+                }
+            },
+            print(text, tone) {
+                const lines = String(text).split('\n');
+                let line;
+                lines.forEach(part => { line = TerminalApp.addLine(output, part, tone); });
+                output.scrollTop = output.scrollHeight;
+                return line;
+            },
+            sleep: ms => new Promise((resolve, reject) => {
+                if (job.cancelled || !output.isConnected) return reject(CANCEL);
+                const timer = setTimeout(() => { job.wake = null; resolve(); }, ms);
+                job.wake = () => { clearTimeout(timer); job.wake = null; reject(CANCEL); };
+            }),
+            /** Lets the user type one line, shown after `label` like a prompt. */
+            read: label => new Promise((resolve, reject) => {
+                job.check();
+                job.busy(false);
+                if (prompt) prompt.textContent = label;
+                input?.focus();
+                job.answer = value => {
+                    job.answer = job.wake = null;
+                    job.busy(true);
+                    job.print(`${label}${value}`);
+                    resolve(value);
+                };
+                job.wake = () => { job.answer = job.wake = null; job.busy(true); reject(CANCEL); };
+            }),
+            /** A layer over the whole terminal for animations; any key or click ends the command. */
+            overlay(kind) {
+                const el = document.createElement('pre');
+                el.className = `terminal-overlay ${kind}`;
+                el.addEventListener('click', () => job.cancel());
+                container.appendChild(el);
+                const probe = document.createElement('span');
+                probe.textContent = 'M'.repeat(10);
+                el.appendChild(probe);
+                const box = probe.getBoundingClientRect();
+                const style = getComputedStyle(el);
+                const cols = Math.max(20, Math.floor((el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)) / (box.width / 10)));
+                const rows = Math.max(8, Math.floor((el.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom)) / box.height));
+                probe.remove();
+                job.anyKey = true;
+                return { el, cols, rows };
+            }
+        };
+        return job;
     }
 };
 

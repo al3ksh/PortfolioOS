@@ -2,9 +2,9 @@
  * README App - a short guide to the desktop
  */
 
-import { Icons } from '../icons.js?v=17';
-import { t, loc } from '../i18n.js?v=17';
-import { Profile, githubUrl } from '../config.js?v=17';
+import { Icons } from '../icons.js?v=18';
+import { t, loc } from '../i18n.js?v=18';
+import { Profile, githubUrl } from '../config.js?v=18';
 
 const GROUPS = [
     { title: 'readme.group.about', apps: [['portfolio', 'Portfolio.exe'], ['projects', 'Projects.exe'], ['network', 'Network.exe'], ['contact', 'Contact.exe'], ['simplemode', 'Simple View']] },

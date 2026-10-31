@@ -2,11 +2,11 @@
  * Window Component - Draggable, resizable window
  */
 
-import { Icons } from '../icons.js?v=17';
-import { WindowManager } from '../managers/WindowManager.js?v=17';
-import { SoundManager } from '../managers/SoundManager.js?v=17';
-import { Profile } from '../config.js?v=17';
-import { t } from '../i18n.js?v=17';
+import { Icons } from '../icons.js?v=18';
+import { WindowManager } from '../managers/WindowManager.js?v=18';
+import { SoundManager } from '../managers/SoundManager.js?v=18';
+import { Profile } from '../config.js?v=18';
+import { t } from '../i18n.js?v=18';
 
 export class Window {
     constructor(config) {

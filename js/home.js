@@ -6,7 +6,7 @@
  * Everything it needs is in data-* attributes written by scripts/build-static.mjs.
  */
 
-import { enhanceSelects } from './winSelect.js?v=17';
+import { enhanceSelects } from './winSelect.js?v=18';
 
 const lang = document.documentElement.lang === 'pl' ? 'pl' : 'en';
 
@@ -47,12 +47,8 @@ function initTheme() {
 
 // ---------- Skill filter ----------
 
-// Whole-word match so "C" does not hit "CSS"; "Node.js" also matches "node"
-const mentions = (text, skill) => {
-    const s = skill.toLowerCase();
-    return text.split(/\s+/).some(word => word === s || word === s.replace(/\.js$/, ''));
-};
-
+// Chips and items carry the repository language in data-lang; the "pinned" chip
+// (the default when there is one) shows the featured items instead
 function initFilter() {
     const filter = document.querySelector('.filter');
     if (!filter) return;
@@ -61,12 +57,12 @@ function initFilter() {
     const items = [...document.querySelectorAll('.items .item')];
     const empty = document.querySelector('.items .empty');
     const count = document.querySelector('[data-count]');
-    let active = null;
+    let active = chips.some(chip => chip.dataset.lang === 'pinned') ? 'pinned' : null;
 
     const apply = () => {
         let shown = 0;
         items.forEach(item => {
-            const match = !active || mentions(item.dataset.text || '', active);
+            const match = !active || (active === 'pinned' ? item.classList.contains('is-featured') : item.dataset.lang === active);
             item.classList.toggle('is-out', !match);
             item.classList.remove('is-in');
             if (match) {
@@ -77,13 +73,14 @@ function initFilter() {
         });
         if (empty) empty.hidden = shown > 0;
         if (count) count.textContent = count.dataset.count.replace('{n}', shown);
-        chips.forEach(chip => chip.setAttribute('aria-pressed', String((chip.dataset.skill || null) === active)));
+        chips.forEach(chip => chip.setAttribute('aria-pressed', String((chip.dataset.lang || null) === active)));
     };
 
     chips.forEach(chip => chip.addEventListener('click', () => {
-        active = chip.dataset.skill && chip.dataset.skill !== active ? chip.dataset.skill : null;
+        active = chip.dataset.lang && chip.dataset.lang !== active ? chip.dataset.lang : null;
         apply();
     }));
+    if (active) apply();
 }
 
 // ---------- Copy email ----------

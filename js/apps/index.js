@@ -2,28 +2,28 @@
  * Apps Index - Export all apps
  */
 
-import { PortfolioApp } from './PortfolioApp.js?v=17';
-import { ReadmeApp } from './ReadmeApp.js?v=17';
-import { NotepadApp } from './NotepadApp.js?v=17';
-import { TunesApp } from './TunesApp.js?v=17';
-import { MinesApp } from './MinesApp.js?v=17';
-import { ControlApp } from './ControlApp.js?v=17';
-import { TerminalApp } from './TerminalApp.js?v=17';
-import { CalcApp } from './CalcApp.js?v=17';
-import { TaskMgrApp } from './TaskMgrApp.js?v=17';
-import { ContactApp } from './ContactApp.js?v=17';
-import { SysInfoApp } from './SysInfoApp.js?v=17';
-import { FileExplorerApp } from './FileExplorerApp.js?v=17';
-import { PaintApp } from './PaintApp.js?v=17';
-import { SnakeApp } from './SnakeApp.js?v=17';
-import { TetrisApp } from './TetrisApp.js?v=17';
-import { BrowserApp } from './BrowserApp.js?v=17';
-import { SimpleModeApp } from './SimpleModeApp.js?v=17';
-import { ProjectsApp } from './ProjectsApp.js?v=17';
-import { ProjectViewerApp } from './ProjectViewerApp.js?v=17';
-import { NetworkApp } from './NetworkApp.js?v=17';
-import { PrinterApp } from './PrinterApp.js?v=17';
-import { RecycleApp } from './RecycleApp.js?v=17';
+import { PortfolioApp } from './PortfolioApp.js?v=18';
+import { ReadmeApp } from './ReadmeApp.js?v=18';
+import { NotepadApp } from './NotepadApp.js?v=18';
+import { TunesApp } from './TunesApp.js?v=18';
+import { MinesApp } from './MinesApp.js?v=18';
+import { ControlApp } from './ControlApp.js?v=18';
+import { TerminalApp } from './TerminalApp.js?v=18';
+import { CalcApp } from './CalcApp.js?v=18';
+import { TaskMgrApp } from './TaskMgrApp.js?v=18';
+import { ContactApp } from './ContactApp.js?v=18';
+import { SysInfoApp } from './SysInfoApp.js?v=18';
+import { FileExplorerApp } from './FileExplorerApp.js?v=18';
+import { PaintApp } from './PaintApp.js?v=18';
+import { SnakeApp } from './SnakeApp.js?v=18';
+import { TetrisApp } from './TetrisApp.js?v=18';
+import { BrowserApp } from './BrowserApp.js?v=18';
+import { SimpleModeApp } from './SimpleModeApp.js?v=18';
+import { ProjectsApp } from './ProjectsApp.js?v=18';
+import { ProjectViewerApp } from './ProjectViewerApp.js?v=18';
+import { NetworkApp } from './NetworkApp.js?v=18';
+import { PrinterApp } from './PrinterApp.js?v=18';
+import { RecycleApp } from './RecycleApp.js?v=18';
 
 export const Apps = {
     portfolio: PortfolioApp,

@@ -6,7 +6,7 @@
  * folder/file/size: where the program sits under C:\Program Files (none for the Recycle Bin).
  */
 
-import { Icons } from './icons.js?v=17';
+import { Icons } from './icons.js?v=18';
 
 export const DESKTOP_APPS = [
     { appId: 'portfolio', title: 'Portfolio.exe', icon: Icons.portfolio, folder: 'Portfolio OS', file: 'portfolio.exe', size: '2.1 MB' },

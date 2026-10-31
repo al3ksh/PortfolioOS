@@ -1335,6 +1335,39 @@
     caret-color: var(--term-fg);
 }
 
+/* A command is running (ping, hack...): the prompt hides like in real cmd.exe.
+   Opacity keeps the input focusable, so Ctrl+C and "any key" still reach it. */
+.terminal-container { position: relative; }
+.terminal-container.busy .terminal-input-line { opacity: 0; }
+
+.terminal-line.t-ok { color: #55FF55; }
+.terminal-line.t-err { color: #FF5555; }
+.terminal-line.t-dim { opacity: 0.6; }
+
+/* Full-screen animations: matrix, sl, telnet towel.blinkenlights.nl */
+.terminal-overlay {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 8px;
+    overflow: hidden;
+    background: var(--term-bg);
+    color: var(--term-fg);
+    font: inherit;
+    line-height: 1.2;
+    white-space: pre;
+    cursor: pointer;
+}
+
+.terminal-overlay.matrix { background: #000; color: #0A0; }
+.terminal-overlay.matrix .mh { color: #EFFFEF; text-shadow: 0 0 6px #6F6; }
+.terminal-overlay.matrix .mb { color: #4F4; }
+.terminal-overlay.matrix .mg { color: #0B0; }
+.terminal-overlay.matrix .md { color: #050; }
+.terminal-overlay.crawl { background: #000; color: #FFE81F; font-weight: bold; }
+.terminal-overlay.crawl.intro { color: #4BD5EE; font-weight: normal; }
+.terminal-overlay.crawl.tilt > div { transform: perspective(260px) rotateX(24deg); transform-origin: 50% 100%; }
+
 /* ============================================
    CALCULATOR APP
    ============================================ */

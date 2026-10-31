@@ -3,7 +3,7 @@
  * Each saver has init(ctx, width, height) and draw(ctx, width, height).
  */
 
-import { Profile } from './config.js?v=17';
+import { Profile } from './config.js?v=18';
 
 const MATRIX_CHARS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const random = (min, max) => min + Math.random() * (max - min);

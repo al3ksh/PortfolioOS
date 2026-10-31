@@ -2,12 +2,20 @@
  * Portfolio App - Main Bento Grid portfolio
  */
 
-import { Icons } from '../icons.js?v=17';
-import { WindowManager } from '../managers/WindowManager.js?v=17';
-import { Profile, githubUrl, featuredProjects } from '../config.js?v=17';
-import { t, loc, lang } from '../i18n.js?v=17';
-import { openCv } from './PrinterApp.js?v=17';
-import { mountFace } from '../face.js?v=17';
+import { Icons } from '../icons.js?v=18';
+import { WindowManager } from '../managers/WindowManager.js?v=18';
+import { Profile, githubUrl, featuredProjects } from '../config.js?v=18';
+import { t, loc, lang } from '../i18n.js?v=18';
+import { openCv } from './PrinterApp.js?v=18';
+import { mountFace } from '../face.js?v=18';
+import { loadRepositories } from './ProjectsApp.js?v=18';
+
+const projectItems = projects => projects.map(project => `
+    <div class="project-item">
+        <strong><a href="${project.url}" target="_blank" rel="noopener noreferrer">${project.name}</a></strong>
+        <span class="project-tech">${project.language}</span>
+        <p>${loc(project.description)}</p>
+    </div>`).join('');
 
 export const PortfolioApp = {
     id: 'portfolio',
@@ -137,13 +145,7 @@ export const PortfolioApp = {
                         <button class="card-title project-launch" type="button" aria-label="${t('portfolio.openProjects')}">${t('section.projects')}</button>
                     </div>
                     <div class="card-content projects-content">
-                        ${featuredProjects().map(project => `
-                            <div class="project-item">
-                                <strong><a href="${project.url}" target="_blank" rel="noopener noreferrer">${project.name}</a></strong>
-                                <span class="project-tech">${project.language}</span>
-                                <p>${loc(project.description)}</p>
-                            </div>
-                        `).join('')}
+                        ${projectItems(featuredProjects())}
                     </div>
                 </div>
 
@@ -198,6 +200,13 @@ export const PortfolioApp = {
         // The face reacts to the time of day, idling and clicks
         const faceEl = document.querySelector('#window-portfolio .ascii-art');
         if (faceEl) PortfolioApp.face = mountFace(faceEl);
+
+        // Swap the config snapshot for the repositories pinned on GitHub once they load
+        loadRepositories().then((projects) => {
+            const list = document.querySelector('#window-portfolio .projects-content');
+            const pinned = projects.filter(project => project.featured);
+            if (list && pinned.length) list.innerHTML = projectItems(pinned);
+        });
 
         // Download CV button
         const cvBtn = document.querySelector('#downloadCvBtn');

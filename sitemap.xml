@@ -15,11 +15,6 @@
         <xhtml:link rel="alternate" hreflang="pl" href="https://example.com/pl.html"/>
     </url>
     <url>
-        <loc>https://example.com/os.html</loc>
-        <lastmod>2026-10-31</lastmod>
-        <priority>0.5</priority>
-    </url>
-    <url>
         <loc>https://example.com/cv.html</loc>
         <lastmod>2026-10-31</lastmod>
         <priority>0.7</priority>
