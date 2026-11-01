@@ -3,10 +3,10 @@
  * personal bests stay in each game's own localStorage.
  */
 
-import { Profile } from './config.js?v=19';
-import { DialogManager } from './managers/DialogManager.js?v=19';
-import { SoundManager } from './managers/SoundManager.js?v=19';
-import { t } from './i18n.js?v=19';
+import { Profile } from './config.js?v=20';
+import { DialogManager } from './managers/DialogManager.js?v=20';
+import { SoundManager } from './managers/SoundManager.js?v=20';
+import { t } from './i18n.js?v=20';
 
 const BOARDS = {
     'snake-solid': { title: 'Snake - Solid walls', unit: '' },

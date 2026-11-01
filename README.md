@@ -60,7 +60,7 @@ Windows 3.1 / 95 look, built with plain HTML, CSS and JavaScript. No frameworks,
 | **File Explorer** | Virtual disk shared with the Terminal, Notepad and the printer, with hidden files; `cv.txt`, `Program Files` and the desktop shortcuts follow the CV and the app list |
 | **Recycle Bin** | Desktop icons (drag them in, or Delete) and files deleted in Explorer wait here until restored; emptying it shows the classic progress bar that never moves, so only Cancel gets you out and nothing is ever deleted for good |
 | **Notepad**, **Paint**, **Calculator** | The classics (Notepad saves your text in the browser) |
-| **Tunes** | Embedded Spotify player |
+| **Tunes** | Winamp-style player for three royalty-free tracks, with a live spectrum analyser |
 | **Control Panel** | Themes, sounds, screen saver and session settings |
 | **System Information**, **Task Manager**, **README.txt** | "Hardware" info, running windows and a welcome guide |
 
@@ -119,7 +119,7 @@ node scripts/build-static.mjs
 
 It writes the homepage (`index.html` in English, `pl.html` in Polish), rewrites the meta tags, structured data and the static portfolio in `os.html`, and creates `cv.html`, `cv.pl.html`, `404.html`, `robots.txt`, `sitemap.xml` and the `contact-sent` / `contact-error` pages. Use `--config` and `--out` to build from another config into another folder.
 
-Two things are not generated: `og-image.png` (the 1200x630 link preview) and the Spotify track in [`js/apps/TunesApp.js`](js/apps/TunesApp.js).
+Two things are not generated: `og-image.png` (the 1200x630 link preview) and the playlist in [`js/apps/TunesApp.js`](js/apps/TunesApp.js), whose files live in `audio/`.
 
 <details>
 <summary><b>Keeping your data out of the repository</b></summary>
@@ -246,7 +246,7 @@ PortfolioOS/
 2. Register it in [`js/apps/index.js`](js/apps/index.js).
 3. Add styles to `css/apps.css`.
 
-> Imports carry a `?v=19` query string for cache busting. Bump it across files when you deploy changes behind aggressive caches.
+> Imports carry a `?v=20` query string for cache busting. Bump it across files when you deploy changes behind aggressive caches.
 
 ## Browser support
 

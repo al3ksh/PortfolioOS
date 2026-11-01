@@ -3,7 +3,7 @@
  * Used by build-static.mjs; every value in `ctx` is already HTML-escaped.
  *
  * Keep this in sync with what the site really does: the contact form, the game
- * leaderboards, Turnstile, the embeds in Internet.exe and Tunes, and the keys the
+ * leaderboards, Turnstile, the embeds in Internet.exe, and the keys the
  * desktop saves in localStorage / sessionStorage.
  */
 
@@ -115,7 +115,7 @@ const EN = {
                     <li><b>Cloudflare, Inc.</b> delivers the site and protects it from attacks (CDN, tunnel, Turnstile anti-spam check). It handles your IP address and technical connection data.</li>
                     <li><b>Google (Gmail)</b> delivers and stores the e-mail with your message.</li>
                     <li><b>GitHub, Inc.</b> When you open project windows in PortfolioOS, your browser loads public repository data directly from the GitHub API, so GitHub sees your IP address.</li>
-                    <li><b>Services you open yourself.</b> Videos, music and pages opened in Internet.exe or Tunes (YouTube in privacy-enhanced mode, Spotify, Vimeo, Wikipedia, the Internet Archive and any site you type in) are loaded only when you choose them and follow those services' own privacy policies.</li>
+                    <li><b>Services you open yourself.</b> Videos, music and pages opened in Internet.exe (YouTube in privacy-enhanced mode, Spotify, Vimeo, Wikipedia, the Internet Archive and any site you type in) are loaded only when you choose them and follow those services' own privacy policies.</li>
                 </ul>
                 <p>Some of these companies are based in the USA. Transfers rely on the EU-US Data Privacy Framework or the European Commission's standard contractual clauses.</p>
                 <p>The site uses no analytics tools, advertising networks, social media pixels or external fonts.</p>`],
@@ -153,7 +153,7 @@ const EN = {
             ['What is stored', `<p>PortfolioOS keeps your settings and progress in your browser's local storage (localStorage and sessionStorage). This data never leaves your device. Cloudflare, which delivers the site, may set a short-lived security cookie to tell people from bots.</p>
                 ${storageTable('en')}`],
             ['Why there is no consent banner', `<p>All of the above is strictly necessary for features you ask for (remembering your desktop, the language you chose, protection against attacks), so the law does not require consent for it. You can still switch saving off below or clear it in your browser at any time.</p>`],
-            ['Embedded services', `<p>When you open a video, song or website inside Internet.exe or Tunes, it is loaded from that service (for example YouTube in privacy-enhanced mode, Spotify or Vimeo), which may set its own cookies according to its own policy. Nothing is loaded from them until you open it.</p>`],
+            ['Embedded services', `<p>When you open a video, song or website inside Internet.exe, it is loaded from that service (for example YouTube in privacy-enhanced mode, Spotify or Vimeo), which may set its own cookies according to its own policy. Nothing is loaded from them until you open it.</p>`],
             ['More', `<p>How personal data is handled is explained in the <a href="${ctx.links.privacy}">Privacy policy</a>.</p>`]
         ]
     })
@@ -178,7 +178,7 @@ const PL = {
                     <li><b>Cloudflare, Inc.</b> dostarcza stronę i chroni ją przed atakami (CDN, tunel, test antyspamowy Turnstile). Przetwarza Twój adres IP i dane techniczne połączenia.</li>
                     <li><b>Google (Gmail)</b> dostarcza i przechowuje e-mail z Twoją wiadomością.</li>
                     <li><b>GitHub, Inc.</b> Gdy otwierasz okna projektów w PortfolioOS, Twoja przeglądarka pobiera publiczne dane repozytoriów bezpośrednio z API GitHuba, więc GitHub widzi Twój adres IP.</li>
-                    <li><b>Serwisy, które otwierasz sam.</b> Filmy, muzyka i strony otwierane w Internet.exe lub Tunes (YouTube w trybie rozszerzonej prywatności, Spotify, Vimeo, Wikipedia, Internet Archive i każda wpisana przez Ciebie strona) ładują się dopiero, gdy je wybierzesz, i działają według własnych polityk prywatności.</li>
+                    <li><b>Serwisy, które otwierasz sam.</b> Filmy, muzyka i strony otwierane w Internet.exe (YouTube w trybie rozszerzonej prywatności, Spotify, Vimeo, Wikipedia, Internet Archive i każda wpisana przez Ciebie strona) ładują się dopiero, gdy je wybierzesz, i działają według własnych polityk prywatności.</li>
                 </ul>
                 <p>Część z tych firm ma siedzibę w USA. Przekazanie danych odbywa się na podstawie programu EU-US Data Privacy Framework lub standardowych klauzul umownych Komisji Europejskiej.</p>
                 <p>Strona nie używa narzędzi analitycznych, sieci reklamowych, pikseli mediów społecznościowych ani zewnętrznych czcionek.</p>`],
@@ -216,7 +216,7 @@ const PL = {
             ['Co jest zapisywane', `<p>PortfolioOS trzyma ustawienia i postępy w pamięci lokalnej przeglądarki (localStorage i sessionStorage). Te dane nigdy nie opuszczają Twojego urządzenia. Cloudflare, który dostarcza stronę, może ustawić krótkotrwałe cookie bezpieczeństwa, żeby odróżnić ludzi od botów.</p>
                 ${storageTable('pl')}`],
             ['Dlaczego nie ma banera ze zgodą', `<p>Wszystko powyżej jest niezbędne do działania funkcji, o które prosisz (zapamiętanie pulpitu, wybranego języka, ochrona przed atakami), więc prawo nie wymaga na to zgody. Mimo to możesz wyłączyć zapisywanie poniżej albo w każdej chwili wyczyścić dane w przeglądarce.</p>`],
-            ['Osadzone serwisy', `<p>Gdy otwierasz film, utwór lub stronę w Internet.exe albo Tunes, ładuje się ona z danego serwisu (np. YouTube w trybie rozszerzonej prywatności, Spotify, Vimeo), który może ustawić własne cookies według własnej polityki. Nic z tych serwisów nie ładuje się, dopóki tego nie otworzysz.</p>`],
+            ['Osadzone serwisy', `<p>Gdy otwierasz film, utwór lub stronę w Internet.exe, ładuje się ona z danego serwisu (np. YouTube w trybie rozszerzonej prywatności, Spotify, Vimeo), który może ustawić własne cookies według własnej polityki. Nic z tych serwisów nie ładuje się, dopóki tego nie otworzysz.</p>`],
             ['Więcej', `<p>Sposób przetwarzania danych osobowych opisuje <a href="${ctx.links.privacy}">Polityka prywatności</a>.</p>`]
         ]
     })

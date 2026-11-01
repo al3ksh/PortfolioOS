@@ -4,8 +4,8 @@
  * (scripts/build-static.mjs), so the three never drift apart.
  */
 
-import { Profile, featuredProjects } from './config.js?v=19';
-import { t, loc } from './i18n.js?v=19';
+import { Profile, featuredProjects } from './config.js?v=20';
+import { t, loc } from './i18n.js?v=20';
 
 export const WIDTH = 58;
 

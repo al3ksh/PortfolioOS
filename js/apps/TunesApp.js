@@ -1,99 +1,146 @@
 /**
- * Tunes App - Windows 98 inspired Spotify player.
+ * Tunes App - a Winamp-style player for three royalty-free tracks in audio/.
+ * Plays through an <audio> element; the spectrum analyser reads it via Web Audio.
+ * Keys like the real thing: Z prev, X play, C pause, V stop, B next.
  */
 
-import { Icons } from '../icons.js?v=19';
+import { Icons } from '../icons.js?v=20';
 
-const TRACK = {
-    uri: 'spotify:track:3GFUIOx4qdGwFxKXgfy7ap',
-    url: 'https://open.spotify.com/track/3GFUIOx4qdGwFxKXgfy7ap',
-    title: 'SZUBIENICAPESTYCYDYBROŃ',
-    artist: 'Quebonafide',
-    album: 'ROMANTIC PSYCHO'
+const TRACKS = [
+    { file: 'audio/sky-high.opus', artist: 'Elektronomia', title: 'Sky High', duration: 238, kbps: 132 },
+    { file: 'audio/sneaky-snitch.opus', artist: 'Kevin MacLeod', title: 'Sneaky Snitch', duration: 136, kbps: 126 },
+    { file: 'audio/unity.opus', artist: 'TheFatRat', title: 'Unity', duration: 249, kbps: 132 }
+];
+
+const link = (href, text) => `<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+const CREDITS = [
+    `<b>Elektronomia - Sky High</b><br>${link('https://ncs.io/SkyHigh', 'NoCopyrightSounds')}`,
+    `<b>Kevin MacLeod - Sneaky Snitch</b><br>${link('https://incompetech.com', 'incompetech.com')}, licensed under ${link('https://creativecommons.org/licenses/by/4.0/', 'CC BY 4.0')}`,
+    `<b>TheFatRat - Unity</b><br>${link('https://www.youtube.com/@TheFatRat', 'youtube.com/@TheFatRat')}`
+];
+
+// 16px pixel glyphs; the transport row draws them at 1x like Winamp's tiny buttons
+const glyph = rects => `<svg viewBox="0 0 16 16" class="pixel-icon" shape-rendering="crispEdges" aria-hidden="true">${rects.map(([x, y, w, h]) => `<rect x="${x}" y="${y}" width="${w}" height="${h}"/>`).join('')}</svg>`;
+const ICONS = {
+    prev: glyph([[3, 4, 2, 8], [10, 4, 1, 8], [9, 5, 1, 6], [8, 6, 1, 4], [7, 7, 1, 2], [13, 4, 1, 8], [12, 5, 1, 6], [11, 6, 1, 4]]),
+    play: glyph([[5, 3, 1, 10], [6, 4, 1, 8], [7, 5, 1, 6], [8, 6, 1, 4], [9, 7, 1, 2]]),
+    pause: glyph([[4, 4, 3, 8], [9, 4, 3, 8]]),
+    stop: glyph([[4, 4, 8, 8]]),
+    next: glyph([[2, 4, 1, 8], [3, 5, 1, 6], [4, 6, 1, 4], [5, 7, 1, 2], [5, 4, 1, 8], [6, 5, 1, 6], [7, 6, 1, 4], [8, 7, 1, 2], [11, 4, 2, 8]])
 };
 
-const playerIcons = {
-    restart: '<svg viewBox="0 0 16 16" class="pixel-icon" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="3" width="2" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="11" y="3" width="1" height="1"/><rect x="3" y="4" width="2" height="1"/><rect x="6" y="4" width="2" height="1"/><rect x="10" y="4" width="2" height="1"/><rect x="3" y="5" width="5" height="1"/><rect x="9" y="5" width="3" height="1"/><rect x="3" y="6" width="9" height="1"/><rect x="3" y="7" width="9" height="1"/><rect x="3" y="8" width="9" height="1"/><rect x="3" y="9" width="9" height="1"/><rect x="3" y="10" width="5" height="1"/><rect x="9" y="10" width="3" height="1"/><rect x="3" y="11" width="2" height="1"/><rect x="6" y="11" width="2" height="1"/><rect x="10" y="11" width="2" height="1"/><rect x="3" y="12" width="2" height="1"/><rect x="7" y="12" width="1" height="1"/><rect x="11" y="12" width="1" height="1"/></svg>',
-    back: '<svg viewBox="0 0 16 16" class="pixel-icon" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="3" width="1" height="1"/><rect x="12" y="3" width="1" height="1"/><rect x="6" y="4" width="2" height="1"/><rect x="11" y="4" width="2" height="1"/><rect x="5" y="5" width="3" height="1"/><rect x="10" y="5" width="3" height="1"/><rect x="4" y="6" width="4" height="1"/><rect x="9" y="6" width="4" height="1"/><rect x="3" y="7" width="10" height="1"/><rect x="3" y="8" width="10" height="1"/><rect x="4" y="9" width="4" height="1"/><rect x="9" y="9" width="4" height="1"/><rect x="5" y="10" width="3" height="1"/><rect x="10" y="10" width="3" height="1"/><rect x="6" y="11" width="2" height="1"/><rect x="11" y="11" width="2" height="1"/><rect x="7" y="12" width="1" height="1"/><rect x="12" y="12" width="1" height="1"/></svg>',
-    play: '<svg viewBox="0 0 16 16" class="pixel-icon" shape-rendering="crispEdges" aria-hidden="true"><rect x="5" y="2" width="1" height="1"/><rect x="5" y="3" width="2" height="1"/><rect x="5" y="4" width="3" height="1"/><rect x="5" y="5" width="4" height="1"/><rect x="5" y="6" width="5" height="1"/><rect x="5" y="7" width="6" height="1"/><rect x="5" y="8" width="6" height="1"/><rect x="5" y="9" width="5" height="1"/><rect x="5" y="10" width="4" height="1"/><rect x="5" y="11" width="3" height="1"/><rect x="5" y="12" width="2" height="1"/><rect x="5" y="13" width="1" height="1"/></svg>',
-    pause: '<svg viewBox="0 0 16 16" class="pixel-icon" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="3" width="3" height="1"/><rect x="9" y="3" width="3" height="1"/><rect x="4" y="4" width="3" height="1"/><rect x="9" y="4" width="3" height="1"/><rect x="4" y="5" width="3" height="1"/><rect x="9" y="5" width="3" height="1"/><rect x="4" y="6" width="3" height="1"/><rect x="9" y="6" width="3" height="1"/><rect x="4" y="7" width="3" height="1"/><rect x="9" y="7" width="3" height="1"/><rect x="4" y="8" width="3" height="1"/><rect x="9" y="8" width="3" height="1"/><rect x="4" y="9" width="3" height="1"/><rect x="9" y="9" width="3" height="1"/><rect x="4" y="10" width="3" height="1"/><rect x="9" y="10" width="3" height="1"/><rect x="4" y="11" width="3" height="1"/><rect x="9" y="11" width="3" height="1"/><rect x="4" y="12" width="3" height="1"/><rect x="9" y="12" width="3" height="1"/></svg>',
-    forward: '<svg viewBox="0 0 16 16" class="pixel-icon" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="3" y="4" width="2" height="1"/><rect x="8" y="4" width="2" height="1"/><rect x="3" y="5" width="3" height="1"/><rect x="8" y="5" width="3" height="1"/><rect x="3" y="6" width="4" height="1"/><rect x="8" y="6" width="4" height="1"/><rect x="3" y="7" width="10" height="1"/><rect x="3" y="8" width="10" height="1"/><rect x="3" y="9" width="4" height="1"/><rect x="8" y="9" width="4" height="1"/><rect x="3" y="10" width="3" height="1"/><rect x="8" y="10" width="3" height="1"/><rect x="3" y="11" width="2" height="1"/><rect x="8" y="11" width="2" height="1"/><rect x="3" y="12" width="1" height="1"/><rect x="8" y="12" width="1" height="1"/></svg>',
-    spotify: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" class="icon-fill"/><path class="spotify-wave" d="M6.5 9.2c3.7-1 7.8-.7 11.1 1M7.2 12.4c3.1-.8 6.8-.5 9.6.9M8 15.3c2.5-.6 5.3-.3 7.7.7"/></svg>'
-};
+// Starts quiet; the listener's own level is remembered between visits
+const VOLUME_KEY = 'tunesVolume';
+const DEFAULT_VOLUME = 20;
+// The tracks are mastered loud, so 100% is half of full scale, and the
+// slider is squared to follow how loudness is heard: 20% plays at 0.02.
+const MAX_GAIN = 0.5;
+const volumeGain = level => (level / 100) ** 2 * MAX_GAIN;
 
-function formatTime(milliseconds) {
-    const seconds = Math.max(0, Math.floor((milliseconds || 0) / 1000));
-    return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+function savedVolume() {
+    const value = Number(localStorage.getItem(VOLUME_KEY));
+    return localStorage.getItem(VOLUME_KEY) !== null && value >= 0 && value <= 100 ? value : DEFAULT_VOLUME;
 }
 
-function renderEqualizer() {
-    const heights = [34, 54, 82, 118, 146, 96, 102, 132, 76, 92, 72, 104, 124, 98, 68, 58, 86, 70];
-    return heights.map((height, index) => (
-        `<span class="tunes-eq-bar" style="--bar-height:${height}px;--bar-delay:${index * -43}ms"></span>`
-    )).join('');
+const BARS = 19;
+const VIS_W = BARS * 4;
+const VIS_H = 16;
+
+function formatTime(seconds) {
+    const s = Math.max(0, Math.floor(seconds || 0));
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
+
+const trackLabel = (track, index) => `${index + 1}. ${track.artist} - ${track.title}`;
 
 export const TunesApp = {
     id: 'tunes',
     title: 'Tunes.exe - Music Player',
     icon: Icons.tunes,
-    width: 860,
-    height: 620,
-    minWidth: 520,
-    minHeight: 520,
+    width: 520,
+    height: 560,
+    minWidth: 400,
+    minHeight: 470,
     hasMenu: false,
     resizable: true,
 
-    controller: null,
-    spotifyApiPromise: null,
-    playbackPosition: 0,
-    playbackDuration: 0,
+    // Live state of the open window; reset in onClose
+    audio: null,
+    context: null,
+    analyser: null,
+    gain: null,
+    level: DEFAULT_VOLUME,
+    frame: 0,
+    current: 0,
+    shuffle: false,
+    repeat: true,
+    remaining: false,
+    stopped: true,
+    peaks: null,
+    levels: null,
 
     render() {
+        const total = TRACKS.reduce((sum, track) => sum + track.duration, 0);
         return `
-            <div class="tunes-container" data-player-state="loading">
-                <section class="tunes-display" aria-label="Now playing">
-                    <div class="tunes-track-copy">
-                        <span class="tunes-music-mark" aria-hidden="true">${Icons.tunes}</span>
-                        <div>
-                            <strong>${TRACK.artist} — ${TRACK.title}</strong>
-                            <span>${TRACK.album}</span>
+            <div class="tunes-container" tabindex="-1">
+                <section class="wa-main" aria-label="Player">
+                    <div class="wa-strip" aria-hidden="true"><span>TUNES</span></div>
+                    <div class="wa-top">
+                        <div class="wa-lcd">
+                            <span class="wa-state" data-state="stop" aria-hidden="true"></span>
+                            <button class="wa-time" type="button" title="Elapsed / remaining">0:00</button>
+                            <canvas class="wa-vis" width="${VIS_W}" height="${VIS_H}" aria-hidden="true"></canvas>
+                        </div>
+                        <div class="wa-info">
+                            <div class="wa-marquee" aria-live="polite"><span class="wa-marquee-text"></span></div>
+                            <div class="wa-meta">
+                                <span><b class="wa-kbps">${TRACKS[0].kbps}</b> kbps</span>
+                                <span><b>48</b> kHz</span>
+                                <span class="wa-led">mono</span>
+                                <span class="wa-led is-on">stereo</span>
+                            </div>
+                            <label class="wa-volume-row">
+                                <span>VOL</span>
+                                <input class="wa-volume" type="range" min="0" max="100" step="5" value="${savedVolume()}" aria-label="Volume" title="Volume (Up / Down)">
+                                <output class="wa-volume-value">${savedVolume()}%</output>
+                            </label>
                         </div>
                     </div>
-
-                    <div class="tunes-equalizer paused" aria-hidden="true">
-                        ${renderEqualizer()}
-                    </div>
-
-                    <div class="tunes-progress-row">
-                        <output class="tunes-current-time" aria-label="Current time">0:00</output>
-                        <input class="tunes-progress" type="range" min="0" max="231" value="0" step="1" aria-label="Track position">
-                        <output class="tunes-duration" aria-label="Track duration">3:51</output>
+                    <input class="wa-seek" type="range" min="0" max="${TRACKS[0].duration}" value="0" step="1" aria-label="Track position">
+                    <div class="wa-transport">
+                        <div class="wa-buttons" role="group" aria-label="Playback controls">
+                            <button type="button" data-action="prev" title="Previous (Z)" aria-label="Previous track">${ICONS.prev}</button>
+                            <button type="button" data-action="play" title="Play (X)" aria-label="Play">${ICONS.play}</button>
+                            <button type="button" data-action="pause" title="Pause (C)" aria-label="Pause">${ICONS.pause}</button>
+                            <button type="button" data-action="stop" title="Stop (V)" aria-label="Stop">${ICONS.stop}</button>
+                            <button type="button" data-action="next" title="Next (B)" aria-label="Next track">${ICONS.next}</button>
+                        </div>
+                        <div class="wa-toggles">
+                            <button type="button" class="wa-toggle" data-toggle="shuffle" aria-pressed="false">Shuffle</button>
+                            <button type="button" class="wa-toggle" data-toggle="repeat" aria-pressed="true">Rep</button>
+                        </div>
                     </div>
                 </section>
 
-                <section class="tunes-spotify-panel" aria-label="Spotify player">
-                    <div id="tunesSpotifyEmbed" class="tunes-spotify-embed">
-                        <div class="tunes-spotify-loading" role="status">
-                            <span class="tunes-loading-meter" aria-hidden="true"><i></i></span>
-                            Connecting to Spotify…
-                        </div>
+                <section class="wa-playlist" aria-label="Playlist">
+                    <div class="wa-strip" aria-hidden="true"><span>PLAYLIST EDITOR</span></div>
+                    <ol class="wa-list">
+                        ${TRACKS.map((track, index) => `
+                            <li><button type="button" class="wa-item" data-index="${index}">
+                                <span>${trackLabel(track, index)}</span><span>${formatTime(track.duration)}</span>
+                            </button></li>`).join('')}
+                    </ol>
+                    <ul class="wa-credits" id="tunes-credits" hidden>
+                        ${CREDITS.map(line => `<li>${line}</li>`).join('')}
+                    </ul>
+                    <div class="wa-pl-foot">
+                        <span>${TRACKS.length} tracks</span>
+                        <button type="button" class="wa-toggle wa-credits-btn" aria-expanded="false" aria-controls="tunes-credits">Credits</button>
+                        <span class="wa-pl-time">0:00/${formatTime(total)}</span>
                     </div>
                 </section>
 
-                <div class="tunes-controls" aria-label="Playback controls">
-                    <button class="tunes-control-btn" type="button" data-action="restart" aria-label="Restart track" disabled>${playerIcons.restart}</button>
-                    <button class="tunes-control-btn" type="button" data-action="back" aria-label="Back 15 seconds" disabled>${playerIcons.back}<span>15</span></button>
-                    <button class="tunes-control-btn tunes-play-btn" type="button" data-action="play" aria-label="Play" disabled>${playerIcons.play}</button>
-                    <button class="tunes-control-btn" type="button" data-action="forward" aria-label="Forward 15 seconds" disabled>${playerIcons.forward}<span>15</span></button>
-                </div>
-
-                <footer class="tunes-statusbar">
-                    <span class="tunes-now-playing">${Icons.tunes}<span>Now Playing: ${TRACK.artist} — ${TRACK.title}</span></span>
-                    <a href="${TRACK.url}" target="_blank" rel="noopener noreferrer" class="tunes-spotify-link">
-                        ${playerIcons.spotify}<span>Open in Spotify</span>
-                    </a>
-                </footer>
+                <audio class="wa-audio" preload="metadata"></audio>
             </div>
         `;
     },
@@ -101,127 +148,256 @@ export const TunesApp = {
     onInit() {
         const windowEl = document.querySelector('#window-tunes');
         if (!windowEl) return;
-
-        TunesApp.playbackPosition = 0;
-        TunesApp.playbackDuration = 231000;
-        const mount = windowEl.querySelector('#tunesSpotifyEmbed');
-
-        TunesApp.loadSpotifyApi()
-            .then((IFrameAPI) => {
-                if (!mount || !document.contains(windowEl)) return;
-
-                IFrameAPI.createController(mount, {
-                    width: '100%',
-                    height: 152,
-                    uri: TRACK.uri
-                }, (controller) => {
-                    if (!document.contains(windowEl)) {
-                        controller.destroy?.();
-                        return;
-                    }
-                    TunesApp.controller = controller;
-                    TunesApp.bindController(windowEl, controller);
-                });
-            })
-            .catch(() => TunesApp.renderFallbackEmbed(windowEl));
-
-        TunesApp.bindControls(windowEl);
-    },
-
-    loadSpotifyApi() {
-        if (window.__portfolioSpotifyIframeAPI) {
-            return Promise.resolve(window.__portfolioSpotifyIframeAPI);
-        }
-        if (TunesApp.spotifyApiPromise) return TunesApp.spotifyApiPromise;
-
-        TunesApp.spotifyApiPromise = new Promise((resolve, reject) => {
-            window.onSpotifyIframeApiReady = (IFrameAPI) => {
-                window.__portfolioSpotifyIframeAPI = IFrameAPI;
-                resolve(IFrameAPI);
-            };
-
-            const existingScript = document.querySelector('script[data-portfolio-spotify-api]');
-            if (existingScript) return;
-
-            const script = document.createElement('script');
-            script.src = 'https://open.spotify.com/embed/iframe-api/v1';
-            script.async = true;
-            script.dataset.portfolioSpotifyApi = 'true';
-            script.addEventListener('error', () => {
-                TunesApp.spotifyApiPromise = null;
-                reject(new Error('Spotify iFrame API failed to load.'));
-            }, { once: true });
-            document.head.appendChild(script);
-        });
-
-        return TunesApp.spotifyApiPromise;
-    },
-
-    bindController(windowEl, controller) {
-        const setReady = () => {
-            windowEl.querySelectorAll('.tunes-control-btn').forEach(button => { button.disabled = false; });
-            windowEl.querySelector('.tunes-container')?.setAttribute('data-player-state', 'ready');
+        const root = windowEl.querySelector('.tunes-container');
+        const audio = windowEl.querySelector('.wa-audio');
+        const seek = windowEl.querySelector('.wa-seek');
+        const volume = windowEl.querySelector('.wa-volume');
+        const time = windowEl.querySelector('.wa-time');
+        TunesApp.audio = audio;
+        TunesApp.current = 0;
+        TunesApp.peaks = new Array(BARS).fill(0);
+        TunesApp.levels = new Array(BARS).fill(0);
+        const setVolume = value => {
+            const level = Math.min(100, Math.max(0, Math.round(value)));
+            volume.value = String(level);
+            TunesApp.level = level;
+            TunesApp.applyVolume();
+            windowEl.querySelector('.wa-volume-value').textContent = `${level}%`;
+            try { localStorage.setItem(VOLUME_KEY, String(level)); } catch { /* private mode */ }
         };
+        TunesApp.level = Number(volume.value);
+        TunesApp.applyVolume();
 
-        controller.addListener('ready', setReady);
-        controller.addListener('playback_started', () => {
-            setReady();
-            TunesApp.updatePlaybackUI(windowEl, false);
+        const ui = () => TunesApp.updateUI(windowEl);
+        TunesApp.load(windowEl, 0, false);
+
+        const actions = {
+            prev: () => TunesApp.step(windowEl, -1),
+            play: () => TunesApp.play(windowEl),
+            pause: () => (audio.paused ? (!TunesApp.stopped && TunesApp.play(windowEl)) : audio.pause()),
+            stop: () => { TunesApp.stopped = true; audio.pause(); audio.currentTime = 0; ui(); },
+            next: () => TunesApp.step(windowEl, 1)
+        };
+        windowEl.querySelectorAll('[data-action]').forEach(button => {
+            button.addEventListener('click', () => actions[button.dataset.action]());
         });
-        controller.addListener('playback_update', (event) => {
-            const data = event?.data || {};
-            TunesApp.playbackPosition = Number(data.position) || 0;
-            TunesApp.playbackDuration = Number(data.duration) || TunesApp.playbackDuration;
-            TunesApp.updatePlaybackUI(windowEl, Boolean(data.isPaused));
+        windowEl.querySelectorAll('[data-toggle]').forEach(button => {
+            button.addEventListener('click', () => {
+                const key = button.dataset.toggle;
+                TunesApp[key] = !TunesApp[key];
+                button.setAttribute('aria-pressed', String(TunesApp[key]));
+            });
         });
+        windowEl.querySelectorAll('.wa-item').forEach(item => {
+            item.addEventListener('dblclick', () => TunesApp.load(windowEl, Number(item.dataset.index), true));
+            item.addEventListener('click', event => {
+                // Winamp needs a double click; a single tap is enough on touch screens
+                if (event.detail === 0 || matchMedia('(pointer: coarse)').matches) TunesApp.load(windowEl, Number(item.dataset.index), true);
+            });
+        });
+
+        const creditsBtn = windowEl.querySelector('.wa-credits-btn');
+        creditsBtn.addEventListener('click', () => {
+            const open = creditsBtn.getAttribute('aria-expanded') !== 'true';
+            creditsBtn.setAttribute('aria-expanded', String(open));
+            windowEl.querySelector('.wa-credits').hidden = !open;
+            windowEl.querySelector('.wa-list').hidden = open;
+        });
+        time.addEventListener('click', () => { TunesApp.remaining = !TunesApp.remaining; ui(); });
+        volume.addEventListener('input', () => setVolume(Number(volume.value)));
+        seek.addEventListener('input', () => { seek.dataset.dragging = '1'; TunesApp.renderTime(windowEl, Number(seek.value)); });
+        seek.addEventListener('change', () => { delete seek.dataset.dragging; audio.currentTime = Number(seek.value); ui(); });
+
+        root.addEventListener('keydown', event => {
+            if (event.target.matches('input') || event.ctrlKey || event.metaKey || event.altKey) return;
+            if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+                event.preventDefault();
+                setVolume(Number(volume.value) + (event.key === 'ArrowUp' ? 5 : -5));
+                return;
+            }
+            const action = { z: 'prev', x: 'play', c: 'pause', v: 'stop', b: 'next' }[event.key.toLowerCase()];
+            if (!action) return;
+            event.preventDefault();
+            actions[action]();
+        });
+
+        audio.addEventListener('timeupdate', ui);
+        audio.addEventListener('play', () => { ui(); TunesApp.startVis(windowEl); });
+        audio.addEventListener('pause', ui);
+        audio.addEventListener('loadedmetadata', ui);
+        audio.addEventListener('ended', () => {
+            if (TunesApp.current === TRACKS.length - 1 && !TunesApp.repeat && !TunesApp.shuffle) {
+                TunesApp.stopped = true;
+                audio.currentTime = 0;
+                ui();
+                return;
+            }
+            TunesApp.step(windowEl, 1);
+        });
+        audio.addEventListener('error', () => {
+            if (!audio.getAttribute('src')) return;
+            windowEl.querySelector('.wa-marquee-text').textContent = `*** Cannot open ${TRACKS[TunesApp.current].file} ***`;
+        });
+
+        TunesApp.drawVis(windowEl.querySelector('.wa-vis'));
+        root.focus({ preventScroll: true });
     },
 
-    bindControls(windowEl) {
-        const progress = windowEl.querySelector('.tunes-progress');
-
-        windowEl.querySelector('[data-action="play"]')?.addEventListener('click', () => {
-            TunesApp.controller?.togglePlay();
+    load(windowEl, index, autoplay) {
+        const audio = TunesApp.audio;
+        const track = TRACKS[index];
+        TunesApp.current = index;
+        TunesApp.stopped = true;
+        audio.src = track.file;
+        const text = `${trackLabel(track, index)} (${formatTime(track.duration)})  ***  `;
+        const marquee = windowEl.querySelector('.wa-marquee-text');
+        marquee.textContent = text + text;
+        marquee.style.setProperty('--marquee-steps', text.length * 2);
+        marquee.style.setProperty('--marquee-time', `${text.length * 0.22}s`);
+        windowEl.querySelector('.wa-kbps').textContent = track.kbps;
+        windowEl.querySelectorAll('.wa-item').forEach(item => {
+            const playing = Number(item.dataset.index) === index;
+            item.classList.toggle('is-current', playing);
+            if (playing) item.setAttribute('aria-current', 'true');
+            else item.removeAttribute('aria-current');
         });
-        windowEl.querySelector('[data-action="restart"]')?.addEventListener('click', () => {
-            TunesApp.controller?.restart();
-        });
-        windowEl.querySelector('[data-action="back"]')?.addEventListener('click', () => {
-            const target = Math.max(0, TunesApp.playbackPosition / 1000 - 15);
-            TunesApp.controller?.seek(Math.floor(target));
-        });
-        windowEl.querySelector('[data-action="forward"]')?.addEventListener('click', () => {
-            const duration = TunesApp.playbackDuration / 1000;
-            const target = Math.min(duration, TunesApp.playbackPosition / 1000 + 15);
-            TunesApp.controller?.seek(Math.floor(target));
-        });
-        progress?.addEventListener('change', () => {
-            TunesApp.controller?.seek(Number(progress.value));
-        });
-        progress?.addEventListener('input', () => {
-            const current = windowEl.querySelector('.tunes-current-time');
-            if (current) current.textContent = formatTime(Number(progress.value) * 1000);
-        });
+        TunesApp.updateUI(windowEl);
+        if (autoplay) TunesApp.play(windowEl);
     },
 
-    updatePlaybackUI(windowEl, isPaused) {
-        const playButton = windowEl.querySelector('[data-action="play"]');
-        const equalizer = windowEl.querySelector('.tunes-equalizer');
-        const progress = windowEl.querySelector('.tunes-progress');
-        const current = windowEl.querySelector('.tunes-current-time');
-        const duration = windowEl.querySelector('.tunes-duration');
+    step(windowEl, direction) {
+        const wasPlaying = !TunesApp.audio.paused || TunesApp.audio.ended;
+        let index;
+        if (TunesApp.shuffle && TRACKS.length > 1) {
+            do index = Math.floor(Math.random() * TRACKS.length); while (index === TunesApp.current);
+        } else {
+            index = (TunesApp.current + direction + TRACKS.length) % TRACKS.length;
+        }
+        TunesApp.load(windowEl, index, wasPlaying);
+    },
 
-        if (playButton) {
-            playButton.innerHTML = isPaused ? playerIcons.play : playerIcons.pause;
-            playButton.setAttribute('aria-label', isPaused ? 'Play' : 'Pause');
+    play() {
+        TunesApp.stopped = false;
+        TunesApp.connectAnalyser();
+        TunesApp.context?.resume?.();
+        TunesApp.audio.play().catch(() => { /* blocked or interrupted by another load */ });
+    },
+
+    // The audio graph has to start from a click, and a media element can be
+    // connected only once, so it is built on the first Play.
+    connectAnalyser() {
+        if (TunesApp.context) return;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        try {
+            const context = new AudioCtx();
+            const analyser = context.createAnalyser();
+            analyser.fftSize = 256;
+            analyser.smoothingTimeConstant = 0.6;
+            // Volume is a gain node: once the element feeds Web Audio,
+            // Chromium no longer applies audio.volume to what you hear
+            const gain = context.createGain();
+            context.createMediaElementSource(TunesApp.audio).connect(analyser);
+            analyser.connect(gain);
+            gain.connect(context.destination);
+            TunesApp.gain = gain;
+            TunesApp.context = context;
+            TunesApp.analyser = analyser;
+            TunesApp.applyVolume();
+        } catch {
+            TunesApp.gain = null;
+            TunesApp.context = null;
+            TunesApp.analyser = null;
         }
-        equalizer?.classList.toggle('paused', isPaused);
-        if (progress) {
-            progress.max = String(Math.max(1, Math.floor(TunesApp.playbackDuration / 1000)));
-            progress.value = String(Math.floor(TunesApp.playbackPosition / 1000));
+    },
+
+    applyVolume() {
+        const value = volumeGain(TunesApp.level);
+        if (TunesApp.gain) {
+            TunesApp.gain.gain.value = value;
+            TunesApp.audio.volume = 1;
+        } else if (TunesApp.audio) {
+            TunesApp.audio.volume = value;
         }
-        if (current) current.textContent = formatTime(TunesApp.playbackPosition);
-        if (duration) duration.textContent = formatTime(TunesApp.playbackDuration);
-        TunesApp.setMusicState(!isPaused);
+    },
+
+    renderTime(windowEl, seconds) {
+        const track = TRACKS[TunesApp.current];
+        const duration = Number.isFinite(TunesApp.audio.duration) ? TunesApp.audio.duration : track.duration;
+        const time = windowEl.querySelector('.wa-time');
+        time.textContent = TunesApp.remaining ? `-${formatTime(duration - seconds)}` : formatTime(seconds);
+    },
+
+    updateUI(windowEl) {
+        const audio = TunesApp.audio;
+        if (!audio) return;
+        const track = TRACKS[TunesApp.current];
+        const duration = Number.isFinite(audio.duration) ? audio.duration : track.duration;
+        const playing = !audio.paused && !audio.ended;
+        const state = playing ? 'play' : TunesApp.stopped ? 'stop' : 'pause';
+        const seek = windowEl.querySelector('.wa-seek');
+
+        windowEl.querySelector('.wa-state').dataset.state = state;
+        windowEl.querySelector('.tunes-container').dataset.state = state;
+        if (!seek.dataset.dragging) {
+            seek.max = String(Math.max(1, Math.floor(duration)));
+            seek.value = String(Math.floor(audio.currentTime));
+            TunesApp.renderTime(windowEl, audio.currentTime);
+        }
+        const before = TRACKS.slice(0, TunesApp.current).reduce((sum, t) => sum + t.duration, 0);
+        const total = TRACKS.reduce((sum, t) => sum + t.duration, 0);
+        windowEl.querySelector('.wa-pl-time').textContent = `${formatTime(before + audio.currentTime)}/${formatTime(total)}`;
+        TunesApp.setMusicState(playing);
+    },
+
+    startVis(windowEl) {
+        if (TunesApp.frame) return;
+        const canvas = windowEl.querySelector('.wa-vis');
+        const data = TunesApp.analyser ? new Uint8Array(TunesApp.analyser.frequencyBinCount) : null;
+        const tick = () => {
+            const playing = TunesApp.audio && !TunesApp.audio.paused;
+            if (data && playing) {
+                TunesApp.analyser.getByteFrequencyData(data);
+                // Roughly logarithmic bands so the bass doesn't take every bar
+                for (let i = 0; i < BARS; i++) {
+                    const from = Math.floor(Math.pow(i / BARS, 1.6) * data.length * 0.75);
+                    const to = Math.max(from + 1, Math.floor(Math.pow((i + 1) / BARS, 1.6) * data.length * 0.75));
+                    let max = 0;
+                    for (let j = from; j < to; j++) max = Math.max(max, data[j]);
+                    TunesApp.levels[i] = (max / 255) * VIS_H;
+                }
+            } else {
+                TunesApp.levels = TunesApp.levels.map(level => Math.max(0, level - 0.8));
+            }
+            TunesApp.peaks = TunesApp.peaks.map((peak, i) => Math.max(TunesApp.levels[i], peak - 0.25));
+            TunesApp.drawVis(canvas);
+            const settled = TunesApp.peaks.every(peak => peak <= 0);
+            TunesApp.frame = playing || !settled ? requestAnimationFrame(tick) : 0;
+        };
+        TunesApp.frame = requestAnimationFrame(tick);
+    },
+
+    drawVis(canvas) {
+        const ctx = canvas?.getContext('2d');
+        if (!ctx) return;
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, VIS_W, VIS_H);
+        // Winamp's grid of dark dots behind the bars
+        ctx.fillStyle = '#18182a';
+        for (let x = 1; x < VIS_W; x += 2) for (let y = 1; y < VIS_H; y += 2) ctx.fillRect(x, y, 1, 1);
+        for (let i = 0; i < BARS; i++) {
+            const height = Math.round(TunesApp.levels[i]);
+            for (let y = 0; y < height; y++) {
+                const row = VIS_H - 1 - y;
+                ctx.fillStyle = row < 3 ? '#ff2a1a' : row < 6 ? '#e8d01c' : row < 10 ? '#5ce01c' : '#18a818';
+                ctx.fillRect(i * 4, row, 3, 1);
+            }
+            const peak = Math.round(TunesApp.peaks[i]);
+            if (peak > 0) {
+                ctx.fillStyle = '#c8c8d8';
+                ctx.fillRect(i * 4, VIS_H - peak, 3, 1);
+            }
+        }
     },
 
     // Lets the profile face put its headphones on while something plays.
@@ -233,28 +409,20 @@ export const TunesApp = {
         document.dispatchEvent(new CustomEvent('tunes:playback', { detail: { playing } }));
     },
 
-    renderFallbackEmbed(windowEl) {
-        const mount = windowEl.querySelector('#tunesSpotifyEmbed');
-        if (!mount) return;
-        mount.innerHTML = `
-            <iframe
-                title="Spotify player: ${TRACK.artist} — ${TRACK.title}"
-                src="https://open.spotify.com/embed/track/3GFUIOx4qdGwFxKXgfy7ap?utm_source=generator&theme=0"
-                width="100%"
-                height="152"
-                frameborder="0"
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="eager"></iframe>
-        `;
-        windowEl.querySelector('.tunes-container')?.setAttribute('data-player-state', 'fallback');
-    },
-
     onClose() {
-        TunesApp.controller?.destroy?.();
-        TunesApp.controller = null;
+        cancelAnimationFrame(TunesApp.frame);
+        TunesApp.frame = 0;
+        if (TunesApp.audio) {
+            TunesApp.audio.pause();
+            TunesApp.audio.removeAttribute('src');
+            TunesApp.audio.load();
+        }
+        TunesApp.context?.close?.().catch(() => {});
+        TunesApp.audio = null;
+        TunesApp.context = null;
+        TunesApp.analyser = null;
+        TunesApp.gain = null;
         TunesApp.setMusicState(false);
-        TunesApp.playbackPosition = 0;
-        TunesApp.playbackDuration = 0;
     }
 };
 

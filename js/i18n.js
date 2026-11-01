@@ -6,7 +6,7 @@
  * read with t(key). Static HTML uses data-i18n / data-i18n-* attributes.
  */
 
-import { STRINGS } from './strings.js?v=19';
+import { STRINGS } from './strings.js?v=20';
 
 export const LANGUAGES = ['en', 'pl'];
 

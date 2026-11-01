@@ -10,12 +10,12 @@
  * No dependencies: the editor is a transparent textarea over a coloured <pre>.
  */
 
-import { Icons } from '../icons.js?v=19';
-import { t } from '../i18n.js?v=19';
-import { SoundManager } from '../managers/SoundManager.js?v=19';
-import { DialogManager } from '../managers/DialogManager.js?v=19';
-import { WindowManager } from '../managers/WindowManager.js?v=19';
-import { VFS } from '../vfs.js?v=19';
+import { Icons } from '../icons.js?v=20';
+import { t } from '../i18n.js?v=20';
+import { SoundManager } from '../managers/SoundManager.js?v=20';
+import { DialogManager } from '../managers/DialogManager.js?v=20';
+import { WindowManager } from '../managers/WindowManager.js?v=20';
+import { VFS } from '../vfs.js?v=20';
 
 const BS = String.fromCharCode(92);
 const PATH_KEY = 'code-path';

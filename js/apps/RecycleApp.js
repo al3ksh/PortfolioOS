@@ -9,10 +9,10 @@
  * for good from here (DEL in the Terminal and a blue screen still are).
  */
 
-import { Icons } from '../icons.js?v=19';
-import { t, lang } from '../i18n.js?v=19';
-import { VFS } from '../vfs.js?v=19';
-import { SoundManager } from '../managers/SoundManager.js?v=19';
+import { Icons } from '../icons.js?v=20';
+import { t, lang } from '../i18n.js?v=20';
+import { VFS } from '../vfs.js?v=20';
+import { SoundManager } from '../managers/SoundManager.js?v=20';
 
 const BS = String.fromCharCode(92);
 const ETA_MS = 1400;
@@ -166,7 +166,7 @@ export const RecycleApp = {
     async emptyBin(ids = VFS.bin.map(item => item.id)) {
         const items = VFS.bin.filter(item => ids.includes(item.id));
         if (!items.length) return;
-        const { DialogManager } = await import('../managers/DialogManager.js?v=19');
+        const { DialogManager } = await import('../managers/DialogManager.js?v=20');
         const question = items.length === 1
             ? t('recycle.confirmOne', { name: items[0].name })
             : t('recycle.confirmMany', { count: items.length });

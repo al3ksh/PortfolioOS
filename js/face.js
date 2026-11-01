@@ -5,7 +5,7 @@
  * poked. Rendering is plain text in a <pre>, so it keeps the retro look.
  */
 
-import { t } from './i18n.js?v=19';
+import { t } from './i18n.js?v=20';
 
 const WIDTH = 14;
 const EYES_OPEN = '  ◉    ◉  ';

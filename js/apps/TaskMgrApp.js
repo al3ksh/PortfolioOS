@@ -2,10 +2,10 @@
  * Task Manager App - Shows running processes
  */
 
-import { Icons } from '../icons.js?v=19';
-import { t } from '../i18n.js?v=19';
-import { WindowManager } from '../managers/WindowManager.js?v=19';
-import { SoundManager } from '../managers/SoundManager.js?v=19';
+import { Icons } from '../icons.js?v=20';
+import { t } from '../i18n.js?v=20';
+import { WindowManager } from '../managers/WindowManager.js?v=20';
+import { SoundManager } from '../managers/SoundManager.js?v=20';
 
 export const TaskMgrApp = {
     id: 'taskmgr',
@@ -265,7 +265,7 @@ export const TaskMgrApp = {
             if (isCritical) {
                 // Show warning first
                 SoundManager.play('error');
-                const { DialogManager } = await import('../managers/DialogManager.js?v=19');
+                const { DialogManager } = await import('../managers/DialogManager.js?v=20');
                 const confirmed = await DialogManager.confirm(t('taskmgr.endWarn', { name }), t('taskmgr.endTitle'));
                 
                 if (confirmed) {

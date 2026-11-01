@@ -2,11 +2,11 @@
  * Mines App - Classic game with safe first click, chording and touch flagging
  */
 
-import { Icons } from '../icons.js?v=19';
-import { t } from '../i18n.js?v=19';
-import { SoundManager } from '../managers/SoundManager.js?v=19';
-import { WindowManager } from '../managers/WindowManager.js?v=19';
-import { Leaderboard } from '../leaderboard.js?v=19';
+import { Icons } from '../icons.js?v=20';
+import { t } from '../i18n.js?v=20';
+import { SoundManager } from '../managers/SoundManager.js?v=20';
+import { WindowManager } from '../managers/WindowManager.js?v=20';
+import { Leaderboard } from '../leaderboard.js?v=20';
 
 const DIFFICULTIES = {
     beginner: { width: 9, height: 9, mines: 10 },
@@ -160,7 +160,7 @@ export const MinesApp = {
 
     showBestTimes() {
         const times = JSON.parse(localStorage.getItem('minesweeperBestTimes') || '{}');
-        import('../managers/DialogManager.js?v=19').then(({ DialogManager }) => {
+        import('../managers/DialogManager.js?v=20').then(({ DialogManager }) => {
             const best = level => (times[level] ? t('mines.seconds', { n: times[level] }) : t('mines.notPlayed'));
             DialogManager.info({
                 [t('mines.beginner')]: best('beginner'),
@@ -171,7 +171,7 @@ export const MinesApp = {
     },
 
     showHowToPlay() {
-        import('../managers/DialogManager.js?v=19').then(({ DialogManager }) => {
+        import('../managers/DialogManager.js?v=20').then(({ DialogManager }) => {
             DialogManager.alert(t('mines.help'), t('dlg.howToPlay'));
         });
     },
@@ -452,7 +452,7 @@ export const MinesApp = {
         const game = `mines-${M.currentDifficulty}`;
         const time = M.time;
         setTimeout(() => {
-            import('../managers/DialogManager.js?v=19').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=20').then(({ DialogManager }) => {
                 DialogManager.alert(
                     t('mines.won', { time, record: record ? t('mines.record') : '' }),
                     t('mines.wonTitle')

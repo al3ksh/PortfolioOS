@@ -3,13 +3,13 @@
  * Explorer and the Terminal open files here; Save writes back to the same disk.
  */
 
-import { Icons } from '../icons.js?v=19';
-import { t } from '../i18n.js?v=19';
-import { SoundManager } from '../managers/SoundManager.js?v=19';
-import { DialogManager } from '../managers/DialogManager.js?v=19';
-import { WindowManager } from '../managers/WindowManager.js?v=19';
-import { VFS } from '../vfs.js?v=19';
-import { printText } from './PrinterApp.js?v=19';
+import { Icons } from '../icons.js?v=20';
+import { t } from '../i18n.js?v=20';
+import { SoundManager } from '../managers/SoundManager.js?v=20';
+import { DialogManager } from '../managers/DialogManager.js?v=20';
+import { WindowManager } from '../managers/WindowManager.js?v=20';
+import { VFS } from '../vfs.js?v=20';
+import { printText } from './PrinterApp.js?v=20';
 
 const CONTENT_KEY = 'notepad-content';
 const PATH_KEY = 'notepad-path';

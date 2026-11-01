@@ -410,7 +410,8 @@
 .window-content-inner:has(.browser-container),
 .window-content-inner:has(.simplemode-container),
 .window-content-inner:has(.recycle-container),
-.window-content-inner:has(.code-app) {
+.window-content-inner:has(.code-app),
+.window-content-inner:has(.tunes-container) {
     padding: 0;
     height: 100%;
     display: flex;
