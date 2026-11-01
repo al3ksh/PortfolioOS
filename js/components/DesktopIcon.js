@@ -2,12 +2,12 @@
  * Desktop Icon Component - Grid-based with drag & drop
  */
 
-import { WindowManager } from '../managers/WindowManager.js?v=18';
-import { SoundManager } from '../managers/SoundManager.js?v=18';
-import { DesktopGridManager } from '../managers/DesktopGridManager.js?v=18';
-import { Icons } from '../icons.js?v=18';
-import { t } from '../i18n.js?v=18';
-import { VFS } from '../vfs.js?v=18';
+import { WindowManager } from '../managers/WindowManager.js?v=19';
+import { SoundManager } from '../managers/SoundManager.js?v=19';
+import { DesktopGridManager } from '../managers/DesktopGridManager.js?v=19';
+import { Icons } from '../icons.js?v=19';
+import { t } from '../i18n.js?v=19';
+import { VFS } from '../vfs.js?v=19';
 
 const RECYCLE_ID = 'icon-recycle';
 
@@ -250,7 +250,7 @@ export class DesktopIcon {
         const items = [
             { label: t('recycle.open'), icon: Icons.ctxOpen, action: () => this.open() },
             isBin
-                ? { label: t('recycle.emptyBin'), icon: Icons.actTrash, disabled: !VFS.bin.length, action: () => import('../apps/RecycleApp.js?v=18').then(({ RecycleApp }) => RecycleApp.emptyBin()) }
+                ? { label: t('recycle.emptyBin'), icon: Icons.actTrash, disabled: !VFS.bin.length, action: () => import('../apps/RecycleApp.js?v=19').then(({ RecycleApp }) => RecycleApp.emptyBin()) }
                 : { label: t('recycle.delete'), icon: Icons.actTrash, action: () => this.throwAway() },
             { type: 'separator' },
             { label: t('recycle.properties'), icon: Icons.ctxProps, action: () => this.showProperties() }
@@ -308,9 +308,9 @@ export class DesktopIcon {
     }
 
     showProperties() {
-        import('../apps/index.js?v=18').then(module => {
+        import('../apps/index.js?v=19').then(module => {
             const app = module.Apps[this.appId];
-            import('../managers/DialogManager.js?v=18').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=19').then(({ DialogManager }) => {
                 DialogManager.info({
                     [t('dlg.name')]: this.title,
                     [t('dlg.type')]: t('dlg.application'),

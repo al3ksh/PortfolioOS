@@ -11,20 +11,20 @@
  * shortcuts in Users\<name>\Desktop, so an icon thrown away goes the same way.
  */
 
-import { Icons } from './icons.js?v=18';
-import { Profile } from './config.js?v=18';
-import { loc } from './i18n.js?v=18';
-import { cvText, skillLines } from './cvText.js?v=18';
-import { DESKTOP_APPS } from './desktopApps.js?v=18';
+import { Icons } from './icons.js?v=19';
+import { Profile } from './config.js?v=19';
+import { loc } from './i18n.js?v=19';
+import { cvText, skillLines } from './cvText.js?v=19';
+import { DESKTOP_APPS } from './desktopApps.js?v=19';
 
 const BS = String.fromCharCode(92);
 const STORE = 'vfs-changes';
-const TEXT_EXT = ['txt', 'md', 'ini', 'bat', 'sys', 'url', 'log', 'cfg', 'csv', 'json', 'js', 'css', 'html'];
+const TEXT_EXT = ['txt', 'md', 'ini', 'bat', 'sys', 'url', 'log', 'cfg', 'csv', 'json', 'js', 'css', 'html', 'htm'];
 // Deleting anything under these paths takes the whole system down
 const SYSTEM_PATHS = ['c:' + BS + 'windows', 'c:' + BS + 'program files' + BS + 'portfolio os' + BS + 'portfolio.exe'];
 
 const ext = name => (name.includes('.') ? name.split('.').pop().toLowerCase() : '');
-const iconFor = name => ({ ini: Icons.fileConfig, sys: Icons.fileConfig, url: Icons.fileLink })[ext(name)] || Icons.fileText;
+const iconFor = name => ({ ini: Icons.fileConfig, sys: Icons.fileConfig, url: Icons.fileLink, js: Icons.code, html: Icons.code, htm: Icons.code, css: Icons.code })[ext(name)] || Icons.fileText;
 const text = (content, extra = {}) => ({ type: 'file', text: content, ...extra });
 const blob = (size, icon, extra = {}) => ({ type: 'file', size, icon, ...extra });
 const folder = (children, extra = {}) => ({ type: 'folder', children, ...extra });
@@ -101,6 +101,97 @@ i Terminala.
 
 ${Profile.initials}`
     }),
+
+    // Code.exe samples (D:\Projects\playground)
+    sample_js: () => loc({
+        en: `// Press Run (F5) to try it. Edit anything and run again.
+
+function fizzBuzz(n) {
+  if (n % 15 === 0) return 'FizzBuzz';
+  if (n % 3 === 0) return 'Fizz';
+  if (n % 5 === 0) return 'Buzz';
+  return n;
+}
+
+for (let i = 1; i <= 15; i++) {
+  console.log(fizzBuzz(i));
+}
+
+const skills = ['JavaScript', 'HTML', 'CSS'];
+console.log('Hello from PortfolioOS!', { skills });`,
+        pl: `// Wciśnij Uruchom (F5). Zmień cokolwiek i uruchom jeszcze raz.
+
+function fizzBuzz(n) {
+  if (n % 15 === 0) return 'FizzBuzz';
+  if (n % 3 === 0) return 'Fizz';
+  if (n % 5 === 0) return 'Buzz';
+  return n;
+}
+
+for (let i = 1; i <= 15; i++) {
+  console.log(fizzBuzz(i));
+}
+
+const umiejetnosci = ['JavaScript', 'HTML', 'CSS'];
+console.log('Pozdrowienia z PortfolioOS!', { umiejetnosci });`
+    }),
+
+    sample_html: () => `<!doctype html>
+<html>
+<head>
+  <style>
+    body { margin: 0; background: #008080; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <script>
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+    let x = 40, y = 40, dx = 3, dy = 2;
+
+    function frame() {
+      ctx.fillStyle = 'rgba(0, 128, 128, 0.3)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#FFFF55';
+      ctx.fillRect(x, y, 16, 16);
+      if (x + dx < 0 || x + dx > canvas.width - 16) dx = -dx;
+      if (y + dy < 0 || y + dy > canvas.height - 16) dy = -dy;
+      x += dx;
+      y += dy;
+      requestAnimationFrame(frame);
+    }
+    frame();
+    console.log('Bouncing!');
+  </script>
+</body>
+</html>`,
+
+    sample_css: () => `/* Run shows these styles on a small demo page */
+body {
+  font-family: sans-serif;
+  background: #C0C0C0;
+  padding: 16px;
+}
+
+h1 {
+  color: #000080;
+}
+
+button {
+  padding: 4px 16px;
+  border: 2px outset #FFFFFF;
+}
+
+.box {
+  width: 120px;
+  padding: 12px;
+  background: #FFFF55;
+  transform: rotate(-3deg);
+}`,
 
     project_readme: () => loc({
         en: `PortfolioOS
@@ -198,6 +289,11 @@ function buildTree() {
             type: 'drive',
             children: {
                 'Projects': folder({
+                    'playground': folder({
+                        'hello.js': text(content('sample_js')),
+                        'bounce.html': text(content('sample_html')),
+                        'style.css': text(content('sample_css'))
+                    }),
                     'portfolio-os': folder({
                         'index.html': blob('12 KB', Icons.smBrowser),
                         'style.css': blob('24 KB', Icons.fileText),

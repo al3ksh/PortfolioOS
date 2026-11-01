@@ -2,13 +2,13 @@
  * README App - a short guide to the desktop
  */
 
-import { Icons } from '../icons.js?v=18';
-import { t, loc } from '../i18n.js?v=18';
-import { Profile, githubUrl } from '../config.js?v=18';
+import { Icons } from '../icons.js?v=19';
+import { t, loc } from '../i18n.js?v=19';
+import { Profile, githubUrl } from '../config.js?v=19';
 
 const GROUPS = [
     { title: 'readme.group.about', apps: [['portfolio', 'Portfolio.exe'], ['projects', 'Projects.exe'], ['network', 'Network.exe'], ['contact', 'Contact.exe'], ['simplemode', 'Simple View']] },
-    { title: 'readme.group.tools', apps: [['browser', 'Internet.exe'], ['notepad', 'Notepad.exe'], ['paint', 'Paint.exe'], ['calc', 'Calc.exe'], ['terminal', 'Terminal.exe'], ['explorer', 'Explorer.exe'], ['tunes', 'Tunes.exe']] },
+    { title: 'readme.group.tools', apps: [['browser', 'Internet.exe'], ['notepad', 'Notepad.exe'], ['code', 'Code.exe'], ['paint', 'Paint.exe'], ['calc', 'Calc.exe'], ['terminal', 'Terminal.exe'], ['explorer', 'Explorer.exe'], ['tunes', 'Tunes.exe']] },
     { title: 'readme.group.games', apps: [['mines', 'Mines.exe'], ['snake', 'Snake.exe'], ['tetris', 'Blocks.exe']], note: 'readme.gamesNote' },
     { title: 'readme.group.system', apps: [['control', 'Control.cpl'], ['sysinfo', 'System Info'], ['taskmgr', 'Task Manager']] }
 ];

@@ -3,8 +3,8 @@
  * Type and delay come from settings (Control Panel or BIOS setup).
  */
 
-import { SCREENSAVERS } from '../screensavers.js?v=18';
-import { getSetting } from '../settings.js?v=18';
+import { SCREENSAVERS } from '../screensavers.js?v=19';
+import { getSetting } from '../settings.js?v=19';
 
 const ACTIVITY_EVENTS = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'wheel', 'scroll'];
 

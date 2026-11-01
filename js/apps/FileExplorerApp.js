@@ -2,13 +2,14 @@
  * File Explorer App - Virtual file browser
  */
 
-import { Icons } from '../icons.js?v=18';
-import { t } from '../i18n.js?v=18';
-import { SoundManager } from '../managers/SoundManager.js?v=18';
-import { WindowManager } from '../managers/WindowManager.js?v=18';
-import { VFS } from '../vfs.js?v=18';
-import { NotepadApp } from './NotepadApp.js?v=18';
-import { printText } from './PrinterApp.js?v=18';
+import { Icons } from '../icons.js?v=19';
+import { t } from '../i18n.js?v=19';
+import { SoundManager } from '../managers/SoundManager.js?v=19';
+import { WindowManager } from '../managers/WindowManager.js?v=19';
+import { VFS } from '../vfs.js?v=19';
+import { NotepadApp } from './NotepadApp.js?v=19';
+import { CodeApp, CODE_EXT } from './CodeApp.js?v=19';
+import { printText } from './PrinterApp.js?v=19';
 
 const BS = String.fromCharCode(92);
 const escapeHtml = value => String(value).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]);
@@ -123,7 +124,7 @@ export const FileExplorerApp = {
     },
 
     async createNewFolder(container) {
-        const { DialogManager } = await import('../managers/DialogManager.js?v=18');
+        const { DialogManager } = await import('../managers/DialogManager.js?v=19');
         const name = (await DialogManager.prompt(t('explorer.folderName'), t('explorer.newFolder'), t('explorer.newFolder')))?.replace(/[\\/:*?"<>|]+/g, '').trim();
         if (!name) return;
 
@@ -136,7 +137,7 @@ export const FileExplorerApp = {
     },
 
     async showProperties(container) {
-        const { DialogManager } = await import('../managers/DialogManager.js?v=18');
+        const { DialogManager } = await import('../managers/DialogManager.js?v=19');
         const selected = FileExplorerApp.selectedItem;
         
         if (!selected) {
@@ -200,7 +201,7 @@ export const FileExplorerApp = {
         const items = FileExplorerApp.getItems();
         if (!names.length || !items) return;
 
-        const { DialogManager } = await import('../managers/DialogManager.js?v=18');
+        const { DialogManager } = await import('../managers/DialogManager.js?v=19');
         const first = items[names[0]];
         let message;
         let title;
@@ -234,7 +235,7 @@ export const FileExplorerApp = {
     /** "Deleting..." dialog that gets as far as the first few system files, then gives up. */
     playDeleteProgress(files) {
         return new Promise(async resolve => {
-            const { DialogManager } = await import('../managers/DialogManager.js?v=18');
+            const { DialogManager } = await import('../managers/DialogManager.js?v=19');
             const dialog = DialogManager.createDialog({
                 title: t('explorer.deleting'),
                 content: `
@@ -637,7 +638,11 @@ export const FileExplorerApp = {
             return;
         }
 
-        // Text files open in Notepad, straight from the shared disk
+        // Code opens in Code.exe, other text files in Notepad, straight from the shared disk
+        if (CODE_EXT.includes(name.split('.').pop().toLowerCase()) && (VFS.isText(item) || VFS.canHoldText(name))) {
+            CodeApp.openPath([...FileExplorerApp.currentPath, name]);
+            return;
+        }
         if (VFS.isText(item)) {
             NotepadApp.openPath([...FileExplorerApp.currentPath, name]);
             return;
@@ -649,22 +654,22 @@ export const FileExplorerApp = {
             NotepadApp.openPath([...FileExplorerApp.currentPath, name]);
         } else if (ext === 'wav') {
             SoundManager.play('chord');
-            import('../managers/DialogManager.js?v=18').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=19').then(({ DialogManager }) => {
                 DialogManager.alert(t('explorer.playing'), t('explorer.mediaPlayer'));
             });
         } else if (ext === 'zip') {
             SoundManager.play('error');
-            import('../managers/DialogManager.js?v=18').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=19').then(({ DialogManager }) => {
                 DialogManager.alert(t('explorer.noZip'), t('dlg.error'));
             });
         } else if (ext === 'dll') {
             SoundManager.play('error');
-            import('../managers/DialogManager.js?v=18').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=19').then(({ DialogManager }) => {
                 DialogManager.alert(t('explorer.systemFile'), t('dlg.error'));
             });
         } else {
             SoundManager.play('error');
-            import('../managers/DialogManager.js?v=18').then(({ DialogManager }) => {
+            import('../managers/DialogManager.js?v=19').then(({ DialogManager }) => {
                 DialogManager.alert(t('explorer.noApp', { name }), t('dlg.error'));
             });
         }

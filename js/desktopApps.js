@@ -6,7 +6,7 @@
  * folder/file/size: where the program sits under C:\Program Files (none for the Recycle Bin).
  */
 
-import { Icons } from './icons.js?v=18';
+import { Icons } from './icons.js?v=19';
 
 export const DESKTOP_APPS = [
     { appId: 'portfolio', title: 'Portfolio.exe', icon: Icons.portfolio, folder: 'Portfolio OS', file: 'portfolio.exe', size: '2.1 MB' },
@@ -15,6 +15,7 @@ export const DESKTOP_APPS = [
     { appId: 'readme', title: 'README.TXT', icon: Icons.readme, folder: 'Portfolio OS', file: 'readme.txt', size: '4 KB' },
     { appId: 'contact', title: 'Contact.exe', icon: Icons.contact, folder: 'Portfolio OS', file: 'contact.exe', size: '512 KB' },
     { appId: 'notepad', title: 'Notepad.exe', icon: Icons.notepad, folder: 'Accessories', file: 'notepad.exe', size: '64 KB' },
+    { appId: 'code', title: 'Code.exe', icon: Icons.code, folder: 'Accessories', file: 'code.exe', size: '340 KB' },
     { appId: 'terminal', title: 'Terminal.exe', icon: Icons.terminal, folder: 'Accessories', file: 'terminal.exe', size: '96 KB' },
     { appId: 'explorer', title: 'Explorer.exe', icon: Icons.explorer, folder: 'Accessories', file: 'explorer.exe', size: '280 KB' },
     { appId: 'browser', title: 'Internet.exe', icon: Icons.browser, folder: 'Internet', file: 'internet.exe', size: '1.2 MB' },

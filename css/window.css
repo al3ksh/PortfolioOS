@@ -175,6 +175,7 @@
     height: 24px;
     padding: 0;
     background: var(--win-gray);
+    color: var(--win-black); /* the glyphs are drawn in currentColor */
     border: var(--border-normal) solid var(--win-dark-gray);
     border-top-color: var(--win-white);
     border-left-color: var(--win-white);
@@ -392,6 +393,7 @@
 .window-content:has(.browser-container),
 .window-content:has(.simplemode-container),
 .window-content:has(.recycle-container),
+.window-content:has(.code-app),
 .window-content:has(.tetris-container),
 .window-content:has(.mines-container),
 .window-content:has(.tunes-container) {
@@ -407,7 +409,8 @@
 /* Full-height apps without padding */
 .window-content-inner:has(.browser-container),
 .window-content-inner:has(.simplemode-container),
-.window-content-inner:has(.recycle-container) {
+.window-content-inner:has(.recycle-container),
+.window-content-inner:has(.code-app) {
     padding: 0;
     height: 100%;
     display: flex;

@@ -6,11 +6,11 @@
  * Plus the instant ones that belong with them: ipconfig, tasklist, taskkill.
  */
 
-import { WindowManager } from '../managers/WindowManager.js?v=18';
-import { SoundManager } from '../managers/SoundManager.js?v=18';
-import { VFS } from '../vfs.js?v=18';
-import { NotepadApp } from './NotepadApp.js?v=18';
-import { Profile } from '../config.js?v=18';
+import { WindowManager } from '../managers/WindowManager.js?v=19';
+import { SoundManager } from '../managers/SoundManager.js?v=19';
+import { VFS } from '../vfs.js?v=19';
+import { NotepadApp } from './NotepadApp.js?v=19';
+import { Profile } from '../config.js?v=19';
 
 export const CANCEL = Symbol('cancel');
 

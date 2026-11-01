@@ -142,7 +142,7 @@ function standalonePage(lang, { title, body, head = '', css = 'css/static.css' }
     ${head}
     <title>${esc(title)}</title>
     <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(LOGO.replace(' aria-hidden="true"', ' xmlns="http://www.w3.org/2000/svg"'))}">
-    <link rel="stylesheet" href="${css}?v=18">${css === 'css/static.css' ? `
+    <link rel="stylesheet" href="${css}?v=19">${css === 'css/static.css' ? `
     <script>try{if(localStorage.getItem('homeTheme')==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>` : ''}
 </head>
 <body>
@@ -394,8 +394,8 @@ function frame(lang, { head, icons, title, flags, content, home = '', current = 
     <meta name="theme-color" content="#1a1a2e">
     <script>document.documentElement.classList.add('js');try{if(localStorage.getItem('homeTheme')==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>${skip}
     <link rel="icon" href="data:image/svg+xml,${encodeURIComponent(LOGO.replace(' aria-hidden="true"', ' xmlns="http://www.w3.org/2000/svg"'))}">
-    <link rel="stylesheet" href="css/home.css?v=18">
-    <script type="module" src="js/home.js?v=18"></script>
+    <link rel="stylesheet" href="css/home.css?v=19">
+    <script type="module" src="js/home.js?v=19"></script>
 </head>
 <body>
     ${sprite(icons)}

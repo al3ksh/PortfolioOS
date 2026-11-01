@@ -2,13 +2,13 @@
  * Portfolio App - Main Bento Grid portfolio
  */
 
-import { Icons } from '../icons.js?v=18';
-import { WindowManager } from '../managers/WindowManager.js?v=18';
-import { Profile, githubUrl, featuredProjects } from '../config.js?v=18';
-import { t, loc, lang } from '../i18n.js?v=18';
-import { openCv } from './PrinterApp.js?v=18';
-import { mountFace } from '../face.js?v=18';
-import { loadRepositories } from './ProjectsApp.js?v=18';
+import { Icons } from '../icons.js?v=19';
+import { WindowManager } from '../managers/WindowManager.js?v=19';
+import { Profile, githubUrl, featuredProjects } from '../config.js?v=19';
+import { t, loc, lang } from '../i18n.js?v=19';
+import { openCv } from './PrinterApp.js?v=19';
+import { mountFace } from '../face.js?v=19';
+import { loadRepositories } from './ProjectsApp.js?v=19';
 
 const projectItems = projects => projects.map(project => `
     <div class="project-item">

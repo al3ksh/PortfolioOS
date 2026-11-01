@@ -2,7 +2,7 @@
  * Tunes App - Windows 98 inspired Spotify player.
  */
 
-import { Icons } from '../icons.js?v=18';
+import { Icons } from '../icons.js?v=19';
 
 const TRACK = {
     uri: 'spotify:track:3GFUIOx4qdGwFxKXgfy7ap',

@@ -3,13 +3,13 @@
  * Explorer and the Terminal open files here; Save writes back to the same disk.
  */
 
-import { Icons } from '../icons.js?v=18';
-import { t } from '../i18n.js?v=18';
-import { SoundManager } from '../managers/SoundManager.js?v=18';
-import { DialogManager } from '../managers/DialogManager.js?v=18';
-import { WindowManager } from '../managers/WindowManager.js?v=18';
-import { VFS } from '../vfs.js?v=18';
-import { printText } from './PrinterApp.js?v=18';
+import { Icons } from '../icons.js?v=19';
+import { t } from '../i18n.js?v=19';
+import { SoundManager } from '../managers/SoundManager.js?v=19';
+import { DialogManager } from '../managers/DialogManager.js?v=19';
+import { WindowManager } from '../managers/WindowManager.js?v=19';
+import { VFS } from '../vfs.js?v=19';
+import { printText } from './PrinterApp.js?v=19';
 
 const CONTENT_KEY = 'notepad-content';
 const PATH_KEY = 'notepad-path';
@@ -173,14 +173,14 @@ export const NotepadApp = {
             return `<option value="${DialogManager.escapeHtml(value)}"${value === current ? ' selected' : ''}>${DialogManager.escapeHtml(VFS.toString(parts))}</option>`;
         }).join('');
         const dialog = DialogManager.createDialog({
-            title: 'Open',
+            title: t('dlg.open'),
             content: `
-                <div class="dialog-message">Select a file to open:</div>
+                <div class="dialog-message">${t('dlg.pickFile')}</div>
                 <select class="notepad-open-list win-input" size="10">${options}</select>
             `,
             buttons: [
-                { label: 'Open', action: 'open', primary: true },
-                { label: 'Cancel', action: 'cancel' }
+                { label: t('dlg.open'), action: 'open', primary: true },
+                { label: t('dlg.cancel'), action: 'cancel' }
             ],
             onClose: action => {
                 const value = list.value;

@@ -3,21 +3,21 @@
  * Windows 3.1 Style Interactive Desktop Environment
  */
 
-import { WindowManager } from './managers/WindowManager.js?v=18';
-import { SoundManager } from './managers/SoundManager.js?v=18';
-import { DesktopGridManager } from './managers/DesktopGridManager.js?v=18';
-import { StorageManager } from './managers/StorageManager.js?v=18';
-import { DialogManager } from './managers/DialogManager.js?v=18';
-import { DesktopIcon } from './components/DesktopIcon.js?v=18';
-import { TaskbarPreview } from './components/TaskbarPreview.js?v=18';
-import { Icons } from './icons.js?v=18';
-import { DESKTOP_APPS } from './desktopApps.js?v=18';
-import { VFS } from './vfs.js?v=18';
-import { measureText, drawText, glyphPixels, LINE_HEIGHT as PIXEL_LINE_HEIGHT } from './pixelFont.js?v=18';
-import { ScreenSaver } from './managers/ScreenSaver.js?v=18';
-import { BiosSetup } from './components/BiosSetup.js?v=18';
-import { getSetting } from './settings.js?v=18';
-import { lang, t, setLanguage, applyStaticTranslations } from './i18n.js?v=18';
+import { WindowManager } from './managers/WindowManager.js?v=19';
+import { SoundManager } from './managers/SoundManager.js?v=19';
+import { DesktopGridManager } from './managers/DesktopGridManager.js?v=19';
+import { StorageManager } from './managers/StorageManager.js?v=19';
+import { DialogManager } from './managers/DialogManager.js?v=19';
+import { DesktopIcon } from './components/DesktopIcon.js?v=19';
+import { TaskbarPreview } from './components/TaskbarPreview.js?v=19';
+import { Icons } from './icons.js?v=19';
+import { DESKTOP_APPS } from './desktopApps.js?v=19';
+import { VFS } from './vfs.js?v=19';
+import { measureText, drawText, glyphPixels, LINE_HEIGHT as PIXEL_LINE_HEIGHT } from './pixelFont.js?v=19';
+import { ScreenSaver } from './managers/ScreenSaver.js?v=19';
+import { BiosSetup } from './components/BiosSetup.js?v=19';
+import { getSetting } from './settings.js?v=19';
+import { lang, t, setLanguage, applyStaticTranslations } from './i18n.js?v=19';
 
 function replaceDataIcons() {
     document.querySelectorAll('[data-icon]').forEach(el => {
@@ -28,8 +28,8 @@ function replaceDataIcons() {
         }
     });
 }
-import { Apps } from './apps/index.js?v=18';
-import { ControlApp } from './apps/ControlApp.js?v=18';
+import { Apps } from './apps/index.js?v=19';
+import { ControlApp } from './apps/ControlApp.js?v=19';
 
 // ===========================================
 // TASKBAR & START MENU MANAGER

@@ -3,15 +3,16 @@
  * Works on the same disk as Explorer and Notepad (js/vfs.js).
  */
 
-import { Icons } from '../icons.js?v=18';
-import { WindowManager } from '../managers/WindowManager.js?v=18';
-import { SoundManager } from '../managers/SoundManager.js?v=18';
-import { Profile, githubUrl } from '../config.js?v=18';
-import { VFS } from '../vfs.js?v=18';
-import { NotepadApp } from './NotepadApp.js?v=18';
-import { printText } from './PrinterApp.js?v=18';
-import { DESKTOP_APPS } from '../desktopApps.js?v=18';
-import { funCommands, CANCEL } from './terminalFun.js?v=18';
+import { Icons } from '../icons.js?v=19';
+import { WindowManager } from '../managers/WindowManager.js?v=19';
+import { SoundManager } from '../managers/SoundManager.js?v=19';
+import { Profile, githubUrl } from '../config.js?v=19';
+import { VFS } from '../vfs.js?v=19';
+import { NotepadApp } from './NotepadApp.js?v=19';
+import { CodeApp } from './CodeApp.js?v=19';
+import { printText } from './PrinterApp.js?v=19';
+import { DESKTOP_APPS } from '../desktopApps.js?v=19';
+import { funCommands, CANCEL } from './terminalFun.js?v=19';
 
 // "open blocks", "open blocks.exe", "open tetris", "open task manager": every app on the desktop
 const appNames = () => Object.fromEntries(DESKTOP_APPS.flatMap(app => [
@@ -30,7 +31,7 @@ const ALIASES = {
 };
 
 // Commands whose last argument is a path, for Tab completion
-const PATH_COMMANDS = ['cd', 'chdir', 'dir', 'ls', 'type', 'cat', 'tree', 'open', 'start', 'notepad', 'edit', 'print', 'del', 'erase', 'rd', 'rmdir', 'md', 'mkdir'];
+const PATH_COMMANDS = ['cd', 'chdir', 'dir', 'ls', 'type', 'cat', 'tree', 'open', 'start', 'notepad', 'edit', 'code', 'print', 'del', 'erase', 'rd', 'rmdir', 'md', 'mkdir'];
 
 const pathOf = parts => VFS.toString(parts);
 const pad = (text, width) => String(text).padEnd(width, ' ');
@@ -70,6 +71,7 @@ export const TerminalApp = {
   type      - Display file contents
   tree      - Show the folder tree
   notepad   - Edit a file in Notepad (creates it if needed)
+  code      - Edit and run .js / .html / .css in Code.exe
   print     - Print a text file
   md        - Make a directory
   rd        - Remove a directory (/S with everything inside)
@@ -213,6 +215,20 @@ Portfolio OS [Version 1.0.2026]
             return '';
         },
 
+        code: (app, args) => {
+            if (!args.length) {
+                WindowManager.createWindow('code');
+                return '';
+            }
+            const target = app.resolve(args.join(' '), { parent: true });
+            if (!target) return 'The system cannot find the path specified.';
+            if (VFS.isDir(target.node)) return 'Access is denied.';
+            if (target.node && !VFS.isText(target.node)) return `Cannot edit ${leaf(target.parts)}: not a text file.`;
+            if (!target.node && !VFS.write(target.parts, '')) return 'Cannot create the file.';
+            CodeApp.openPath(target.parts);
+            return '';
+        },
+
         print: (app, args) => {
             if (!args.length) return 'Name of list device [PRN]: no file given.';
             const target = app.resolve(args.join(' '));
@@ -297,7 +313,7 @@ Portfolio OS [Version 1.0.2026]
 
         doom: async () => {
             try {
-                const { playDoomIntro } = await import('../doomIntro.js?v=18');
+                const { playDoomIntro } = await import('../doomIntro.js?v=19');
                 playDoomIntro(() => document.querySelector('#window-terminal #terminalInput')?.focus());
             } catch (err) {
                 console.error('DOOM failed to load:', err);

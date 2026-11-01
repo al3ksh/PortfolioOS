@@ -2,11 +2,11 @@
  * Contact App - Contact form with email simulation
  */
 
-import { Icons } from '../icons.js?v=18';
-import { Profile, githubUrl } from '../config.js?v=18';
-import { t, lang } from '../i18n.js?v=18';
-import { SoundManager } from '../managers/SoundManager.js?v=18';
-import { enhanceSelects } from '../winSelect.js?v=18';
+import { Icons } from '../icons.js?v=19';
+import { Profile, githubUrl } from '../config.js?v=19';
+import { t, lang } from '../i18n.js?v=19';
+import { SoundManager } from '../managers/SoundManager.js?v=19';
+import { enhanceSelects } from '../winSelect.js?v=19';
 
 const escapeHtml = (value) => {
     const div = document.createElement('div');

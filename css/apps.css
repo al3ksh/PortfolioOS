@@ -3721,6 +3721,10 @@
         border-color: var(--win-dark-gray) var(--win-white) var(--win-white) var(--win-dark-gray);
     }
 
+    .win-btn:disabled {
+        color: var(--content-dim);
+    }
+
     .win-btn:hover {
         background: var(--win-gray);
     }
@@ -4712,4 +4716,158 @@
     font-size: 11px;
     background: var(--win-gray);
     border-top: 1px solid var(--win-dark-gray);
+}
+
+/* ===========================================
+   Code.exe - Turbo-IDE style editor; its own colours in every theme
+   =========================================== */
+
+.code-app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--win-gray);
+}
+
+.code-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    border-bottom: 1px solid var(--win-dark-gray);
+    font-size: 12px;
+}
+
+.code-toolbar .win-btn {
+    min-width: 92px;
+    padding: 3px 10px 3px 6px;
+    gap: 6px;
+    font-size: 12px;
+}
+
+.code-toolbar .win-btn svg { width: 16px; height: 16px; flex: none; image-rendering: pixelated; }
+.code-toolbar .win-btn:disabled svg { filter: grayscale(1); opacity: 0.45; }
+
+.code-state { color: var(--content-muted); }
+.code-lang { margin-left: auto; font-weight: bold; }
+
+.code-editor {
+    --code-line: 18px;
+    flex: 3 1 0;
+    min-height: 120px;
+    display: flex;
+    overflow: hidden;
+    background: #0000AA;
+    border: 2px inset var(--win-dark-gray);
+    margin: 4px 6px 0;
+    font: 13px/var(--code-line) var(--font-mono);
+}
+
+.code-gutter {
+    flex: none;
+    min-width: 40px;
+    padding: 6px 6px 6px 4px;
+    color: #5555FF;
+    background: #000080;
+    text-align: right;
+    white-space: pre;
+    user-select: none;
+    will-change: transform;
+}
+
+.code-area {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* .code-editor prefix: beats the dark themes' "textarea { background; color }" */
+.code-editor .code-highlight,
+.code-editor .code-input {
+    margin: 0;
+    padding: 6px 8px;
+    font: inherit;
+    letter-spacing: 0;
+    tab-size: 2;
+    white-space: pre;
+    border: 0;
+}
+
+.code-highlight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-width: 100%;
+    color: #FFFF55;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.code-editor .code-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    resize: none;
+    overflow: auto;
+    color: transparent;
+    background: transparent;
+    caret-color: #FFFFFF;
+    outline: none;
+    user-select: text;
+}
+
+.code-editor .code-input::selection { background: rgba(255, 255, 255, 0.35); }
+
+.tok-kw, .tok-tag, .tok-sel { color: #FFFFFF; font-weight: bold; }
+.tok-str { color: #55FFFF; }
+.tok-com { color: #AAAAAA; font-style: italic; }
+.tok-num { color: #FF77FF; }
+.tok-fn, .tok-attr { color: #55FF55; }
+.tok-prop { color: #55FFFF; }
+
+.code-output {
+    flex: 2 1 0;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    margin: 4px 6px;
+    border: 2px inset var(--win-dark-gray);
+    background: #000;
+}
+
+.code-preview {
+    flex: 3 1 0;
+    min-height: 0;
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid #404040;
+    background: #FFF;
+}
+
+.code-console {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: auto;
+    padding: 4px 6px;
+    color: #C0C0C0;
+    font: 12px/1.45 var(--font-mono);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    user-select: text;
+}
+
+.code-output.has-preview .code-console { flex: 1 1 0; max-height: 40%; }
+.code-line.is-error { color: #FF5555; }
+.code-line.is-warn { color: #FFFF55; }
+.code-line.is-info { color: #55FFFF; opacity: 0.8; }
+
+.code-status {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 2px 8px 4px;
+    font-size: 11px;
+    color: var(--content-muted);
 }

@@ -7,9 +7,9 @@
  * and its links open in a new tab.
  */
 
-import { Icons } from '../icons.js?v=18';
-import { PortfolioApp } from './PortfolioApp.js?v=18';
-import { t, lang } from '../i18n.js?v=18';
+import { Icons } from '../icons.js?v=19';
+import { PortfolioApp } from './PortfolioApp.js?v=19';
+import { t, lang } from '../i18n.js?v=19';
 
 const cvFile = () => (lang === 'pl' ? 'cv.pl.html' : 'cv.html');
 const frame = () => document.querySelector('#window-simplemode .simplemode-frame');

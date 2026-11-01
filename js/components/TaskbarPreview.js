@@ -3,7 +3,7 @@
  * Desktop only; the snapshot is a static clone taken when the preview opens.
  */
 
-import { WindowManager } from '../managers/WindowManager.js?v=18';
+import { WindowManager } from '../managers/WindowManager.js?v=19';
 
 const SHOW_DELAY = 450;
 const HIDE_DELAY = 120;
