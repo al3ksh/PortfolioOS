@@ -11,11 +11,11 @@
  * shortcuts in Users\<name>\Desktop, so an icon thrown away goes the same way.
  */
 
-import { Icons } from './icons.js?v=20';
-import { Profile } from './config.js?v=20';
-import { loc } from './i18n.js?v=20';
-import { cvText, skillLines } from './cvText.js?v=20';
-import { DESKTOP_APPS } from './desktopApps.js?v=20';
+import { Icons } from './icons.js?v=21';
+import { Profile } from './config.js?v=21';
+import { loc } from './i18n.js?v=21';
+import { cvText, skillLines } from './cvText.js?v=21';
+import { DESKTOP_APPS } from './desktopApps.js?v=21';
 
 const BS = String.fromCharCode(92);
 const STORE = 'vfs-changes';

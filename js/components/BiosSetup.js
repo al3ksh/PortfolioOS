@@ -3,11 +3,11 @@
  * Settings are real: theme, CRT, sound, language, quick boot and screen saver.
  */
 
-import { Profile } from '../config.js?v=20';
-import { lang, setLanguage } from '../i18n.js?v=20';
-import { SoundManager } from '../managers/SoundManager.js?v=20';
-import { SCREENSAVERS } from '../screensavers.js?v=20';
-import { getSetting, setSetting, DEFAULTS } from '../settings.js?v=20';
+import { Profile } from '../config.js?v=21';
+import { lang, setLanguage } from '../i18n.js?v=21';
+import { SoundManager } from '../managers/SoundManager.js?v=21';
+import { SCREENSAVERS } from '../screensavers.js?v=21';
+import { getSetting, setSetting, DEFAULTS } from '../settings.js?v=21';
 
 const ON_OFF = [['true', 'Enabled'], ['false', 'Disabled']];
 const THEMES = [['default', 'Teal'], ['dark', 'Dark'], ['hotdog', 'Hot Dog'], ['matrix', 'Matrix'], ['clouds', 'Clouds'], ['win98', 'Steel'], ['macos', 'Dither'], ['ubuntu', 'Aubergine']];

@@ -6,7 +6,7 @@
  * Everything it needs is in data-* attributes written by scripts/build-static.mjs.
  */
 
-import { enhanceSelects } from './winSelect.js?v=20';
+import { enhanceSelects } from './winSelect.js?v=21';
 
 const lang = document.documentElement.lang === 'pl' ? 'pl' : 'en';
 

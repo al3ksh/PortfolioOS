@@ -3,16 +3,16 @@
  * Works on the same disk as Explorer and Notepad (js/vfs.js).
  */
 
-import { Icons } from '../icons.js?v=20';
-import { WindowManager } from '../managers/WindowManager.js?v=20';
-import { SoundManager } from '../managers/SoundManager.js?v=20';
-import { Profile, githubUrl } from '../config.js?v=20';
-import { VFS } from '../vfs.js?v=20';
-import { NotepadApp } from './NotepadApp.js?v=20';
-import { CodeApp } from './CodeApp.js?v=20';
-import { printText } from './PrinterApp.js?v=20';
-import { DESKTOP_APPS } from '../desktopApps.js?v=20';
-import { funCommands, CANCEL } from './terminalFun.js?v=20';
+import { Icons } from '../icons.js?v=21';
+import { WindowManager } from '../managers/WindowManager.js?v=21';
+import { SoundManager } from '../managers/SoundManager.js?v=21';
+import { Profile, githubUrl } from '../config.js?v=21';
+import { VFS } from '../vfs.js?v=21';
+import { NotepadApp } from './NotepadApp.js?v=21';
+import { CodeApp } from './CodeApp.js?v=21';
+import { printText } from './PrinterApp.js?v=21';
+import { DESKTOP_APPS } from '../desktopApps.js?v=21';
+import { funCommands, CANCEL } from './terminalFun.js?v=21';
 
 // "open blocks", "open blocks.exe", "open tetris", "open task manager": every app on the desktop
 const appNames = () => Object.fromEntries(DESKTOP_APPS.flatMap(app => [
@@ -313,7 +313,7 @@ Portfolio OS [Version 1.0.2026]
 
         doom: async () => {
             try {
-                const { playDoomIntro } = await import('../doomIntro.js?v=20');
+                const { playDoomIntro } = await import('../doomIntro.js?v=21');
                 playDoomIntro(() => document.querySelector('#window-terminal #terminalInput')?.focus());
             } catch (err) {
                 console.error('DOOM failed to load:', err);

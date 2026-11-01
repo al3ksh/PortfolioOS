@@ -246,7 +246,7 @@ PortfolioOS/
 2. Register it in [`js/apps/index.js`](js/apps/index.js).
 3. Add styles to `css/apps.css`.
 
-> Imports carry a `?v=20` query string for cache busting. Bump it across files when you deploy changes behind aggressive caches.
+> Imports carry a `?v=21` query string for cache busting. Bump it across files when you deploy changes behind aggressive caches.
 
 ## Browser support
 

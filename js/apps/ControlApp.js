@@ -2,15 +2,15 @@
  * Control Panel App - Settings / Theme switcher
  */
 
-import { Icons } from '../icons.js?v=20';
-import { t } from '../i18n.js?v=20';
-import { Profile, githubUrl } from '../config.js?v=20';
-import { SoundManager } from '../managers/SoundManager.js?v=20';
-import { ScreenSaver } from '../managers/ScreenSaver.js?v=20';
-import { SCREENSAVERS } from '../screensavers.js?v=20';
-import { getSetting, setSetting } from '../settings.js?v=20';
-import { WindowManager } from '../managers/WindowManager.js?v=20';
-import { enhanceSelects } from '../winSelect.js?v=20';
+import { Icons } from '../icons.js?v=21';
+import { t } from '../i18n.js?v=21';
+import { Profile, githubUrl } from '../config.js?v=21';
+import { SoundManager } from '../managers/SoundManager.js?v=21';
+import { ScreenSaver } from '../managers/ScreenSaver.js?v=21';
+import { SCREENSAVERS } from '../screensavers.js?v=21';
+import { getSetting, setSetting } from '../settings.js?v=21';
+import { WindowManager } from '../managers/WindowManager.js?v=21';
+import { enhanceSelects } from '../winSelect.js?v=21';
 
 export const ControlApp = {
     id: 'control',
@@ -225,7 +225,7 @@ export const ControlApp = {
         // Clear session button
         const clearBtn = window.querySelector('#clearSessionBtn');
         clearBtn?.addEventListener('click', async () => {
-            const { DialogManager } = await import('../managers/DialogManager.js?v=20');
+            const { DialogManager } = await import('../managers/DialogManager.js?v=21');
             const confirmed = await DialogManager.confirm(t('control.clearQ'), t('control.clearTitle'));
             if (confirmed) {
                 WindowManager.clearSavedState();

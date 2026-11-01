@@ -3,8 +3,8 @@
  * Data comes from the backend /api/status endpoint (see STATUS_SERVICES).
  */
 
-import { Icons } from '../icons.js?v=20';
-import { t, lang } from '../i18n.js?v=20';
+import { Icons } from '../icons.js?v=21';
+import { t, lang } from '../i18n.js?v=21';
 
 const REFRESH_INTERVAL = 60 * 1000;
 

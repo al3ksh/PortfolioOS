@@ -5,11 +5,11 @@
  * printText() sends any text file from the shared disk (Notepad, Explorer, Terminal).
  */
 
-import { Icons } from '../icons.js?v=20';
-import { t, lang } from '../i18n.js?v=20';
-import { WIDTH, center, cvLines } from '../cvText.js?v=20';
-import { SoundManager } from '../managers/SoundManager.js?v=20';
-import { WindowManager } from '../managers/WindowManager.js?v=20';
+import { Icons } from '../icons.js?v=21';
+import { t, lang } from '../i18n.js?v=21';
+import { WIDTH, center, cvLines } from '../cvText.js?v=21';
+import { SoundManager } from '../managers/SoundManager.js?v=21';
+import { WindowManager } from '../managers/WindowManager.js?v=21';
 
 const CHARS_PER_TICK = 6;
 const TICK_MS = 16;

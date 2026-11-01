@@ -2,8 +2,8 @@
  * Desktop Grid Manager - Handles icon grid layout like modern Windows
  */
 
-import { SoundManager } from './SoundManager.js?v=20';
-import { Icons } from '../icons.js?v=20';
+import { SoundManager } from './SoundManager.js?v=21';
+import { Icons } from '../icons.js?v=21';
 
 class DesktopGridManagerClass {
     constructor() {
@@ -387,10 +387,10 @@ class DesktopGridManagerClass {
             { label: 'Sort by Name', icon: Icons.ctxSort, action: () => this.sortByName() },
             { type: 'separator' },
             { label: 'Settings', icon: Icons.smSettings, action: () => {
-                import('../managers/WindowManager.js?v=20').then(m => m.WindowManager.createWindow('control'));
+                import('../managers/WindowManager.js?v=21').then(m => m.WindowManager.createWindow('control'));
             }},
             { label: 'System Info', icon: Icons.smInfo, action: () => {
-                import('../managers/WindowManager.js?v=20').then(m => m.WindowManager.createWindow('sysinfo'));
+                import('../managers/WindowManager.js?v=21').then(m => m.WindowManager.createWindow('sysinfo'));
             }}
         ];
 

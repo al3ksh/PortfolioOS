@@ -3,10 +3,10 @@
  * Opened from Projects.exe via ProjectViewerApp.open(repository).
  */
 
-import { Icons } from '../icons.js?v=20';
-import { WindowManager } from '../managers/WindowManager.js?v=20';
-import { renderMarkdown } from '../markdown.js?v=20';
-import { t, loc } from '../i18n.js?v=20';
+import { Icons } from '../icons.js?v=21';
+import { WindowManager } from '../managers/WindowManager.js?v=21';
+import { renderMarkdown } from '../markdown.js?v=21';
+import { t, loc } from '../i18n.js?v=21';
 
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'

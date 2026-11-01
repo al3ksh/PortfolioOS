@@ -2,9 +2,9 @@
  * Window Manager - Handles multiple windows, z-index, focus
  */
 
-import { Window } from '../components/Window.js?v=20';
-import { Apps } from '../apps/index.js?v=20';
-import { SoundManager } from './SoundManager.js?v=20';
+import { Window } from '../components/Window.js?v=21';
+import { Apps } from '../apps/index.js?v=21';
+import { SoundManager } from './SoundManager.js?v=21';
 
 // How long after a click a window still counts as opened by it (covers the double-click delay)
 const ORIGIN_TTL = 1500;

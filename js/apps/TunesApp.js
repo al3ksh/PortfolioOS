@@ -4,7 +4,7 @@
  * Keys like the real thing: Z prev, X play, C pause, V stop, B next.
  */
 
-import { Icons } from '../icons.js?v=20';
+import { Icons } from '../icons.js?v=21';
 
 const TRACKS = [
     { file: 'audio/sky-high.opus', artist: 'Elektronomia', title: 'Sky High', duration: 238, kbps: 132 },

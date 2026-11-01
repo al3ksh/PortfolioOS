@@ -2,13 +2,13 @@
    WIN 3.1 PORTFOLIO OS - MAIN STYLESHEET
    ============================================ */
 
-@import url('variables.css?v=20');
-@import url('base.css?v=20');
-@import url('boot.css?v=20');
-@import url('desktop.css?v=20');
-@import url('window.css?v=20');
-@import url('components.css?v=20');
-@import url('apps.css?v=20');
+@import url('variables.css?v=21');
+@import url('base.css?v=21');
+@import url('boot.css?v=21');
+@import url('desktop.css?v=21');
+@import url('window.css?v=21');
+@import url('components.css?v=21');
+@import url('apps.css?v=21');
 
 /* ============================================
    MOBILE RESPONSIVE STYLES

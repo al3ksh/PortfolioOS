@@ -717,6 +717,16 @@ button.calendar-full-date:hover {
     max-height: 16px;
 }
 
+.start-item[data-action="shutdown"] {
+    font-weight: bold;
+}
+
+.start-menu .start-item[data-action="shutdown"]:hover,
+.start-menu .start-item[data-action="shutdown"]:focus-visible {
+    background: #A00000;
+    color: #FFFFFF;
+}
+
 .start-menu-divider {
     height: 1px;
     background: var(--win-dark-gray);

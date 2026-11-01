@@ -7,12 +7,12 @@
  * backend has a GITHUB_TOKEN, otherwise the flags in Profile.projects (see github.js).
  */
 
-import { Icons } from '../icons.js?v=20';
-import { Profile, githubUrl } from '../config.js?v=20';
-import { t, loc, lang } from '../i18n.js?v=20';
-import { ProjectViewerApp } from './ProjectViewerApp.js?v=20';
-import { enhanceSelects } from '../winSelect.js?v=20';
-import { fetchRepositories, fetchPinnedFromSite, mergeProjects } from '../github.js?v=20';
+import { Icons } from '../icons.js?v=21';
+import { Profile, githubUrl } from '../config.js?v=21';
+import { t, loc, lang } from '../i18n.js?v=21';
+import { ProjectViewerApp } from './ProjectViewerApp.js?v=21';
+import { enhanceSelects } from '../winSelect.js?v=21';
+import { fetchRepositories, fetchPinnedFromSite, mergeProjects } from '../github.js?v=21';
 
 let repositories = Profile.projects;
 let liveRequest = null;

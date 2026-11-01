@@ -4578,12 +4578,12 @@
 .lb-empty { text-align: center; padding: var(--space-md) 0; }
 .lb-error { color: #C00000; font-weight: bold; }
 .lb-turnstile { min-height: 65px; display: flex; justify-content: center; }
-.lb-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 12px; background: var(--win-white); color: #000; border: 2px inset var(--win-gray); }
-.lb-table td { padding: 3px 6px; border-bottom: 1px solid #D0D0D0; white-space: nowrap; }
+.lb-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 12px; background: var(--content-bg); color: var(--content-text); border: 2px inset var(--win-gray); }
+.lb-table td { padding: 3px 6px; border-bottom: 1px solid color-mix(in srgb, var(--content-text) 18%, transparent); white-space: nowrap; }
 .lb-rank { width: 28px; text-align: right; }
 .lb-name { width: 100%; max-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: bold; }
 .lb-score { text-align: right; }
-.lb-date { color: #606060; font-size: 11px; }
+.lb-date { color: var(--content-muted); font-size: 11px; }
 .lb-mine td { background: #000080; color: #FFF; }
 .lb-mine .lb-date { color: #C0C0C0; }
 

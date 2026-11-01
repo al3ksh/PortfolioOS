@@ -10,12 +10,12 @@
  * The Time machine switches every page to its Wayback copy from a chosen year.
  */
 
-import { Icons } from '../icons.js?v=20';
-import { Profile, githubUrl, featuredProjects } from '../config.js?v=20';
-import { t, loc, lang } from '../i18n.js?v=20';
-import { WindowManager } from '../managers/WindowManager.js?v=20';
-import { ProjectViewerApp } from './ProjectViewerApp.js?v=20';
-import { enhanceSelects } from '../winSelect.js?v=20';
+import { Icons } from '../icons.js?v=21';
+import { Profile, githubUrl, featuredProjects } from '../config.js?v=21';
+import { t, loc, lang } from '../i18n.js?v=21';
+import { WindowManager } from '../managers/WindowManager.js?v=21';
+import { ProjectViewerApp } from './ProjectViewerApp.js?v=21';
+import { enhanceSelects } from '../winSelect.js?v=21';
 
 const TIME_MACHINE_YEARS = ['2015', '2010', '2005', '2000', '1996'];
 const FRAMEABLE_HOSTS = ['wikipedia.org', 'wikimedia.org', 'wiktionary.org', 'archive.org'];
